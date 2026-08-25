@@ -3,18 +3,21 @@ import { Link, useLocation } from 'react-router-dom';
 import { 
   ShoppingBag, 
   ShoppingCart, 
+  Heart,
   User, 
   Layers, 
   ShieldCheck,
-  Activity,
+  LogOut,
   Home
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 import { useHealth } from '../hooks/useHealth';
 
 const Navbar = () => {
   const location = useLocation();
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, logout, isAdmin } = useAuth();
+  const { totalItems, wishlistCount } = useCart();
   const { healthData, loading } = useHealth(15000);
 
   const isHealthy = healthData?.status === 'healthy';
@@ -26,11 +29,16 @@ const Navbar = () => {
     { name: 'Categories', path: '/categories', icon: Layers },
   ];
 
+  const initials = user ? (
+    (user.first_name?.[0] || user.username?.[0] || 'U').toUpperCase() +
+    (user.last_name?.[0] || (user.username?.[1] || '')).toUpperCase()
+  ) : 'CU';
+
   return (
     <header style={{
       borderBottom: '1px solid var(--border-color)',
-      backgroundColor: 'rgba(10, 14, 23, 0.85)',
-      backdropFilter: 'blur(12px)',
+      backgroundColor: 'rgba(10, 14, 23, 0.88)',
+      backdropFilter: 'blur(16px)',
       position: 'sticky',
       top: 0,
       zIndex: 50
@@ -119,7 +127,46 @@ const Navbar = () => {
             </span>
           </div>
 
-          {/* Cart Icon */}
+          {/* Wishlist Icon with Dynamic Badge */}
+          <Link
+            to="/wishlist"
+            style={{
+              position: 'relative',
+              padding: '0.5rem',
+              borderRadius: 'var(--radius-md)',
+              backgroundColor: 'var(--bg-surface)',
+              border: '1px solid var(--border-color)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: wishlistCount > 0 ? '#ec4899' : 'var(--text-primary)'
+            }}
+            aria-label="View Wishlist"
+            title="Saved Wishlist Items"
+          >
+            <Heart size={20} fill={wishlistCount > 0 ? '#ec4899' : 'none'} />
+            {wishlistCount > 0 && (
+              <span style={{
+                position: 'absolute',
+                top: '-4px',
+                right: '-4px',
+                background: '#ec4899',
+                color: '#fff',
+                fontSize: '0.7rem',
+                fontWeight: '700',
+                width: '18px',
+                height: '18px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {wishlistCount}
+              </span>
+            )}
+          </Link>
+
+          {/* Cart Icon with Dynamic Badge */}
           <Link
             to="/cart"
             style={{
@@ -134,6 +181,7 @@ const Navbar = () => {
               color: 'var(--text-primary)'
             }}
             aria-label="View Cart"
+            title="View Shopping Cart"
           >
             <ShoppingCart size={20} />
             <span style={{
@@ -149,21 +197,78 @@ const Navbar = () => {
               borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              transition: 'transform 0.2s ease'
             }}>
-              0
+              {totalItems}
             </span>
           </Link>
 
           {/* User Auth Links */}
-          {isAuthenticated ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Link to="/profile" className="btn btn-outline" style={{ padding: '0.5rem 0.9rem', fontSize: '0.85rem' }}>
-                <User size={16} />
-                Profile
+          {isAuthenticated && user ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+              <Link
+                to="/profile"
+                className="btn btn-outline"
+                style={{
+                  padding: '0.4rem 0.85rem',
+                  fontSize: '0.85rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  backgroundColor: 'var(--bg-surface)'
+                }}
+              >
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  background: 'var(--accent-gradient)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '0.7rem',
+                  fontWeight: '700',
+                  color: '#fff'
+                }}>
+                  {initials}
+                </div>
+                <span>{user.first_name || user.username}</span>
+                <span className={`badge ${user.role === 'admin' ? 'badge-danger' : 'badge-info'}`} style={{ padding: '0.15rem 0.45rem', fontSize: '0.68rem' }}>
+                  {user.role}
+                </span>
               </Link>
-              <button onClick={logout} className="btn btn-outline" style={{ padding: '0.5rem 0.9rem', fontSize: '0.85rem' }}>
-                Logout
+
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    padding: '0.4rem 0.75rem',
+                    borderRadius: 'var(--radius-md)',
+                    backgroundColor: 'rgba(99, 102, 241, 0.15)',
+                    border: '1px solid rgba(99, 102, 241, 0.4)',
+                    color: 'var(--accent-primary)',
+                    fontSize: '0.82rem',
+                    fontWeight: '700',
+                    textDecoration: 'none'
+                  }}
+                  title="Store Admin Management Suite"
+                >
+                  <ShieldCheck size={16} />
+                  <span>Admin</span>
+                </Link>
+              )}
+
+              <button
+                onClick={logout}
+                className="btn btn-outline"
+                style={{ padding: '0.45rem 0.75rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}
+                title="Logout"
+              >
+                <LogOut size={16} />
               </button>
             </div>
           ) : (
@@ -176,21 +281,6 @@ const Navbar = () => {
               </Link>
             </div>
           )}
-
-          {/* Admin link */}
-          <Link
-            to="/admin"
-            style={{
-              padding: '0.5rem',
-              borderRadius: 'var(--radius-md)',
-              color: 'var(--text-muted)',
-              display: 'flex',
-              alignItems: 'center'
-            }}
-            title="Admin Console"
-          >
-            <ShieldCheck size={20} />
-          </Link>
         </div>
       </div>
     </header>

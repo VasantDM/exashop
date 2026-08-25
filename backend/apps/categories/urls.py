@@ -1,7 +1,9 @@
 from django.urls import path
+from .views import CategoryListView, CategoryDetailView
 
 app_name = 'categories'
 
 urlpatterns = [
-    # Category endpoints will be added in Phase 3
+    path('', CategoryListView.as_view(), name='category-list'),
+    path('<str:slug>/', CategoryDetailView.as_view(), name='category-detail'),
 ]

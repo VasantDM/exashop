@@ -1,0 +1,45 @@
+from django.urls import path
+from .views import (
+    AdminDashboardOverviewView,
+    AdminProductListCreateView,
+    AdminProductDetailView,
+    AdminProductVariantCreateView,
+    AdminProductVariantDeleteView,
+    AdminCategoryListCreateView,
+    AdminCategoryDetailView,
+    AdminOrderListView,
+    AdminOrderDetailView,
+    AdminOrderStatusUpdateView,
+    AdminCustomerListView,
+    AdminCustomerToggleActiveView,
+    AdminInventoryListView,
+    AdminInventoryQuickUpdateView,
+)
+
+urlpatterns = [
+    # 1. Executive Dashboard KPI & Analytics
+    path('dashboard/', AdminDashboardOverviewView.as_view(), name='admin-dashboard'),
+
+    # 2. Product & Variant Management
+    path('products/', AdminProductListCreateView.as_view(), name='admin-product-list-create'),
+    path('products/<int:pk>/', AdminProductDetailView.as_view(), name='admin-product-detail'),
+    path('products/<int:pk>/variants/', AdminProductVariantCreateView.as_view(), name='admin-product-variant-create'),
+    path('products/variants/<int:var_pk>/', AdminProductVariantDeleteView.as_view(), name='admin-product-variant-delete'),
+
+    # 3. Category Management
+    path('categories/', AdminCategoryListCreateView.as_view(), name='admin-category-list-create'),
+    path('categories/<int:pk>/', AdminCategoryDetailView.as_view(), name='admin-category-detail'),
+
+    # 4. Order Management
+    path('orders/', AdminOrderListView.as_view(), name='admin-order-list'),
+    path('orders/<str:order_number>/', AdminOrderDetailView.as_view(), name='admin-order-detail'),
+    path('orders/<str:order_number>/status/', AdminOrderStatusUpdateView.as_view(), name='admin-order-status-update'),
+
+    # 5. Customer Directory & Account Management
+    path('customers/', AdminCustomerListView.as_view(), name='admin-customer-list'),
+    path('customers/<int:pk>/toggle-active/', AdminCustomerToggleActiveView.as_view(), name='admin-customer-toggle-active'),
+
+    # 6. Inventory Radar & Quick Stock Adjuster
+    path('inventory/', AdminInventoryListView.as_view(), name='admin-inventory-list'),
+    path('inventory/update-stock/', AdminInventoryQuickUpdateView.as_view(), name='admin-inventory-update-stock'),
+]

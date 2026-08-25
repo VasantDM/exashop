@@ -14,6 +14,8 @@ api_v1_patterns = [
     path('orders/', include('apps.orders.urls')),
     path('payments/', include('apps.payments.urls')),
     path('reviews/', include('apps.reviews.urls')),
+    path('admin/', include('apps.admin_dashboard.urls')),
+    path('admin-dashboard/', include('apps.admin_dashboard.urls')),
 ]
 
 urlpatterns = [
