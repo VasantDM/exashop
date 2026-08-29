@@ -23,6 +23,7 @@ import { getAddresses, createAddress } from '../services/authService';
 import { createOrder } from '../services/orderService';
 import { createPaymentIntent } from '../services/paymentService';
 import { lookupPincode } from '../utils/pincodeLookup';
+import { openRazorpayCheckout } from '../utils/razorpay';
 import PaymentModal from '../components/PaymentModal';
 
 const Checkout = () => {
@@ -142,10 +143,6 @@ const Checkout = () => {
     }
   }, [isAuthenticated]);
 
-  const handleQuickDemoLogin = async () => {
-    await login('customer@shopigo.com', 'Customer123!');
-  };
-
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
     setErrorMessage('');
@@ -183,8 +180,33 @@ const Checkout = () => {
       if (paymentMethod === 'cod') {
         await refreshCart();
         navigate(`/orders/${res.order.order_number}`);
+      } else if (paymentMethod === 'razorpay') {
+        // Step 2b: Create payment gateway intent and open Razorpay Checkout
+        const intent = await createPaymentIntent({
+          orderNumber: res.order.order_number,
+          gateway: 'razorpay'
+        });
+        setPendingOrder(res.order);
+        setCurrentPaymentIntent(intent);
+
+        // Open Razorpay Standard Checkout Popup
+        await openRazorpayCheckout({
+          paymentIntent: intent,
+          onSuccess: async (verifyResult) => {
+            await refreshCart();
+            navigate(`/orders/${res.order.order_number}`);
+          },
+          onError: (err) => {
+            console.error('Razorpay popup error:', err);
+            setIsPaymentModalOpen(true);
+          },
+          onDismiss: () => {
+            // User closed Razorpay modal without completing payment
+            setIsPaymentModalOpen(true);
+          }
+        });
       } else {
-        // Step 2b: Create payment gateway intent and open modal
+        // Step 2c: Instant card modal
         const intent = await createPaymentIntent({
           orderNumber: res.order.order_number,
           gateway: paymentMethod
@@ -249,11 +271,11 @@ const Checkout = () => {
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-            <button onClick={handleQuickDemoLogin} className="btn btn-primary" style={{ padding: '0.85rem' }}>
-              <Sparkles size={16} /> 1-Click Demo Customer Checkout
-            </button>
-            <Link to="/login" className="btn btn-outline" style={{ padding: '0.85rem' }}>
-              Sign In to Existing Account
+            <Link to="/login" className="btn btn-primary" style={{ padding: '0.85rem' }}>
+              Sign In to Your Account
+            </Link>
+            <Link to="/register" className="btn btn-outline" style={{ padding: '0.85rem' }}>
+              Create New Account
             </Link>
           </div>
         </div>

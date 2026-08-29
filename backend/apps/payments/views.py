@@ -1,7 +1,9 @@
 import hmac
 import hashlib
 import uuid
+import logging
 from decimal import Decimal
+import razorpay
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.db import transaction
@@ -18,15 +20,23 @@ from .serializers import (
 )
 from apps.orders.models import Order, OrderStatusHistory
 
+logger = logging.getLogger(__name__)
 
-# Default Test Gateway Credentials (Overridable via settings.py / .env)
-RAZORPAY_KEY_ID = getattr(settings, 'RAZORPAY_KEY_ID', 'rzp_test_shopigo2026')
-RAZORPAY_KEY_SECRET = getattr(settings, 'RAZORPAY_KEY_SECRET', 'secret_shopigo_key_2026')
+# Razorpay & Gateway Credentials from settings
+RAZORPAY_KEY_ID = getattr(settings, 'RAZORPAY_KEY_ID', 'rzp_test_TV1JcZlkdJ5SZh')
+RAZORPAY_KEY_SECRET = getattr(settings, 'RAZORPAY_KEY_SECRET', 'p1XZnuBGnGYn1gHIB9pR8pRJ')
+RAZORPAY_WEBHOOK_SECRET = getattr(settings, 'RAZORPAY_WEBHOOK_SECRET', 'Kiran@2003')
 STRIPE_PUBLISHABLE_KEY = getattr(settings, 'STRIPE_PUBLISHABLE_KEY', 'pk_test_shopigo_stripe_2026')
+
+try:
+    razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+except Exception as e:
+    logger.error(f"Failed to initialize Razorpay client: {e}")
+    razorpay_client = None
 
 
 def generate_gateway_order_id(gateway):
-    """Generate a realistic gateway order ID for client SDK initialization."""
+    """Generate a realistic gateway order ID for fallback/client SDK initialization."""
     unique_suffix = uuid.uuid4().hex[:14]
     if gateway == 'razorpay':
         return f"order_{unique_suffix}"
@@ -37,6 +47,25 @@ def generate_gateway_order_id(gateway):
     return f"cod_{unique_suffix}"
 
 
+def create_razorpay_order(amount_in_paise, receipt, notes=None):
+    """Create a real order on Razorpay servers via the official SDK."""
+    if razorpay_client:
+        try:
+            order_data = {
+                'amount': amount_in_paise,
+                'currency': 'INR',
+                'receipt': str(receipt)[:40],
+                'notes': notes or {},
+                'payment_capture': 1,
+            }
+            rzp_order = razorpay_client.order.create(data=order_data)
+            if rzp_order and 'id' in rzp_order:
+                return rzp_order['id']
+        except Exception as e:
+            logger.warning(f"Razorpay API order creation failed or offline, falling back: {e}")
+    return generate_gateway_order_id('razorpay')
+
+
 def verify_razorpay_signature(order_id, payment_id, signature, secret=RAZORPAY_KEY_SECRET):
     """Verify HMAC SHA256 signature for Razorpay payments."""
     if not signature:
@@ -44,9 +73,29 @@ def verify_razorpay_signature(order_id, payment_id, signature, secret=RAZORPAY_K
     # If using test simulator sandbox token, accept test verification
     if signature.startswith('sim_sig_') or signature == 'test_valid_signature':
         return True
-    msg = f"{order_id}|{payment_id}".encode('utf-8')
-    generated_signature = hmac.new(secret.encode('utf-8'), msg, hashlib.sha256).hexdigest()
-    return hmac.compare_digest(generated_signature, signature)
+
+    # 1. Try official SDK verification
+    if razorpay_client:
+        try:
+            razorpay_client.utility.verify_payment_signature({
+                'razorpay_order_id': order_id,
+                'razorpay_payment_id': payment_id,
+                'razorpay_signature': signature
+            })
+            return True
+        except razorpay.errors.SignatureVerificationError:
+            pass
+        except Exception as e:
+            logger.warning(f"Razorpay SDK signature verification exception: {e}")
+
+    # 2. Standard HMAC-SHA256 signature check
+    try:
+        msg = f"{order_id}|{payment_id}".encode('utf-8')
+        generated_signature = hmac.new(secret.encode('utf-8'), msg, hashlib.sha256).hexdigest()
+        return hmac.compare_digest(generated_signature, signature)
+    except Exception as e:
+        logger.error(f"Error computing HMAC SHA256: {e}")
+        return False
 
 
 class PaymentIntentCreateView(APIView):
@@ -67,11 +116,25 @@ class PaymentIntentCreateView(APIView):
 
         order = get_object_or_404(Order, order_number=order_number, user=user)
 
-        # Generate or reuse gateway order ID
-        gateway_order_id = generate_gateway_order_id(gateway)
-
         # Amount in paise (1 INR = 100 paise) for Razorpay / Stripe
         amount_in_paise = int(order.grand_total * 100)
+
+        customer_name = order.shipping_address.get('full_name') or user.full_name or user.username
+        customer_phone = order.shipping_address.get('phone_number') or user.phone_number or ''
+
+        # Generate or create gateway order ID
+        if gateway == 'razorpay':
+            gateway_order_id = create_razorpay_order(
+                amount_in_paise=amount_in_paise,
+                receipt=f"rcpt_{order.order_number[:15]}",
+                notes={
+                    'order_number': order.order_number,
+                    'customer_email': user.email,
+                    'customer_name': customer_name,
+                }
+            )
+        else:
+            gateway_order_id = generate_gateway_order_id(gateway)
 
         # Record or update PaymentTransaction
         payment_txn = PaymentTransaction.objects.filter(order=order, user=user).order_by('-created_at').first()
@@ -92,9 +155,6 @@ class PaymentIntentCreateView(APIView):
                 currency='INR',
                 status='pending' if gateway != 'cod' else 'initiated',
             )
-
-        customer_name = order.shipping_address.get('full_name') or user.full_name or user.username
-        customer_phone = order.shipping_address.get('phone_number') or user.phone_number or ''
 
         response_payload = {
             'gateway': gateway,
@@ -228,13 +288,39 @@ class PaymentWebhookView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
+        webhook_signature = request.headers.get('X-Razorpay-Signature') or request.META.get('HTTP_X_RAZORPAY_SIGNATURE', '')
+        raw_body = request.body.decode('utf-8') if hasattr(request, 'body') and request.body else ''
+
+        # If Razorpay signature is provided, verify webhook signature
+        if webhook_signature and RAZORPAY_WEBHOOK_SECRET and raw_body:
+            is_valid_webhook = False
+            if razorpay_client:
+                try:
+                    razorpay_client.utility.verify_webhook_signature(
+                        raw_body,
+                        webhook_signature,
+                        RAZORPAY_WEBHOOK_SECRET
+                    )
+                    is_valid_webhook = True
+                except Exception as e:
+                    logger.warning(f"Razorpay webhook SDK verification failed: {e}")
+
+            if not is_valid_webhook:
+                expected_sig = hmac.new(
+                    RAZORPAY_WEBHOOK_SECRET.encode('utf-8'),
+                    raw_body.encode('utf-8'),
+                    hashlib.sha256
+                ).hexdigest()
+                if not hmac.compare_digest(expected_sig, webhook_signature):
+                    return Response({'error': 'Invalid webhook signature'}, status=status.HTTP_400_BAD_REQUEST)
+
         event = request.data.get('event')
         payload = request.data.get('payload', {})
 
         # Handle Razorpay / Stripe captured events
-        if event in ['payment.captured', 'charge.succeeded', 'order.paid']:
+        if event in ['payment.captured', 'charge.succeeded', 'order.paid', 'payment.authorized']:
             payment_entity = payload.get('payment', {}).get('entity', {})
-            order_id = payment_entity.get('order_id')
+            order_id = payment_entity.get('order_id') or payload.get('order', {}).get('entity', {}).get('id')
 
             if order_id:
                 txn = PaymentTransaction.objects.filter(gateway_order_id=order_id).first()
@@ -254,7 +340,20 @@ class PaymentWebhookView(APIView):
                         OrderStatusHistory.objects.create(
                             order=order,
                             status=order.status,
-                            message=f"Webhook confirmed payment capture of ₹{order.grand_total}."
+                            message=f"Razorpay Webhook confirmed payment capture of ₹{order.grand_total} (Txn: {txn.gateway_payment_id})."
                         )
+        elif event in ['payment.failed']:
+            payment_entity = payload.get('payment', {}).get('entity', {})
+            order_id = payment_entity.get('order_id')
+            if order_id:
+                txn = PaymentTransaction.objects.filter(gateway_order_id=order_id).first()
+                if txn and txn.status != 'success':
+                    txn.status = 'failed'
+                    txn.error_message = payment_entity.get('error_description', 'Payment failed on Razorpay')
+                    txn.metadata = payload
+                    txn.save()
+                    order = txn.order
+                    order.payment_status = 'failed'
+                    order.save(update_fields=['payment_status'])
 
         return Response({'status': 'webhook received'}, status=status.HTTP_200_OK)

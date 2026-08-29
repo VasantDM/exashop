@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from .models import Address
+from .models import Address, PasswordResetOTP
 
 User = get_user_model()
 
@@ -227,3 +227,47 @@ class AdminUserSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
         )
+
+
+class SendPasswordResetOTPSerializer(serializers.Serializer):
+    """Serializer to validate email for password reset OTP generation."""
+    email = serializers.EmailField(required=True)
+
+    def validate_email(self, value):
+        normalized_email = value.lower().strip()
+        if not User.objects.filter(email__iexact=normalized_email).exists():
+            raise serializers.ValidationError('No registered account found with this email address.')
+        return normalized_email
+
+
+class VerifyPasswordResetOTPSerializer(serializers.Serializer):
+    """Serializer to verify 6-digit OTP code and set new password."""
+    email = serializers.EmailField(required=True)
+    otp = serializers.CharField(required=True, max_length=6, min_length=6)
+    new_password = serializers.CharField(required=True, write_only=True, min_length=6)
+    confirm_password = serializers.CharField(required=True, write_only=True, min_length=6)
+
+    def validate(self, attrs):
+        email = attrs.get('email', '').lower().strip()
+        otp = attrs.get('otp', '').strip()
+        new_password = attrs.get('new_password')
+        confirm_password = attrs.get('confirm_password')
+
+        if new_password != confirm_password:
+            raise serializers.ValidationError({'confirm_password': 'Passwords do not match.'})
+
+        user = User.objects.filter(email__iexact=email).first()
+        if not user:
+            raise serializers.ValidationError({'email': 'User with this email does not exist.'})
+
+        otp_record = PasswordResetOTP.objects.filter(user=user, otp=otp, is_used=False).order_by('-created_at').first()
+        if not otp_record:
+            raise serializers.ValidationError({'otp': 'Invalid OTP code.'})
+
+        if not otp_record.is_valid:
+            raise serializers.ValidationError({'otp': 'This OTP code has expired. Please request a new one.'})
+
+        attrs['user'] = user
+        attrs['otp_record'] = otp_record
+        return attrs
+

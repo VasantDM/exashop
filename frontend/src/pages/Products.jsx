@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { getProducts, getCategories, getBrands } from '../services/catalogService';
 import { useCart } from '../context/CartContext';
+import VariantModal from '../components/VariantModal';
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -41,6 +42,19 @@ const Products = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [variantModalProduct, setVariantModalProduct] = useState(null);
+
+  const handleProductCartClick = (product, e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (product.has_variants && product.variants && product.variants.length > 0) {
+      setVariantModalProduct(product);
+    } else {
+      addToCart(product.id, 1);
+    }
+  };
 
   // Load Categories and Brands on Mount
   useEffect(() => {
@@ -621,40 +635,31 @@ const Products = () => {
                     </div>
 
                     <div style={{ display: 'flex', gap: '0.4rem' }}>
-                      {prod.has_variants ? (
-                        <Link
-                          to={`/products/${prod.slug}`}
-                          className="btn btn-primary"
-                          style={{ padding: '0.45rem 0.8rem', fontSize: '0.8rem' }}
-                          title="Select Size & Color"
-                        >
-                          Select Options
-                        </Link>
-                      ) : (
-                        <button
-                          onClick={() => addToCart(prod.id, 1)}
-                          disabled={!prod.in_stock}
-                          className={`btn ${isInCart(prod.id) ? 'btn-outline' : 'btn-primary'}`}
-                          style={{
-                            padding: '0.45rem 0.75rem',
-                            fontSize: '0.8rem',
-                            opacity: !prod.in_stock ? 0.4 : 1,
-                            cursor: !prod.in_stock ? 'not-allowed' : 'pointer',
-                            borderColor: isInCart(prod.id) ? 'var(--accent-emerald)' : undefined,
-                            color: isInCart(prod.id) ? 'var(--accent-emerald)' : undefined,
-                            backgroundColor: isInCart(prod.id) ? 'rgba(16, 185, 129, 0.12)' : undefined
-                          }}
-                          title={isInCart(prod.id) ? 'Already Added to Cart' : 'Add to Cart'}
-                        >
-                          {isInCart(prod.id) ? (
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                              <Check size={13} /> In Cart
-                            </span>
-                          ) : (
+                      <button
+                        onClick={(e) => handleProductCartClick(prod, e)}
+                        disabled={!prod.in_stock}
+                        className={`btn ${isInCart(prod.id) ? 'btn-outline' : 'btn-primary'}`}
+                        style={{
+                          padding: '0.45rem 0.75rem',
+                          fontSize: '0.8rem',
+                          opacity: !prod.in_stock ? 0.4 : 1,
+                          cursor: !prod.in_stock ? 'not-allowed' : 'pointer',
+                          borderColor: isInCart(prod.id) ? 'var(--accent-emerald)' : undefined,
+                          color: isInCart(prod.id) ? 'var(--accent-emerald)' : undefined,
+                          backgroundColor: isInCart(prod.id) ? 'rgba(16, 185, 129, 0.12)' : undefined
+                        }}
+                        title={prod.has_variants ? 'Choose Size & Color' : isInCart(prod.id) ? 'Already Added to Cart' : 'Add to Cart'}
+                      >
+                        {isInCart(prod.id) ? (
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <Check size={13} /> In Cart
+                          </span>
+                        ) : (
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                             <ShoppingCart size={14} />
-                          )}
-                        </button>
-                      )}
+                          </span>
+                        )}
+                      </button>
 
                       <Link
                         to={`/products/${prod.slug}`}
@@ -721,6 +726,13 @@ const Products = () => {
           )}
         </div>
       </div>
+
+      {/* Variant Selection Modal Popup */}
+      <VariantModal
+        isOpen={Boolean(variantModalProduct)}
+        onClose={() => setVariantModalProduct(null)}
+        product={variantModalProduct}
+      />
     </div>
   );
 };

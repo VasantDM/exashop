@@ -15,7 +15,8 @@ import {
   Save,
   Lock,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Package
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { 
@@ -319,7 +320,10 @@ const Profile = () => {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+            <Link to="/orders" className="btn btn-primary" style={{ fontSize: '0.85rem', padding: '0.6rem 1.2rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <Package size={16} /> My Orders
+            </Link>
             <button onClick={logout} className="btn btn-outline" style={{ fontSize: '0.85rem', padding: '0.6rem 1.2rem' }}>
               Sign Out
             </button>

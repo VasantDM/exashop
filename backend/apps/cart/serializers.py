@@ -135,16 +135,20 @@ class AddToCartSerializer(serializers.Serializer):
                     'quantity': f"Requested quantity ({quantity}) exceeds available stock for size {variant.size} ({variant.stock} available)."
                 })
         else:
-            # If product has required variants, ensure customer selected one
+            # If product has variants, select the first active in-stock variant as default for quick-add
             if product.has_variants:
-                raise serializers.ValidationError({
-                    'variant_id': 'Please select a size and color option before adding this clothing item to your cart.'
-                })
-
-            if quantity > product.stock:
-                raise serializers.ValidationError({
-                    'quantity': f"Requested quantity ({quantity}) exceeds available stock ({product.stock})."
-                })
+                default_variant = product.variants.filter(is_active=True, stock__gt=0).first()
+                if default_variant:
+                    variant = default_variant
+                else:
+                    raise serializers.ValidationError({
+                        'variant_id': 'Selected product is currently out of stock in all sizes/colors.'
+                    })
+            else:
+                if quantity > product.stock:
+                    raise serializers.ValidationError({
+                        'quantity': f"Requested quantity ({quantity}) exceeds available stock ({product.stock})."
+                    })
 
         attrs['product'] = product
         attrs['variant'] = variant

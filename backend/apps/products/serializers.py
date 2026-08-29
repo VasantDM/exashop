@@ -81,6 +81,7 @@ class ProductListSerializer(serializers.ModelSerializer):
     has_variants = serializers.ReadOnlyField()
     available_colors = serializers.ReadOnlyField()
     available_sizes = serializers.ReadOnlyField()
+    variants = ProductVariantSerializer(many=True, read_only=True)
 
     class Meta:
         model = Product
@@ -106,6 +107,7 @@ class ProductListSerializer(serializers.ModelSerializer):
             'has_variants',
             'available_colors',
             'available_sizes',
+            'variants',
             'is_available',
             'is_featured',
             'average_rating',

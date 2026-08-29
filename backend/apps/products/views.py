@@ -58,7 +58,7 @@ class ProductListView(generics.ListCreateAPIView):
         return ProductListSerializer
 
     def get_queryset(self):
-        queryset = Product.objects.filter(is_available=True).select_related('category', 'brand').prefetch_related('images')
+        queryset = Product.objects.filter(is_available=True).select_related('category', 'brand').prefetch_related('images', 'variants')
 
         # 1. Search Query
         search_query = self.request.query_params.get('search', '').strip()

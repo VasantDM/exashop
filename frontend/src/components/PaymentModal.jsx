@@ -13,9 +13,11 @@ import {
   Sparkles,
   X,
   Clock,
-  RefreshCw
+  RefreshCw,
+  ExternalLink
 } from 'lucide-react';
 import { verifyPayment } from '../services/paymentService';
+import { openRazorpayCheckout } from '../utils/razorpay';
 
 const PaymentModal = ({
   isOpen,
@@ -25,7 +27,7 @@ const PaymentModal = ({
   amount,
   onSuccess,
 }) => {
-  const [activeTab, setActiveTab] = useState('upi'); // 'upi' | 'card' | 'netbanking'
+  const [activeTab, setActiveTab] = useState('razorpay'); // 'razorpay' | 'upi' | 'card' | 'netbanking'
   const [selectedUpiApp, setSelectedUpiApp] = useState('gpay');
   const [upiId, setUpiId] = useState('customer@okaxis');
   const [selectedBank, setSelectedBank] = useState('HDFC');
@@ -42,17 +44,41 @@ const PaymentModal = ({
 
   if (!isOpen) return null;
 
+  const handleLaunchRazorpay = async () => {
+    if (!paymentIntent) {
+      handleProcessPayment('upi');
+      return;
+    }
+    await openRazorpayCheckout({
+      paymentIntent,
+      onSuccess: (verifyResult) => {
+        setPaymentState('success');
+        setStatusMessage(`Payment of ₹${amount} Confirmed & Captured via Razorpay!`);
+        setTimeout(() => {
+          if (onSuccess) onSuccess(verifyResult);
+        }, 1200);
+      },
+      onError: (err) => {
+        setPaymentState('failed');
+        setStatusMessage(err.message || 'Payment authentication failed on Razorpay.');
+      },
+      onDismiss: () => {
+        // Stays on modal
+      }
+    });
+  };
+
   const handleProcessPayment = async (method = activeTab) => {
     setPaymentState('processing');
     setStatusMessage('Connecting to Secure Gateway Network...');
 
     try {
       // 1. Simulate gateway processing latency
-      await new Promise((resolve) => setTimeout(resolve, 1200));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       setPaymentState('verifying');
       setStatusMessage('Verifying Cryptographic Transaction Token...');
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      await new Promise((resolve) => setTimeout(resolve, 700));
 
       const mockPaymentId = `pay_${method}_${Date.now().toString(36)}${Math.random().toString(36).substring(2, 6)}`;
       const mockSignature = 'test_valid_signature';
@@ -72,7 +98,7 @@ const PaymentModal = ({
       // 3. Delay slightly to show celebration, then trigger callback
       setTimeout(() => {
         if (onSuccess) onSuccess(result);
-      }, 1400);
+      }, 1200);
 
     } catch (err) {
       console.error('Payment failed:', err);
@@ -114,7 +140,7 @@ const PaymentModal = ({
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-primary)', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              <ShieldCheck size={14} /> AuraStore Secure Gateway
+              <ShieldCheck size={14} /> Razorpay Secure Gateway
             </div>
             <div style={{ fontSize: '1.25rem', fontWeight: '800', color: '#ffffff', marginTop: '0.15rem' }}>
               Payable Amount: <span className="gradient-text">₹{amount}</span>
@@ -149,21 +175,18 @@ const PaymentModal = ({
                 <div style={{
                   width: '64px',
                   height: '64px',
-                  borderRadius: '50%',
                   border: '3px solid rgba(99, 102, 241, 0.2)',
                   borderTopColor: 'var(--accent-primary)',
-                  animation: 'spin 0.8s linear infinite',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite',
                   margin: '0 auto 1.5rem'
-                }}></div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '0.5rem' }}>
-                  Processing Transaction...
+                }} />
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: '#ffffff', marginBottom: '0.5rem' }}>
+                  {paymentState === 'processing' ? 'Connecting to Payment Network' : 'Confirming Payment'}
                 </h3>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
                   {statusMessage}
                 </p>
-                <div style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
-                  <Lock size={12} /> 256-bit End-to-End Encryption
-                </div>
               </div>
             ) : paymentState === 'success' ? (
               <div>
@@ -171,23 +194,21 @@ const PaymentModal = ({
                   width: '64px',
                   height: '64px',
                   borderRadius: '50%',
-                  backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                  backgroundColor: 'rgba(16, 185, 129, 0.15)',
                   color: 'var(--accent-emerald)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  margin: '0 auto 1.5rem'
+                  margin: '0 auto 1.5rem',
+                  border: '2px solid var(--accent-emerald)'
                 }}>
                   <CheckCircle2 size={36} />
                 </div>
-                <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: 'var(--accent-emerald)', marginBottom: '0.5rem' }}>
-                  Payment Verified!
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#ffffff', marginBottom: '0.5rem' }}>
+                  Payment Successful!
                 </h3>
-                <p style={{ color: '#ffffff', fontSize: '0.95rem', fontWeight: '600' }}>
+                <p style={{ color: 'var(--accent-emerald)', fontSize: '0.9rem', fontWeight: '600' }}>
                   {statusMessage}
-                </p>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '0.5rem' }}>
-                  Redirecting to your order invoice & tracking...
                 </p>
               </div>
             ) : (
@@ -196,7 +217,7 @@ const PaymentModal = ({
                   width: '64px',
                   height: '64px',
                   borderRadius: '50%',
-                  backgroundColor: 'rgba(244, 63, 94, 0.2)',
+                  backgroundColor: 'rgba(244, 63, 94, 0.15)',
                   color: 'var(--accent-rose)',
                   display: 'flex',
                   alignItems: 'center',
@@ -223,6 +244,51 @@ const PaymentModal = ({
           </div>
         ) : (
           <div>
+            {/* Primary Action: Official Razorpay Checkout Button */}
+            <div style={{ padding: '1.25rem 1.5rem 0.5rem' }}>
+              <button
+                type="button"
+                onClick={handleLaunchRazorpay}
+                className="btn btn-primary"
+                style={{
+                  width: '100%',
+                  padding: '0.9rem 1.25rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.6rem',
+                  fontWeight: '800',
+                  fontSize: '0.95rem',
+                  background: 'linear-gradient(135deg, #0284c7 0%, #4f46e5 100%)',
+                  borderRadius: 'var(--radius-md)',
+                  boxShadow: '0 8px 20px -4px rgba(79, 70, 229, 0.4)',
+                  cursor: 'pointer',
+                  border: 'none',
+                  color: '#fff'
+                }}
+              >
+                <Sparkles size={18} />
+                <span>Launch Razorpay Checkout</span>
+                <ExternalLink size={15} />
+              </button>
+              <div style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+                Supports UPI (GPay, PhonePe, Paytm), QR Code, Cards & Netbanking
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              margin: '1rem 1.5rem 0.5rem',
+              color: 'var(--text-muted)',
+              fontSize: '0.75rem'
+            }}>
+              <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }} />
+              <span style={{ padding: '0 0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>or Sandbox Simulator</span>
+              <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }} />
+            </div>
+
             {/* Payment Method Selector Tabs */}
             <div style={{
               display: 'grid',
@@ -269,7 +335,7 @@ const PaymentModal = ({
                   cursor: 'pointer'
                 }}
               >
-                <CreditCard size={16} /> Cards
+                <CreditCard size={16} /> Instant Card
               </button>
 
               <button
@@ -295,10 +361,10 @@ const PaymentModal = ({
             </div>
 
             {/* Tab Contents */}
-            <div style={{ padding: '1.5rem' }}>
+            <div style={{ padding: '1.25rem 1.5rem' }}>
               {/* UPI Tab */}
               {activeTab === 'upi' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {/* Quick App Selectors */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
                     {[
@@ -349,50 +415,68 @@ const PaymentModal = ({
                     />
                   </div>
 
-                  {/* Dynamic QR Code Simulation */}
+                  {/* QR Option Box */}
                   <div style={{
                     padding: '0.85rem',
                     borderRadius: 'var(--radius-md)',
-                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
                     border: '1px dashed var(--border-color)',
                     display: 'flex',
                     alignItems: 'center',
+                    justifyContent: 'space-between',
                     gap: '1rem'
                   }}>
-                    <div style={{
-                      width: '60px',
-                      height: '60px',
-                      backgroundColor: '#ffffff',
-                      borderRadius: 'var(--radius-sm)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#000000'
-                    }}>
-                      <QrCode size={48} />
-                    </div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                      <div>Scan with any UPI App (GPay, PhonePe, Paytm, CRED) to complete payment.</div>
-                      <div style={{ color: 'var(--accent-emerald)', marginTop: '0.2rem', fontWeight: '600' }}>
-                        ✓ Instant Auto-Capture
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <div style={{
+                        padding: '0.5rem',
+                        backgroundColor: 'var(--bg-surface)',
+                        borderRadius: 'var(--radius-sm)',
+                        color: 'var(--accent-primary)'
+                      }}>
+                        <QrCode size={24} />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '0.82rem', fontWeight: '700' }}>Instant QR Code</div>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Scan with any UPI application</div>
                       </div>
                     </div>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--accent-emerald)', fontWeight: '700' }}>Active</span>
                   </div>
 
                   {/* Pay Button */}
                   <button
                     onClick={() => handleProcessPayment('upi')}
                     className="btn btn-primary"
-                    style={{ width: '100%', padding: '0.85rem', fontSize: '1rem', fontWeight: '800' }}
+                    style={{ width: '100%', padding: '0.85rem', fontSize: '1rem', fontWeight: '800', marginTop: '0.25rem' }}
                   >
-                    <Sparkles size={16} /> Authorize & Pay ₹{amount}
+                    <Lock size={16} /> Simulate UPI Payment • ₹{amount}
                   </button>
                 </div>
               )}
 
-              {/* Cards Tab */}
+              {/* Card Tab */}
               {activeTab === 'card' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>
+                      Cardholder Name
+                    </label>
+                    <input
+                      type="text"
+                      value={cardData.name}
+                      onChange={(e) => setCardData({ ...cardData, name: e.target.value })}
+                      style={{
+                        width: '100%',
+                        padding: '0.65rem 0.85rem',
+                        borderRadius: 'var(--radius-sm)',
+                        backgroundColor: 'var(--bg-surface)',
+                        border: '1px solid var(--border-color)',
+                        color: '#fff',
+                        fontSize: '0.88rem'
+                      }}
+                    />
+                  </div>
+
                   <div>
                     <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>
                       Card Number
@@ -464,7 +548,7 @@ const PaymentModal = ({
                     className="btn btn-primary"
                     style={{ width: '100%', padding: '0.85rem', fontSize: '1rem', fontWeight: '800', marginTop: '0.5rem' }}
                   >
-                    <Lock size={16} /> Pay ₹{amount} Securely
+                    <Lock size={16} /> Simulate Card Payment • ₹{amount}
                   </button>
                 </div>
               )}
@@ -519,9 +603,9 @@ const PaymentModal = ({
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
             <ShieldCheck size={14} color="var(--accent-emerald)" />
-            <span>PCI-DSS Level 1 Compliant</span>
+            <span>PCI-DSS Level 1 & Razorpay Verified</span>
           </div>
-          <div>Powered by Razorpay & Stripe</div>
+          <div>Key ID: {paymentIntent?.key_id || 'rzp_test_TV1JcZlkdJ5SZh'}</div>
         </div>
       </div>
     </div>

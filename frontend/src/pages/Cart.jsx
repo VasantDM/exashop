@@ -17,9 +17,11 @@ import {
   X
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 const Cart = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const { 
     items, 
     totalItems, 
@@ -69,6 +71,43 @@ const Cart = () => {
       setCouponError("Invalid coupon code. Try 'AURA10' or 'AURA20'.");
     }
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div style={{ maxWidth: '580px', margin: '3.5rem auto', textAlign: 'center' }}>
+        <div className="glass-card" style={{ padding: '3.5rem 2rem' }}>
+          <div style={{
+            background: 'rgba(99, 102, 241, 0.12)',
+            color: 'var(--accent-primary)',
+            width: '72px',
+            height: '72px',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 1.5rem',
+            boxShadow: 'var(--shadow-glow)'
+          }}>
+            <ShoppingBag size={36} />
+          </div>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '0.75rem' }}>
+            Sign In to Access Your Cart
+          </h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', marginBottom: '2rem', lineHeight: '1.6' }}>
+            Please log in to your account to view your cart items, apply discounts, and complete your order.
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+            <Link to="/login" className="btn btn-primary" style={{ padding: '0.85rem 2rem', fontSize: '0.95rem' }}>
+              Sign In <ArrowRight size={18} />
+            </Link>
+            <Link to="/register" className="btn btn-outline" style={{ padding: '0.85rem 2rem', fontSize: '0.95rem' }}>
+              Create Account
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (

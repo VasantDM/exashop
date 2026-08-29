@@ -46,16 +46,6 @@ const Login = () => {
     }
   };
 
-  const handleQuickLogin = (demoRole) => {
-    if (demoRole === 'admin') {
-      setIdentifier('admin@shopigo.com');
-      setPassword('AdminPassword123!');
-    } else {
-      setIdentifier('customer@shopigo.com');
-      setPassword('CustomerPassword123!');
-    }
-  };
-
   return (
     <div style={{ maxWidth: '460px', margin: '2.5rem auto' }}>
       <div className="glass-card" style={{ padding: '2.75rem 2.25rem' }}>
@@ -80,40 +70,6 @@ const Login = () => {
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
             Sign in to access your AuraStore account & orders
           </p>
-        </div>
-
-        {/* Quick Demo Fill Buttons */}
-        <div style={{
-          backgroundColor: 'rgba(99, 102, 241, 0.08)',
-          border: '1px solid rgba(99, 102, 241, 0.25)',
-          borderRadius: 'var(--radius-md)',
-          padding: '0.85rem 1rem',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '0.5rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: '#818cf8', fontWeight: '600' }}>
-            <Sparkles size={14} /> Quick Demo Logins:
-          </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button
-              type="button"
-              onClick={() => handleQuickLogin('customer')}
-              className="btn btn-outline"
-              style={{ flex: 1, padding: '0.4rem 0.6rem', fontSize: '0.78rem', borderRadius: 'var(--radius-sm)' }}
-            >
-              Demo Customer
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickLogin('admin')}
-              className="btn btn-outline"
-              style={{ flex: 1, padding: '0.4rem 0.6rem', fontSize: '0.78rem', borderRadius: 'var(--radius-sm)', borderColor: 'rgba(236, 72, 153, 0.3)' }}
-            >
-              Demo Admin
-            </button>
-          </div>
         </div>
 
         {/* Error Alert */}
@@ -184,8 +140,11 @@ const Login = () => {
           </div>
 
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.45rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem' }}>
               <label style={{ fontSize: '0.85rem', fontWeight: '600' }}>Password</label>
+              <Link to="/forgot-password" style={{ fontSize: '0.8rem', color: 'var(--accent-primary)', fontWeight: '600' }}>
+                Forgot password?
+              </Link>
             </div>
             <div style={{ position: 'relative' }}>
               <input
@@ -233,7 +192,7 @@ const Login = () => {
             className="btn btn-primary"
             style={{ width: '100%', marginTop: '0.5rem', opacity: isLoading ? 0.7 : 1, cursor: isLoading ? 'not-allowed' : 'pointer' }}
           >
-            {isLoading ? 'Signing In...' : 'Sign In with JWT'}
+            {isLoading ? 'Signing In...' : 'Sign In to Your Account'}
             {!isLoading && <ArrowRight size={16} />}
           </button>
         </form>

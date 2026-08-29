@@ -11,6 +11,7 @@ import ProductDetails from './pages/ProductDetails';
 import Categories from './pages/Categories';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
 import Profile from './pages/Profile';
 import Cart from './pages/Cart';
 import Wishlist from './pages/Wishlist';
@@ -30,9 +31,9 @@ import AdminInventory from './pages/admin/AdminInventory';
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <Router>
+    <Router>
+      <AuthProvider>
+        <CartProvider>
           <Routes>
             {/* 1. Admin Management Suite (Protected Routes with Admin Sidebar Layout) */}
             <Route element={<AdminRoute />}>
@@ -58,6 +59,7 @@ function App() {
                     <Route path="/categories" element={<Categories />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/cart" element={<Cart />} />
                     <Route path="/wishlist" element={<Wishlist />} />
@@ -70,9 +72,9 @@ function App() {
               }
             />
           </Routes>
-        </Router>
-      </CartProvider>
-    </AuthProvider>
+        </CartProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 

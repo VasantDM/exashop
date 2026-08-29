@@ -8,7 +8,8 @@ import {
   Layers, 
   ShieldCheck,
   LogOut,
-  Home
+  Home,
+  Package
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -27,6 +28,7 @@ const Navbar = () => {
     { name: 'Home', path: '/', icon: Home },
     { name: 'Products', path: '/products', icon: ShoppingBag },
     { name: 'Categories', path: '/categories', icon: Layers },
+    ...(isAuthenticated ? [{ name: 'My Orders', path: '/orders', icon: Package }] : []),
   ];
 
   const initials = user ? (
@@ -207,6 +209,25 @@ const Navbar = () => {
           {/* User Auth Links */}
           {isAuthenticated && user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+              <Link
+                to="/orders"
+                className="btn btn-outline"
+                style={{
+                  padding: '0.4rem 0.75rem',
+                  fontSize: '0.85rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  backgroundColor: location.pathname.startsWith('/orders') ? 'rgba(99, 102, 241, 0.15)' : 'var(--bg-surface)',
+                  borderColor: location.pathname.startsWith('/orders') ? 'var(--accent-primary)' : 'var(--border-color)',
+                  color: location.pathname.startsWith('/orders') ? 'var(--accent-primary)' : 'var(--text-primary)'
+                }}
+                title="View & Track Your Orders"
+              >
+                <Package size={16} color="var(--accent-primary)" />
+                <span>Orders</span>
+              </Link>
+
               <Link
                 to="/profile"
                 className="btn btn-outline"

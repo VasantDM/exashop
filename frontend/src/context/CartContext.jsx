@@ -9,6 +9,7 @@ import {
   toggleWishlist as toggleWishlistApi
 } from '../services/cartService';
 import { useAuth } from './AuthContext';
+import AuthModal from '../components/AuthModal';
 
 const CartContext = createContext(null);
 
@@ -35,8 +36,22 @@ export const CartProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
+  const [authModal, setAuthModal] = useState({ isOpen: false, title: '', subtitle: '', onAuthSuccess: null });
 
   const sessionKey = getOrCreateSessionKey();
+
+  const openAuthModal = (config = {}) => {
+    setAuthModal({
+      isOpen: true,
+      title: config.title || 'Sign In to Continue',
+      subtitle: config.subtitle || 'Sign in to your account to save items and complete your order.',
+      onAuthSuccess: config.onAuthSuccess || null,
+    });
+  };
+
+  const closeAuthModal = () => {
+    setAuthModal((prev) => ({ ...prev, isOpen: false }));
+  };
 
   // Show auto-dismissing toast notification
   const showToast = (message, type = 'success') => {
@@ -85,13 +100,32 @@ export const CartProvider = ({ children }) => {
   const extractErrorMessage = (err, fallback = 'An error occurred.') => {
     if (!err) return fallback;
     if (typeof err === 'string') return err;
-    if (err.data) {
-      if (typeof err.data === 'string') return err.data;
-      if (err.data.detail) return err.data.detail;
-      if (err.data.error) return err.data.error;
-      if (err.data.quantity && Array.isArray(err.data.quantity)) return err.data.quantity[0];
-      if (err.data.product_id && Array.isArray(err.data.product_id)) return err.data.product_id[0];
-      if (err.data.message) return err.data.message;
+    const responseData = err.data || err.response?.data;
+    if (responseData) {
+      if (typeof responseData === 'string') return responseData;
+      if (responseData.detail) return responseData.detail;
+      if (responseData.error) return responseData.error;
+      if (responseData.message) return responseData.message;
+      if (responseData.variant_id) {
+        return Array.isArray(responseData.variant_id) ? responseData.variant_id[0] : responseData.variant_id;
+      }
+      if (responseData.product_id) {
+        return Array.isArray(responseData.product_id) ? responseData.product_id[0] : responseData.product_id;
+      }
+      if (responseData.quantity) {
+        return Array.isArray(responseData.quantity) ? responseData.quantity[0] : responseData.quantity;
+      }
+      if (responseData.non_field_errors) {
+        return Array.isArray(responseData.non_field_errors) ? responseData.non_field_errors[0] : responseData.non_field_errors;
+      }
+      if (typeof responseData === 'object') {
+        const values = Object.values(responseData);
+        if (values.length > 0) {
+          const first = values[0];
+          if (Array.isArray(first)) return first[0];
+          if (typeof first === 'string') return first;
+        }
+      }
     }
     return err.message || fallback;
   };
@@ -110,8 +144,57 @@ export const CartProvider = ({ children }) => {
   };
 
   // Add product or variant to cart with duplicate check & stock validation
-  const addToCart = async (productId, quantity = 1, options = {}) => {
-    const variantId = options.variantId || options.variant_id || null;
+  const addToCart = async (param1, param2 = 1, param3 = {}) => {
+    let productId;
+    let quantity = 1;
+    let options = {};
+
+    if (typeof param1 === 'object' && param1 !== null) {
+      productId = param1.productId || param1.product_id || param1.id;
+      quantity = param1.quantity !== undefined ? param1.quantity : 1;
+      options = param1.options || param1;
+    } else {
+      productId = param1;
+      quantity = param2;
+      options = param3 || {};
+    }
+
+    productId = parseInt(productId, 10);
+    quantity = parseInt(quantity, 10) || 1;
+    const variantId = (options.variantId || options.variant_id) ? parseInt(options.variantId || options.variant_id, 10) : null;
+
+    if (isNaN(productId)) {
+      showToast('Invalid product ID.', 'error');
+      return { success: false, message: 'Invalid product ID' };
+    }
+
+    if (!isAuthenticated) {
+      return new Promise((resolve) => {
+        openAuthModal({
+          title: 'Sign In to Add to Cart',
+          subtitle: 'Sign in to add this item to your cart and proceed to checkout.',
+          onAuthSuccess: async () => {
+            setIsLoading(true);
+            try {
+              const res = await addToCartApi(productId, quantity, sessionKey, variantId);
+              if (res.cart) {
+                setCart(res.cart);
+              } else {
+                await refreshCart();
+              }
+              showToast(res.message || 'Added product to cart!', 'success');
+              resolve({ success: true, message: res.message });
+            } catch (err) {
+              const errorMsg = extractErrorMessage(err, 'Failed to add item to cart.');
+              showToast(errorMsg, 'error');
+              resolve({ success: false, message: errorMsg });
+            } finally {
+              setIsLoading(false);
+            }
+          }
+        });
+      });
+    }
 
     // If product/variant is already in the cart, do not increment count; show 'Already added to cart' message
     if (isInCart(productId, variantId) && !options.forceAdd) {
@@ -215,31 +298,35 @@ export const CartProvider = ({ children }) => {
   // Toggle wishlist item
   const toggleWishlist = async (product) => {
     const productId = product.id;
-    if (isAuthenticated) {
-      try {
-        const res = await toggleWishlistApi(productId);
-        await refreshWishlist();
-        showToast(res.message, res.in_wishlist ? 'success' : 'info');
-        return res.in_wishlist;
-      } catch (err) {
-        showToast('Wishlist error', 'error');
-      }
-    } else {
-      // Guest local wishlist
-      let current = JSON.parse(localStorage.getItem('guest_wishlist') || '[]');
-      const exists = current.some((item) => (item.product?.id || item.id) === productId);
 
-      if (exists) {
-        current = current.filter((item) => (item.product?.id || item.id) !== productId);
-        showToast(`Removed '${product.name}' from wishlist.`, 'info');
-      } else {
-        current.push({ id: Date.now(), product });
-        showToast(`Added '${product.name}' to wishlist!`, 'success');
-      }
+    if (!isAuthenticated) {
+      return new Promise((resolve) => {
+        openAuthModal({
+          title: 'Sign In for Wishlist',
+          subtitle: 'Sign in to save your favorite products to your wishlist.',
+          onAuthSuccess: async () => {
+            try {
+              const res = await toggleWishlistApi(productId);
+              await refreshWishlist();
+              showToast(res.message, res.in_wishlist ? 'success' : 'info');
+              resolve(res.in_wishlist);
+            } catch (err) {
+              showToast('Wishlist error', 'error');
+              resolve(false);
+            }
+          }
+        });
+      });
+    }
 
-      localStorage.setItem('guest_wishlist', JSON.stringify(current));
-      setWishlist(current);
-      return !exists;
+    try {
+      const res = await toggleWishlistApi(productId);
+      await refreshWishlist();
+      showToast(res.message, res.in_wishlist ? 'success' : 'info');
+      return res.in_wishlist;
+    } catch (err) {
+      showToast('Wishlist error', 'error');
+      return false;
     }
   };
 
@@ -269,8 +356,17 @@ export const CartProvider = ({ children }) => {
       toggleWishlist,
       isInWishlist,
       isInCart,
+      openAuthModal,
+      closeAuthModal,
     }}>
       {children}
+
+      {/* Global Auth Modal Popup */}
+      <AuthModal
+        isOpen={authModal.isOpen}
+        onClose={closeAuthModal}
+        config={authModal}
+      />
 
       {/* Global Toast Notification */}
       {toastMessage && (

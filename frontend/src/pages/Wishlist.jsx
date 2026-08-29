@@ -1,15 +1,54 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, ShoppingBag, ShoppingCart, Trash2, ArrowRight, Star } from 'lucide-react';
+import { Heart, ShoppingBag, ShoppingCart, Trash2, ArrowRight, Star, Lock } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 const Wishlist = () => {
+  const { isAuthenticated } = useAuth();
   const { wishlist, toggleWishlist, addToCart } = useCart();
 
   const handleMoveToCart = async (product) => {
     await addToCart(product.id, 1);
     await toggleWishlist(product);
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div style={{ maxWidth: '560px', margin: '3.5rem auto', textAlign: 'center' }}>
+        <div className="glass-card" style={{ padding: '3.5rem 2rem' }}>
+          <div style={{
+            background: 'rgba(236, 72, 153, 0.12)',
+            color: '#ec4899',
+            width: '72px',
+            height: '72px',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 1.5rem',
+            boxShadow: '0 0 20px rgba(236, 72, 153, 0.25)'
+          }}>
+            <Lock size={36} />
+          </div>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '0.75rem' }}>
+            Sign In to View Wishlist
+          </h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', marginBottom: '2rem', lineHeight: '1.6' }}>
+            Please log in to your account to save your favorite products, sync across devices, and manage your wishlist.
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+            <Link to="/login" className="btn btn-primary" style={{ padding: '0.85rem 2rem', fontSize: '0.95rem' }}>
+              Sign In <ArrowRight size={18} />
+            </Link>
+            <Link to="/register" className="btn btn-outline" style={{ padding: '0.85rem 2rem', fontSize: '0.95rem' }}>
+              Create Account
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (wishlist.length === 0) {
     return (

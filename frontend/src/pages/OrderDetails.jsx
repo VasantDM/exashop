@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { getOrderDetails, cancelOrder } from '../services/orderService';
 import { getOrderPayments, createPaymentIntent } from '../services/paymentService';
+import { openRazorpayCheckout } from '../utils/razorpay';
 import PaymentModal from '../components/PaymentModal';
 
 const statusSteps = [
@@ -89,7 +90,25 @@ const OrderDetails = () => {
         gateway
       });
       setCurrentPaymentIntent(intent);
-      setIsPaymentModalOpen(true);
+
+      if (gateway === 'razorpay') {
+        await openRazorpayCheckout({
+          paymentIntent: intent,
+          onSuccess: async () => {
+            setIsPaymentModalOpen(false);
+            await fetchOrderAndPayments();
+          },
+          onError: (err) => {
+            console.error('Razorpay popup error:', err);
+            setIsPaymentModalOpen(true);
+          },
+          onDismiss: () => {
+            setIsPaymentModalOpen(true);
+          }
+        });
+      } else {
+        setIsPaymentModalOpen(true);
+      }
     } catch (err) {
       alert(err.data?.detail || 'Failed to initialize payment gateway.');
     } finally {

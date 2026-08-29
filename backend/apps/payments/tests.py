@@ -1,7 +1,12 @@
+import hmac
+import hashlib
+import json
+from decimal import Decimal
+from django.contrib.auth import get_user_model
+from django.conf import settings
 from rest_framework.test import APITestCase
 from rest_framework import status
-from django.contrib.auth import get_user_model
-from decimal import Decimal
+
 from apps.products.models import Product
 from apps.categories.models import Category
 from apps.orders.models import Order, OrderItem
@@ -70,7 +75,7 @@ class PaymentEngineAPITests(APITestCase):
         res = self.client.post('/api/v1/payments/create-intent/', payload, format='json')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIn('gateway_order_id', res.data)
-        self.assertIn('key_id', res.data)
+        self.assertEqual(res.data['key_id'], 'rzp_test_TV1JcZlkdJ5SZh')
         self.assertEqual(res.data['amount_in_paise'], 299900)
         self.assertEqual(res.data['currency'], 'INR')
 
@@ -79,7 +84,7 @@ class PaymentEngineAPITests(APITestCase):
         self.assertIsNotNone(txn)
         self.assertEqual(txn.status, 'pending')
 
-    def test_verify_payment_success_and_update_order(self):
+    def test_verify_payment_success_with_hmac(self):
         self.client.force_authenticate(user=self.user)
 
         # 1. Create Intent
@@ -88,14 +93,20 @@ class PaymentEngineAPITests(APITestCase):
             'gateway': 'razorpay'
         }, format='json')
         gateway_order_id = intent_res.data['gateway_order_id']
+        gateway_payment_id = 'pay_test_987654321'
 
-        # 2. Verify with valid test signature
+        # Compute valid HMAC-SHA256 signature using test secret
+        secret = getattr(settings, 'RAZORPAY_KEY_SECRET', 'p1XZnuBGnGYn1gHIB9pR8pRJ')
+        msg = f"{gateway_order_id}|{gateway_payment_id}".encode('utf-8')
+        valid_signature = hmac.new(secret.encode('utf-8'), msg, hashlib.sha256).hexdigest()
+
+        # 2. Verify with computed signature
         verify_payload = {
             'order_number': self.order.order_number,
             'gateway': 'razorpay',
             'gateway_order_id': gateway_order_id,
-            'gateway_payment_id': 'pay_test_987654321',
-            'gateway_signature': 'test_valid_signature'
+            'gateway_payment_id': gateway_payment_id,
+            'gateway_signature': valid_signature
         }
         verify_res = self.client.post('/api/v1/payments/verify/', verify_payload, format='json')
         self.assertEqual(verify_res.status_code, status.HTTP_200_OK)
@@ -109,7 +120,7 @@ class PaymentEngineAPITests(APITestCase):
 
         txn = PaymentTransaction.objects.get(order=self.order)
         self.assertEqual(txn.status, 'success')
-        self.assertEqual(txn.gateway_payment_id, 'pay_test_987654321')
+        self.assertEqual(txn.gateway_payment_id, gateway_payment_id)
 
     def test_verify_payment_invalid_signature_fails(self):
         self.client.force_authenticate(user=self.user)
@@ -126,6 +137,48 @@ class PaymentEngineAPITests(APITestCase):
 
         self.order.refresh_from_db()
         self.assertEqual(self.order.payment_status, 'failed')
+
+    def test_payment_webhook_captured_event(self):
+        # Create initial pending transaction
+        gateway_order_id = 'order_webhook_test_123'
+        PaymentTransaction.objects.create(
+            order=self.order,
+            user=self.user,
+            gateway='razorpay',
+            gateway_order_id=gateway_order_id,
+            amount=Decimal('2999.00'),
+            currency='INR',
+            status='pending'
+        )
+
+        webhook_body = {
+            'event': 'payment.captured',
+            'payload': {
+                'payment': {
+                    'entity': {
+                        'id': 'pay_webhook_999',
+                        'order_id': gateway_order_id,
+                        'amount': 299900,
+                        'status': 'captured',
+                    }
+                }
+            }
+        }
+        body_str = json.dumps(webhook_body)
+        secret = getattr(settings, 'RAZORPAY_WEBHOOK_SECRET', 'Kiran@2003')
+        sig = hmac.new(secret.encode('utf-8'), body_str.encode('utf-8'), hashlib.sha256).hexdigest()
+
+        res = self.client.post(
+            '/api/v1/payments/webhook/',
+            data=body_str,
+            content_type='application/json',
+            HTTP_X_RAZORPAY_SIGNATURE=sig
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.payment_status, 'paid')
+        self.assertEqual(self.order.status, 'processing')
 
     def test_get_order_payment_history(self):
         self.client.force_authenticate(user=self.user)
