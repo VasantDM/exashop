@@ -12,6 +12,7 @@ from .views import (
     AdminOrderStatusUpdateView,
     AdminCustomerListView,
     AdminCustomerToggleActiveView,
+    AdminUserDetailView,
     AdminInventoryListView,
     AdminInventoryQuickUpdateView,
 )
@@ -35,9 +36,13 @@ urlpatterns = [
     path('orders/<str:order_number>/', AdminOrderDetailView.as_view(), name='admin-order-detail'),
     path('orders/<str:order_number>/status/', AdminOrderStatusUpdateView.as_view(), name='admin-order-status-update'),
 
-    # 5. Customer Directory & Account Management
+    # 5. Customer & User Directory, Registration & Account Management
     path('customers/', AdminCustomerListView.as_view(), name='admin-customer-list'),
+    path('customers/<int:pk>/', AdminUserDetailView.as_view(), name='admin-customer-detail'),
     path('customers/<int:pk>/toggle-active/', AdminCustomerToggleActiveView.as_view(), name='admin-customer-toggle-active'),
+    path('users/', AdminCustomerListView.as_view(), name='admin-user-list-create'),
+    path('users/<int:pk>/', AdminUserDetailView.as_view(), name='admin-user-detail'),
+    path('users/<int:pk>/toggle-active/', AdminCustomerToggleActiveView.as_view(), name='admin-user-toggle-active'),
 
     # 6. Inventory Radar & Quick Stock Adjuster
     path('inventory/', AdminInventoryListView.as_view(), name='admin-inventory-list'),

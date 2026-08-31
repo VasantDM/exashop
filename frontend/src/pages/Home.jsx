@@ -100,7 +100,7 @@ const Home = () => {
   };
 
   const handleCopyPromo = () => {
-    navigator.clipboard.writeText('AURAPRO30');
+    navigator.clipboard.writeText('AURA10');
     setCopiedPromo(true);
     setTimeout(() => setCopiedPromo(false), 2500);
   };
@@ -738,7 +738,7 @@ const Home = () => {
             borderRadius: 'var(--radius-sm)',
             marginBottom: '0.85rem'
           }}>
-            AURAPRO30
+            AURA10
           </div>
           <button
             type="button"

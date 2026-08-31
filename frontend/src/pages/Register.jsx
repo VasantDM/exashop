@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Mail, Lock, Phone, ArrowRight, AlertCircle, CheckCircle2, Shield, UserCheck } from 'lucide-react';
+import { User, Mail, Lock, Phone, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
@@ -260,60 +260,6 @@ const Register = () => {
                 }}
               />
               <Phone size={16} style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-            </div>
-          </div>
-
-          {/* Account Role Selector */}
-          <div>
-            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem' }}>
-              Account Role
-            </label>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <label style={{
-                flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.65rem 0.85rem',
-                borderRadius: 'var(--radius-md)',
-                backgroundColor: formData.role === 'customer' ? 'rgba(99, 102, 241, 0.15)' : 'var(--bg-surface)',
-                border: formData.role === 'customer' ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
-                cursor: 'pointer',
-                fontSize: '0.85rem'
-              }}>
-                <input
-                  type="radio"
-                  name="role"
-                  value="customer"
-                  checked={formData.role === 'customer'}
-                  onChange={handleChange}
-                  style={{ accentColor: 'var(--accent-primary)' }}
-                />
-                <UserCheck size={16} color="var(--accent-primary)" /> Customer
-              </label>
-
-              <label style={{
-                flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.65rem 0.85rem',
-                borderRadius: 'var(--radius-md)',
-                backgroundColor: formData.role === 'admin' ? 'rgba(236, 72, 153, 0.15)' : 'var(--bg-surface)',
-                border: formData.role === 'admin' ? '1px solid #ec4899' : '1px solid var(--border-color)',
-                cursor: 'pointer',
-                fontSize: '0.85rem'
-              }}>
-                <input
-                  type="radio"
-                  name="role"
-                  value="admin"
-                  checked={formData.role === 'admin'}
-                  onChange={handleChange}
-                  style={{ accentColor: '#ec4899' }}
-                />
-                <Shield size={16} color="#ec4899" /> Admin
-              </label>
             </div>
           </div>
 

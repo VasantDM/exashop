@@ -67,7 +67,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(write_only=True, required=True, min_length=6)
     confirm_password = serializers.CharField(write_only=True, required=True, min_length=6)
-    role = serializers.ChoiceField(choices=User.ROLE_CHOICES, default='customer', required=False)
+    role = serializers.CharField(default='customer', read_only=True)
 
     class Meta:
         model = User
@@ -106,15 +106,16 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        validated_data.pop('confirm_password')
-        role = validated_data.pop('role', 'customer')
+        validated_data.pop('confirm_password', None)
+        validated_data.pop('role', None)
         password = validated_data.pop('password')
         
+        # Public storefront registration strictly defaults to 'customer' role
         user = User.objects.create_user(
             email=validated_data.pop('email'),
             username=validated_data.pop('username'),
             password=password,
-            role=role,
+            role='customer',
             **validated_data
         )
         return user
@@ -223,10 +224,114 @@ class AdminUserSerializer(serializers.ModelSerializer):
             'role',
             'is_active',
             'is_staff',
+            'is_superuser',
             'is_verified',
             'created_at',
             'updated_at',
         )
+
+
+class AdminUserCreateSerializer(serializers.ModelSerializer):
+    """Serializer for Admin registering new users with any role (customer, admin, staff)."""
+
+    password = serializers.CharField(write_only=True, required=True, min_length=6)
+    confirm_password = serializers.CharField(write_only=True, required=True, min_length=6)
+    role = serializers.ChoiceField(choices=User.ROLE_CHOICES, default='customer', required=False)
+
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'phone_number',
+            'password',
+            'confirm_password',
+            'role',
+            'is_active',
+            'is_verified',
+            'created_at',
+        )
+        read_only_fields = ('id', 'created_at')
+        extra_kwargs = {
+            'first_name': {'required': False, 'allow_blank': True},
+            'last_name': {'required': False, 'allow_blank': True},
+            'phone_number': {'required': False, 'allow_blank': True},
+        }
+
+    def validate_email(self, value):
+        normalized_email = value.lower().strip()
+        if User.objects.filter(email__iexact=normalized_email).exists():
+            raise serializers.ValidationError('A user with this email address already exists.')
+        return normalized_email
+
+    def validate_username(self, value):
+        normalized_username = value.strip()
+        if User.objects.filter(username__iexact=normalized_username).exists():
+            raise serializers.ValidationError('A user with this username already exists.')
+        return normalized_username
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['confirm_password']:
+            raise serializers.ValidationError({'confirm_password': 'Passwords do not match.'})
+        return attrs
+
+    def create(self, validated_data):
+        validated_data.pop('confirm_password')
+        role = validated_data.pop('role', 'customer')
+        password = validated_data.pop('password')
+        is_active = validated_data.pop('is_active', True)
+        is_verified = validated_data.pop('is_verified', True)
+
+        is_staff = role in ('admin', 'staff')
+        is_superuser = (role == 'admin')
+
+        user = User.objects.create_user(
+            email=validated_data.pop('email'),
+            username=validated_data.pop('username'),
+            password=password,
+            role=role,
+            is_active=is_active,
+            is_verified=is_verified,
+            is_staff=is_staff,
+            is_superuser=is_superuser,
+            **validated_data
+        )
+        return user
+
+
+class AdminUserUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for Admin updating existing user details and role."""
+
+    role = serializers.ChoiceField(choices=User.ROLE_CHOICES, required=False)
+
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'phone_number',
+            'role',
+            'is_active',
+            'is_verified',
+        )
+        read_only_fields = ('id', 'username', 'email')
+
+    def update(self, instance, validated_data):
+        role = validated_data.get('role')
+        if role:
+            instance.role = role
+            instance.is_staff = role in ('admin', 'staff')
+            if role == 'admin':
+                instance.is_superuser = True
+            elif role == 'customer':
+                instance.is_superuser = False
+        return super().update(instance, validated_data)
 
 
 class SendPasswordResetOTPSerializer(serializers.Serializer):

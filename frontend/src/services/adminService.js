@@ -73,9 +73,26 @@ export const updateAdminOrderStatus = async (orderNumber, statusData) => {
   return response.data;
 };
 
-// 4. Customers Management
+// 4. Customers & Users Management
 export const getAdminCustomers = async (params = {}) => {
   const response = await apiClient.get('/admin/customers/', { params });
+  return response.data;
+};
+
+export const getAdminUsers = getAdminCustomers;
+
+export const createAdminUser = async (userData) => {
+  const response = await apiClient.post('/admin/customers/', userData);
+  return response.data;
+};
+
+export const updateAdminUser = async (id, userData) => {
+  const response = await apiClient.patch(`/admin/customers/${id}/`, userData);
+  return response.data;
+};
+
+export const deleteAdminUser = async (id) => {
+  const response = await apiClient.delete(`/admin/customers/${id}/`);
   return response.data;
 };
 
@@ -111,6 +128,10 @@ export default {
   getAdminOrderDetail,
   updateAdminOrderStatus,
   getAdminCustomers,
+  getAdminUsers,
+  createAdminUser,
+  updateAdminUser,
+  deleteAdminUser,
   toggleAdminCustomerActive,
   getAdminInventory,
   quickUpdateAdminStock,

@@ -207,7 +207,7 @@ class SendPasswordResetOTPView(APIView):
         </div>
         """
 
-        email_sent = False
+        # Send real email via SMTP
         try:
             send_mail(
                 subject=subject,
@@ -217,22 +217,47 @@ class SendPasswordResetOTPView(APIView):
                 html_message=html_body,
                 fail_silently=False,
             )
-            email_sent = True
         except Exception as e:
-            # In development environments where mail server isn't connected, log to console
-            print(f"[DEVELOPMENT PASSWORD RESET OTP for {user.email}]: {otp_code} (Mail delivery note: {e})")
+            return Response({
+                'error': f'Failed to deliver verification email. Please ensure email settings and App Password are valid: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        response_data = {
-            'message': f'A 6-digit password reset OTP has been sent to {user.email}.',
+        return Response({
+            'message': f'A 6-digit verification OTP has been sent to {user.email}. Please check your inbox.',
             'email': user.email,
-            'email_sent': email_sent
-        }
+        }, status=status.HTTP_200_OK)
 
-        # If in DEBUG mode, provide dev_otp so local testing works immediately without SMTP setup
-        if settings.DEBUG:
-            response_data['dev_otp'] = otp_code
 
-        return Response(response_data, status=status.HTTP_200_OK)
+class ValidatePasswordResetOTPView(APIView):
+    """
+    POST /api/v1/auth/password-reset/validate-otp/
+    Quick check to verify if the 6-digit OTP is valid and active before setting a new password.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        email = request.data.get('email', '').lower().strip()
+        otp = request.data.get('otp', '').strip()
+
+        if not email or not otp:
+            return Response({'error': 'Email and 6-digit OTP code are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.filter(email__iexact=email).first()
+        if not user:
+            return Response({'error': 'No registered account found with this email address.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        otp_record = PasswordResetOTP.objects.filter(user=user, otp=otp, is_used=False).order_by('-created_at').first()
+        if not otp_record:
+            return Response({'error': 'Invalid OTP code. Please check your email and try again.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not otp_record.is_valid:
+            return Response({'error': 'This OTP code has expired. Please request a new one.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({
+            'message': 'OTP verified successfully!',
+            'valid': True,
+            'email': user.email
+        }, status=status.HTTP_200_OK)
 
 
 class VerifyPasswordResetOTPView(APIView):
@@ -262,4 +287,5 @@ class VerifyPasswordResetOTPView(APIView):
             'message': 'Your password has been reset successfully. You can now sign in with your new password.',
             'email': user.email
         }, status=status.HTTP_200_OK)
+
 

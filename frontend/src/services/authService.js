@@ -77,6 +77,11 @@ export const sendPasswordResetOTP = async (email) => {
   return response.data;
 };
 
+export const validatePasswordResetOTP = async ({ email, otp }) => {
+  const response = await apiClient.post('/auth/password-reset/validate-otp/', { email, otp });
+  return response.data;
+};
+
 export const verifyPasswordResetOTP = async ({ email, otp, new_password, confirm_password }) => {
   const response = await apiClient.post('/auth/password-reset/verify-otp/', {
     email,
@@ -100,5 +105,6 @@ export default {
   deleteAddress,
   getAllUsers,
   sendPasswordResetOTP,
+  validatePasswordResetOTP,
   verifyPasswordResetOTP,
 };

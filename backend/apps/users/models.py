@@ -75,6 +75,16 @@ class User(AbstractUser):
     def full_name(self):
         return f"{self.first_name} {self.last_name}".strip() or self.username
 
+    def soft_delete(self):
+        """Soft delete user account by deactivating (is_active=False) without permanent database removal."""
+        self.is_active = False
+        self.save(update_fields=['is_active'])
+
+    def restore(self):
+        """Reactivate user account by setting is_active=True."""
+        self.is_active = True
+        self.save(update_fields=['is_active'])
+
 
 class Address(models.Model):
     """Customer Shipping & Billing Address model."""

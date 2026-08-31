@@ -24,6 +24,7 @@ const AdminLayout = () => {
   // Check if current route is part of settings / user management
   const isSettingsRoute = 
     location.pathname.startsWith('/admin/settings') || 
+    location.pathname.startsWith('/admin/register-user') || 
     location.pathname.startsWith('/admin/customers');
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(true);
@@ -37,6 +38,7 @@ const AdminLayout = () => {
   ];
 
   const settingsSubItems = [
+    { to: '/admin/register-user', label: 'Register User', icon: UserPlus },
     { to: '/admin/customers', label: 'Users & Accounts', icon: Users },
     { to: '/admin/settings', label: 'Store Configuration', icon: Sliders, end: true },
   ];

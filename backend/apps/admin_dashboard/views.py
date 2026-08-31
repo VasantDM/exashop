@@ -22,6 +22,10 @@ from .serializers import (
     AdminOrderDetailSerializer,
     AdminCustomerSerializer,
 )
+from apps.users.serializers import (
+    AdminUserCreateSerializer,
+    AdminUserUpdateSerializer,
+)
 
 User = get_user_model()
 
@@ -321,26 +325,77 @@ class AdminOrderStatusUpdateView(APIView):
         }, status=status.HTTP_200_OK)
 
 
-class AdminCustomerListView(generics.ListAPIView):
+class AdminUserListCreateView(generics.ListCreateAPIView):
     """
-    GET /api/v1/admin/customers/
-    List all registered customer accounts with spending stats.
+    GET /api/v1/admin/customers/ or /api/v1/admin/users/
+    List registered accounts with spending stats, filterable by role (?role=all, customer, admin, staff).
+    Includes role count breakdown stats in response.
+
+    POST /api/v1/admin/customers/ or /api/v1/admin/users/
+    Admin registration of new user accounts with designated role (Customer, Admin, Staff).
     """
     serializer_class = AdminCustomerSerializer
     permission_classes = [IsAdmin]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['email', 'username', 'first_name', 'last_name', 'phone_number']
-    ordering_fields = ['created_at', 'email', 'first_name']
+    ordering_fields = ['created_at', 'email', 'first_name', 'role']
     ordering = ['-created_at']
 
     def get_queryset(self):
         queryset = User.objects.all().prefetch_related('orders')
 
         role_filter = self.request.query_params.get('role')
-        if role_filter and role_filter != 'all':
-            queryset = queryset.filter(role=role_filter)
+        if role_filter and role_filter.lower() != 'all':
+            queryset = queryset.filter(role=role_filter.lower())
+
+        status_filter = self.request.query_params.get('status')
+        if status_filter == 'active':
+            queryset = queryset.filter(is_active=True)
+        elif status_filter == 'inactive':
+            queryset = queryset.filter(is_active=False)
 
         return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        # Aggregate user counts across all roles and active states for real-time tab metrics
+        all_users = User.objects.all()
+        stats = {
+            'total': all_users.count(),
+            'active': all_users.filter(is_active=True).count(),
+            'inactive': all_users.filter(is_active=False).count(),
+            'customers': all_users.filter(role='customer').count(),
+            'admins': all_users.filter(role='admin').count(),
+            'staff': all_users.filter(role='staff').count(),
+        }
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response = self.get_paginated_response(serializer.data)
+            response.data['stats'] = stats
+            return response
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            'results': serializer.data,
+            'stats': stats,
+        })
+
+    def create(self, request, *args, **kwargs):
+        serializer = AdminUserCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        output_serializer = AdminCustomerSerializer(user)
+        return Response({
+            'message': f"Account for '{user.email}' created successfully with role '{user.role.upper()}'.",
+            'user': output_serializer.data
+        }, status=status.HTTP_201_CREATED)
+
+
+AdminCustomerListView = AdminUserListCreateView
 
 
 class AdminCustomerToggleActiveView(APIView):
@@ -352,15 +407,54 @@ class AdminCustomerToggleActiveView(APIView):
 
     def patch(self, request, pk):
         user = get_object_or_404(User, pk=pk)
-        if user.is_superuser:
-            return Response({'error': 'Cannot disable superuser accounts.'}, status=status.HTTP_400_BAD_REQUEST)
+        if user.is_superuser and user.id == request.user.id:
+            return Response({'error': 'Cannot disable your own active superuser account.'}, status=status.HTTP_400_BAD_REQUEST)
 
         user.is_active = not user.is_active
         user.save(update_fields=['is_active'])
 
         return Response({
-            'message': f"User account for '{user.email}' is now {'ACTIVE' if user.is_active else 'DISABLED'}.",
+            'message': f"User account for '{user.email}' is now {'ACTIVE' if user.is_active else 'INACTIVE (Deactivated)'}.",
             'is_active': user.is_active
+        }, status=status.HTTP_200_OK)
+
+
+class AdminUserDetailView(APIView):
+    """
+    GET /api/v1/admin/users/<int:pk>/ -> Retrieve user details
+    PATCH /api/v1/admin/users/<int:pk>/ -> Update user details / role / active state
+    DELETE /api/v1/admin/users/<int:pk>/ -> Soft delete user account (sets is_active=False, no permanent deletion)
+    """
+    permission_classes = [IsAdmin]
+
+    def get(self, request, pk):
+        user = get_object_or_404(User.objects.prefetch_related('orders'), pk=pk)
+        serializer = AdminCustomerSerializer(user)
+        return Response(serializer.data)
+
+    def patch(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+        serializer = AdminUserUpdateSerializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        updated_user = serializer.save()
+        output_serializer = AdminCustomerSerializer(updated_user)
+        return Response({
+            'message': f"User '{updated_user.email}' updated successfully.",
+            'user': output_serializer.data
+        }, status=status.HTTP_200_OK)
+
+    def delete(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+        if user.id == request.user.id:
+            return Response({'error': 'You cannot deactivate your own logged-in administrator account.'}, status=status.HTTP_400_BAD_REQUEST)
+        if user.is_superuser:
+            return Response({'error': 'Superuser accounts cannot be deactivated directly.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Soft delete: mark account as inactive instead of permanent deletion
+        user.soft_delete()
+        return Response({
+            'message': f"User account '{user.email}' has been deactivated (marked inactive). Account was not deleted permanently.",
+            'is_active': False
         }, status=status.HTTP_200_OK)
 
 

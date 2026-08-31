@@ -170,3 +170,98 @@ class AuthAndUserTests(APITestCase):
         self.client.force_authenticate(user=self.admin)
         response = self.client.get(self.admin_users_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_public_registration_forces_customer_role(self):
+        """Public storefront registration should always create customer accounts, even if role='admin' is passed."""
+        payload = {
+            'username': 'attempt_admin',
+            'email': 'attempt_admin@example.com',
+            'first_name': 'Hacker',
+            'last_name': 'Attempt',
+            'password': 'SecurePassword123!',
+            'confirm_password': 'SecurePassword123!',
+            'role': 'admin'
+        }
+        response = self.client.post(self.register_url, payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        user = User.objects.get(email='attempt_admin@example.com')
+        self.assertEqual(user.role, 'customer')
+        self.assertFalse(user.is_staff)
+        self.assertFalse(user.is_superuser)
+
+    def test_admin_creates_user_with_role_admin_and_staff(self):
+        """Admin panel registration should allow assigning admin or staff roles."""
+        self.client.force_authenticate(user=self.admin)
+        admin_create_url = '/api/v1/admin/customers/'
+        
+        # 1. Create an admin
+        payload_admin = {
+            'username': 'created_admin',
+            'email': 'created_admin@shopigo.com',
+            'first_name': 'Created',
+            'last_name': 'Admin',
+            'password': 'SecurePassword123!',
+            'confirm_password': 'SecurePassword123!',
+            'role': 'admin',
+        }
+        res_admin = self.client.post(admin_create_url, payload_admin, format='json')
+        self.assertEqual(res_admin.status_code, status.HTTP_201_CREATED)
+        new_admin = User.objects.get(email='created_admin@shopigo.com')
+        self.assertEqual(new_admin.role, 'admin')
+        self.assertTrue(new_admin.is_staff)
+
+        # 2. Create a staff
+        payload_staff = {
+            'username': 'created_staff',
+            'email': 'created_staff@shopigo.com',
+            'first_name': 'Created',
+            'last_name': 'Staff',
+            'password': 'SecurePassword123!',
+            'confirm_password': 'SecurePassword123!',
+            'role': 'staff',
+        }
+        res_staff = self.client.post(admin_create_url, payload_staff, format='json')
+        self.assertEqual(res_staff.status_code, status.HTTP_201_CREATED)
+        new_staff = User.objects.get(email='created_staff@shopigo.com')
+        self.assertEqual(new_staff.role, 'staff')
+        self.assertTrue(new_staff.is_staff)
+
+    def test_admin_role_filtering_and_stats(self):
+        """Verify role-based filtering and aggregated stats."""
+        self.client.force_authenticate(user=self.admin)
+        admin_list_url = '/api/v1/admin/customers/'
+
+        # Filter by admin
+        res_admin = self.client.get(f"{admin_list_url}?role=admin")
+        self.assertEqual(res_admin.status_code, status.HTTP_200_OK)
+        results_admin = res_admin.data.get('results', res_admin.data)
+        for u in results_admin:
+            self.assertEqual(u['role'], 'admin')
+
+        # Filter by customer
+        res_cust = self.client.get(f"{admin_list_url}?role=customer")
+        self.assertEqual(res_cust.status_code, status.HTTP_200_OK)
+        results_cust = res_cust.data.get('results', res_cust.data)
+        for u in results_cust:
+            self.assertEqual(u['role'], 'customer')
+
+        # Default all has stats
+        res_all = self.client.get(f"{admin_list_url}?role=all")
+        self.assertEqual(res_all.status_code, status.HTTP_200_OK)
+        self.assertIn('stats', res_all.data)
+        self.assertGreaterEqual(res_all.data['stats']['total'], 2)
+
+    def test_admin_soft_delete_user(self):
+        """Deleting a user should perform soft delete: set is_active=False without deleting the SQL row."""
+        self.client.force_authenticate(user=self.admin)
+        delete_url = f"/api/v1/admin/users/{self.customer.id}/"
+        
+        response = self.client.delete(delete_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('message', response.data)
+        self.assertFalse(response.data['is_active'])
+
+        # Verify user still exists in database and has is_active=False
+        user_in_db = User.objects.filter(id=self.customer.id).first()
+        self.assertIsNotNone(user_in_db, "User must NOT be permanently removed from database")
+        self.assertFalse(user_in_db.is_active, "User is_active flag must be False")
