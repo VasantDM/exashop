@@ -10,9 +10,7 @@ import {
   AlertTriangle, 
   Image, 
   Sparkles, 
-  RotateCcw,
-  SlidersHorizontal,
-  ChevronDown
+  RotateCcw
 } from 'lucide-react';
 import { 
   getAdminProducts, 
@@ -53,7 +51,7 @@ const AdminProducts = () => {
 
   // Variant Builder temp state
   const [varColorName, setVarColorName] = useState('');
-  const [varColorCode, setVarColorCode] = useState('#111827');
+  const [varColorCode, setVarColorCode] = useState('#f59e0b');
   const [varSize, setVarSize] = useState('M');
   const [varStock, setVarStock] = useState('10');
 
@@ -199,7 +197,7 @@ const AdminProducts = () => {
           bottom: '24px',
           right: '24px',
           zIndex: 9999,
-          backgroundColor: toast.type === 'error' ? 'var(--accent-rose)' : 'var(--accent-emerald)',
+          backgroundColor: toast.type === 'error' ? '#ef4444' : '#10b981',
           color: '#ffffff',
           padding: '0.8rem 1.25rem',
           borderRadius: 'var(--radius-md)',
@@ -214,7 +212,7 @@ const AdminProducts = () => {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.9rem', fontWeight: '800', margin: 0 }}>
+          <h1 style={{ fontSize: '1.9rem', fontWeight: '800', margin: 0, color: 'var(--text-primary)' }}>
             Product <span className="gradient-text">Catalog</span>
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginTop: '0.25rem' }}>
@@ -239,9 +237,9 @@ const AdminProducts = () => {
               width: '100%',
               padding: '0.6rem 0.8rem 0.6rem 2.4rem',
               borderRadius: 'var(--radius-md)',
-              backgroundColor: 'var(--bg-surface)',
+              backgroundColor: '#ffffff',
               border: '1px solid var(--border-color)',
-              color: '#fff',
+              color: 'var(--text-primary)',
               fontSize: '0.88rem',
               outline: 'none'
             }}
@@ -255,9 +253,9 @@ const AdminProducts = () => {
           style={{
             padding: '0.6rem 1rem',
             borderRadius: 'var(--radius-md)',
-            backgroundColor: 'var(--bg-surface)',
+            backgroundColor: '#ffffff',
             border: '1px solid var(--border-color)',
-            color: '#fff',
+            color: 'var(--text-primary)',
             fontSize: '0.88rem',
             outline: 'none'
           }}
@@ -279,7 +277,7 @@ const AdminProducts = () => {
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left', color: 'var(--text-muted)' }}>
+                <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left', color: 'var(--text-secondary)', backgroundColor: '#fafaf9' }}>
                   <th style={{ padding: '0.75rem' }}>Item</th>
                   <th style={{ padding: '0.75rem' }}>SKU</th>
                   <th style={{ padding: '0.75rem' }}>Category</th>
@@ -292,7 +290,7 @@ const AdminProducts = () => {
               </thead>
               <tbody>
                 {products.map((prod) => (
-                  <tr key={prod.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                  <tr key={prod.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                     <td style={{ padding: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                       <img
                         src={prod.primary_image}
@@ -300,7 +298,7 @@ const AdminProducts = () => {
                         style={{ width: '42px', height: '42px', objectFit: 'cover', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-surface)' }}
                       />
                       <div style={{ minWidth: 0 }}>
-                        <div style={{ fontWeight: '700', color: '#ffffff' }}>{prod.name}</div>
+                        <div style={{ fontWeight: '700', color: 'var(--text-primary)' }}>{prod.name}</div>
                         <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{prod.brand_name || 'Generic'}</div>
                       </div>
                     </td>
@@ -308,12 +306,12 @@ const AdminProducts = () => {
                       {prod.sku}
                     </td>
                     <td style={{ padding: '0.75rem' }}>
-                      <span className="badge badge-outline" style={{ fontSize: '0.72rem' }}>
+                      <span className="badge badge-info" style={{ fontSize: '0.72rem' }}>
                         {prod.category_name || 'General'}
                       </span>
                     </td>
                     <td style={{ padding: '0.75rem' }}>
-                      <div style={{ fontWeight: '700', color: '#ffffff' }}>₹{prod.current_price}</div>
+                      <div style={{ fontWeight: '700', color: 'var(--text-primary)' }}>₹{prod.current_price}</div>
                       {prod.has_discount && (
                         <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textDecoration: 'line-through' }}>
                           ₹{prod.price}
@@ -321,7 +319,7 @@ const AdminProducts = () => {
                       )}
                     </td>
                     <td style={{ padding: '0.75rem' }}>
-                      <span className={`badge ${prod.total_stock === 0 ? 'badge-danger' : prod.total_stock <= 5 ? 'badge-warning' : 'badge-success'}`} style={{ fontSize: '0.72rem' }}>
+                      <span className={`badge ${prod.total_stock === 0 ? 'badge-danger' : prod.total_stock <= 5 ? 'badge-info' : 'badge-success'}`} style={{ fontSize: '0.72rem' }}>
                         {prod.total_stock} units
                       </span>
                     </td>
@@ -329,7 +327,7 @@ const AdminProducts = () => {
                       {prod.variants_count > 0 ? `${prod.variants_count} options` : '-'}
                     </td>
                     <td style={{ padding: '0.75rem' }}>
-                      <span className={`badge ${prod.is_available ? 'badge-info' : 'badge-danger'}`} style={{ fontSize: '0.72rem' }}>
+                      <span className={`badge ${prod.is_available ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '0.72rem' }}>
                         {prod.is_available ? 'Active' : 'Hidden'}
                       </span>
                     </td>
@@ -346,7 +344,7 @@ const AdminProducts = () => {
                         <button
                           onClick={() => setDeleteConfirmation(prod)}
                           className="btn btn-outline"
-                          style={{ padding: '0.35rem 0.6rem', fontSize: '0.75rem', borderColor: 'rgba(244, 63, 94, 0.3)', color: '#fb7185' }}
+                          style={{ padding: '0.35rem 0.6rem', fontSize: '0.75rem', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#dc2626' }}
                           title="Delete Product"
                         >
                           <Trash2 size={13} />
@@ -366,8 +364,9 @@ const AdminProducts = () => {
         <div style={{
           position: 'fixed',
           inset: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          backgroundColor: 'rgba(15, 23, 42, 0.55)',
           backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -380,9 +379,10 @@ const AdminProducts = () => {
             maxHeight: '90vh',
             overflowY: 'auto',
             borderRadius: 'var(--radius-lg)',
-            backgroundColor: '#0f172a',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            boxShadow: 'var(--shadow-lg)'
+            backgroundColor: '#ffffff',
+            border: '1px solid var(--border-color)',
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.15)',
+            padding: 0
           }}>
             {/* Header */}
             <div style={{
@@ -391,16 +391,16 @@ const AdminProducts = () => {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(236, 72, 153, 0.15))'
+              background: 'linear-gradient(135deg, #fffbeb 0%, #ffedd5 100%)'
             }}>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0 }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0, color: 'var(--text-primary)' }}>
                 {editingProduct ? 'Edit Catalog Product' : 'Add New Product'}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}
+                style={{ background: '#ffffff', border: '1px solid var(--border-color)', borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', cursor: 'pointer' }}
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
@@ -408,7 +408,7 @@ const AdminProducts = () => {
             <form onSubmit={handleFormSubmit} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                  <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
                     Product Title *
                   </label>
                   <input
@@ -416,44 +416,28 @@ const AdminProducts = () => {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.85rem' }}
+                    style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
-                    SKU Code *
+                  <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
+                    SKU Identifier *
                   </label>
                   <input
                     type="text"
                     required
                     value={formData.sku}
                     onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                    style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.85rem' }}
+                    style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
                   />
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
-                    Category
-                  </label>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.85rem' }}
-                  >
-                    <option value="">Select Category</option>
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
-                    Regular Price (₹) *
+                  <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
+                    Retail Price (₹) *
                   </label>
                   <input
                     type="number"
@@ -461,89 +445,130 @@ const AdminProducts = () => {
                     required
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.85rem' }}
+                    style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
-                    Discount Price (₹)
+                  <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
+                    Discount / Sale Price (₹)
                   </label>
                   <input
                     type="number"
                     step="0.01"
                     value={formData.discount_price}
                     onChange={(e) => setFormData({ ...formData, discount_price: e.target.value })}
-                    style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.85rem' }}
+                    placeholder="Optional"
+                    style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
+                    Base Stock *
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    value={formData.stock}
+                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                    style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
                   />
                 </div>
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
-                  Main Image URL
+                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
+                  Category Assignment
+                </label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
+                  Primary Image URL (or Unsplash sample)
                 </label>
                 <input
                   type="url"
-                  placeholder="https://images.unsplash.com/photo-..."
                   value={formData.initial_image_url}
                   onChange={(e) => setFormData({ ...formData, initial_image_url: e.target.value })}
-                  style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.85rem' }}
+                  placeholder="https://images.unsplash.com/..."
+                  style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
-                  Description
+                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
+                  Short Summary
+                </label>
+                <input
+                  type="text"
+                  value={formData.short_description}
+                  onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
+                  style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
+                  Full Description
                 </label>
                 <textarea
                   rows="3"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.85rem', resize: 'vertical' }}
+                  style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
                 />
               </div>
 
-              {/* Interactive Variant Builder (Colors & Sizes) */}
+              {/* Variant Configurator Strip */}
               <div style={{
                 padding: '1rem',
                 borderRadius: 'var(--radius-md)',
-                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                backgroundColor: '#fafaf9',
                 border: '1px solid var(--border-color)'
               }}>
-                <div style={{ fontSize: '0.88rem', fontWeight: '700', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <Sparkles size={15} color="var(--accent-primary)" />
-                  Apparel Sizes & Colors Builder
+                <div style={{ fontSize: '0.85rem', fontWeight: '700', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-primary)' }}>
+                  <Sparkles size={14} color="var(--accent-orange)" /> Optional Color & Size Variants
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr auto', gap: '0.5rem', alignItems: 'end', marginBottom: '0.75rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr 1fr auto', gap: '0.5rem', alignItems: 'end' }}>
                   <div>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Color Name</span>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: '600' }}>Color Name</span>
                     <input
                       type="text"
-                      placeholder="e.g. Onyx Black"
+                      placeholder="e.g. Amber Gold"
                       value={varColorName}
                       onChange={(e) => setVarColorName(e.target.value)}
-                      style={{ width: '100%', padding: '0.4rem 0.6rem', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.8rem' }}
+                      style={{ width: '100%', padding: '0.4rem 0.6rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.8rem' }}
                     />
                   </div>
 
                   <div>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Hex Color</span>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: '600' }}>Hex</span>
                     <input
                       type="color"
                       value={varColorCode}
                       onChange={(e) => setVarColorCode(e.target.value)}
-                      style={{ width: '100%', height: '32px', padding: '2px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', cursor: 'pointer' }}
+                      style={{ width: '36px', height: '32px', border: '1px solid var(--border-color)', borderRadius: '4px', cursor: 'pointer', padding: '2px', backgroundColor: '#ffffff' }}
                     />
                   </div>
 
                   <div>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Size</span>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: '600' }}>Size</span>
                     <select
                       value={varSize}
                       onChange={(e) => setVarSize(e.target.value)}
-                      style={{ width: '100%', padding: '0.4rem 0.4rem', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.8rem' }}
+                      style={{ width: '100%', padding: '0.4rem 0.6rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.8rem' }}
                     >
                       <option value="XS">XS</option>
                       <option value="S">S</option>
@@ -558,12 +583,12 @@ const AdminProducts = () => {
                   </div>
 
                   <div>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Stock</span>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: '600' }}>Stock</span>
                     <input
                       type="number"
                       value={varStock}
                       onChange={(e) => setVarStock(e.target.value)}
-                      style={{ width: '100%', padding: '0.4rem 0.6rem', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.8rem' }}
+                      style={{ width: '100%', padding: '0.4rem 0.6rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.8rem' }}
                     />
                   </div>
 
@@ -587,12 +612,13 @@ const AdminProducts = () => {
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: '0.35rem',
-                          backgroundColor: 'rgba(99, 102, 241, 0.15)',
-                          border: '1px solid rgba(99, 102, 241, 0.3)',
+                          backgroundColor: 'rgba(245, 158, 11, 0.12)',
+                          border: '1px solid rgba(245, 158, 11, 0.3)',
                           padding: '0.2rem 0.6rem',
                           borderRadius: 'var(--radius-sm)',
                           fontSize: '0.75rem',
-                          color: '#fff'
+                          color: 'var(--text-primary)',
+                          fontWeight: '600'
                         }}
                       >
                         <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: v.color_code, display: 'inline-block' }} />
@@ -600,7 +626,7 @@ const AdminProducts = () => {
                         <X
                           size={12}
                           onClick={() => handleRemoveVariant(idx)}
-                          style={{ cursor: 'pointer', marginLeft: '0.2rem', color: 'var(--accent-rose)' }}
+                          style={{ cursor: 'pointer', marginLeft: '0.2rem', color: '#dc2626' }}
                         />
                       </span>
                     ))}
@@ -610,7 +636,7 @@ const AdminProducts = () => {
 
               {/* Availability toggles */}
               <div style={{ display: 'flex', gap: '2rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', cursor: 'pointer' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', cursor: 'pointer', color: 'var(--text-primary)', fontWeight: '600' }}>
                   <input
                     type="checkbox"
                     checked={formData.is_available}
@@ -619,7 +645,7 @@ const AdminProducts = () => {
                   <span>Publish / Active in Storefront</span>
                 </label>
 
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', cursor: 'pointer' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', cursor: 'pointer', color: 'var(--text-primary)', fontWeight: '600' }}>
                   <input
                     type="checkbox"
                     checked={formData.is_featured}
@@ -658,17 +684,18 @@ const AdminProducts = () => {
         <div style={{
           position: 'fixed',
           inset: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          backgroundColor: 'rgba(15, 23, 42, 0.55)',
           backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 9999,
           padding: '1rem'
         }}>
-          <div className="glass-card" style={{ maxWidth: '440px', width: '100%', padding: '2rem', textAlign: 'center', backgroundColor: '#0f172a' }}>
-            <AlertTriangle size={36} color="var(--accent-rose)" style={{ margin: '0 auto 1rem' }} />
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '0.5rem' }}>Confirm Deletion</h3>
+          <div className="glass-card" style={{ maxWidth: '440px', width: '100%', padding: '2rem', textAlign: 'center', backgroundColor: '#ffffff', boxShadow: '0 20px 50px rgba(0,0,0,0.15)' }}>
+            <AlertTriangle size={36} color="#dc2626" style={{ margin: '0 auto 1rem' }} />
+            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Confirm Deletion</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginBottom: '1.5rem' }}>
               Are you sure you want to permanently delete <strong>'{deleteConfirmation.name}'</strong>? This action cannot be undone.
             </p>
@@ -679,7 +706,7 @@ const AdminProducts = () => {
               <button
                 onClick={() => handleDeleteProduct(deleteConfirmation.id)}
                 className="btn btn-primary"
-                style={{ backgroundColor: 'var(--accent-rose)', borderColor: 'var(--accent-rose)' }}
+                style={{ backgroundColor: '#dc2626', borderColor: '#dc2626' }}
               >
                 Yes, Delete Product
               </button>

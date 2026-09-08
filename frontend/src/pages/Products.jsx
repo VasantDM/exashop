@@ -225,7 +225,7 @@ const Products = () => {
                 borderRadius: 'var(--radius-md)',
                 backgroundColor: 'var(--bg-surface)',
                 border: '1px solid var(--border-color)',
-                color: '#ffffff',
+                color: 'var(--text-primary)',
                 fontSize: '0.9rem',
                 outline: 'none'
               }}
@@ -249,9 +249,10 @@ const Products = () => {
               borderRadius: 'var(--radius-full)',
               fontSize: '0.8rem',
               fontWeight: '600',
-              backgroundColor: category === '' ? 'var(--accent-primary)' : 'var(--bg-surface)',
+              backgroundColor: category === '' ? 'var(--accent-orange)' : '#ffffff',
               color: category === '' ? '#ffffff' : 'var(--text-secondary)',
-              border: category === '' ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
+              border: category === '' ? '1px solid var(--accent-orange)' : '1px solid var(--border-color)',
+              boxShadow: category === '' ? '0 2px 8px rgba(234, 88, 12, 0.25)' : 'none',
               transition: 'all var(--transition-fast)'
             }}
           >
@@ -268,9 +269,10 @@ const Products = () => {
                   borderRadius: 'var(--radius-full)',
                   fontSize: '0.8rem',
                   fontWeight: '600',
-                  backgroundColor: isSelected ? 'var(--accent-primary)' : 'var(--bg-surface)',
+                  backgroundColor: isSelected ? 'var(--accent-orange)' : '#ffffff',
                   color: isSelected ? '#ffffff' : 'var(--text-secondary)',
-                  border: isSelected ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                  border: isSelected ? '1px solid var(--accent-orange)' : '1px solid var(--border-color)',
+                  boxShadow: isSelected ? '0 2px 8px rgba(234, 88, 12, 0.25)' : 'none',
                   transition: 'all var(--transition-fast)',
                   display: 'flex',
                   alignItems: 'center',
@@ -292,13 +294,13 @@ const Products = () => {
         {/* Left Filter Sidebar */}
         <div className="glass-card" style={{ padding: '1.5rem', position: 'sticky', top: '90px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem', fontWeight: '700', fontSize: '1rem' }}>
-            <SlidersHorizontal size={18} color="var(--accent-primary)" />
+            <SlidersHorizontal size={18} color="var(--accent-orange)" />
             <span>Refine Search</span>
           </div>
 
           {/* Brands Filter */}
           <div style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1.25rem' }}>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '700', marginBottom: '0.75rem' }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '700', marginBottom: '0.75rem', color: 'var(--text-primary)' }}>
               Brands
             </label>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '180px', overflowY: 'auto' }}>
@@ -312,7 +314,7 @@ const Products = () => {
                       alignItems: 'center',
                       gap: '0.6rem',
                       fontSize: '0.85rem',
-                      color: isChecked ? '#ffffff' : 'var(--text-secondary)',
+                      color: isChecked ? 'var(--accent-orange)' : 'var(--text-secondary)',
                       cursor: 'pointer'
                     }}
                   >
@@ -320,7 +322,7 @@ const Products = () => {
                       type="checkbox"
                       checked={isChecked}
                       onChange={() => handleBrandSelect(b.slug)}
-                      style={{ accentColor: 'var(--accent-primary)' }}
+                      style={{ accentColor: 'var(--accent-orange)' }}
                     />
                     <span>{b.name}</span>
                   </label>
@@ -331,7 +333,7 @@ const Products = () => {
 
           {/* Price Range Filter */}
           <div style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1.25rem' }}>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '700', marginBottom: '0.75rem' }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '700', marginBottom: '0.75rem', color: 'var(--text-primary)' }}>
               Price Range (₹)
             </label>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -347,7 +349,7 @@ const Products = () => {
                   borderRadius: 'var(--radius-sm)',
                   backgroundColor: 'var(--bg-surface)',
                   border: '1px solid var(--border-color)',
-                  color: '#ffffff',
+                  color: 'var(--text-primary)',
                   fontSize: '0.85rem',
                   outline: 'none'
                 }}
@@ -365,7 +367,7 @@ const Products = () => {
                   borderRadius: 'var(--radius-sm)',
                   backgroundColor: 'var(--bg-surface)',
                   border: '1px solid var(--border-color)',
-                  color: '#ffffff',
+                  color: 'var(--text-primary)',
                   fontSize: '0.85rem',
                   outline: 'none'
                 }}
@@ -381,7 +383,7 @@ const Products = () => {
               gap: '0.6rem',
               fontSize: '0.85rem',
               fontWeight: '600',
-              color: inStock ? '#ffffff' : 'var(--text-secondary)',
+              color: inStock ? 'var(--accent-emerald)' : 'var(--text-secondary)',
               cursor: 'pointer'
             }}>
               <input
@@ -400,7 +402,7 @@ const Products = () => {
           {/* Results Summary Bar */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
             <span>
-              Showing <strong style={{ color: '#ffffff' }}>{products.length}</strong> of <strong style={{ color: '#ffffff' }}>{totalCount}</strong> products
+              Showing <strong style={{ color: 'var(--text-primary)' }}>{products.length}</strong> of <strong style={{ color: 'var(--text-primary)' }}>{totalCount}</strong> products
             </span>
             {hasActiveFilters && (
               <span>Filters applied</span>
@@ -417,7 +419,7 @@ const Products = () => {
           ) : products.length === 0 ? (
             <div className="glass-card" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
               <ShoppingBag size={48} color="var(--text-muted)" style={{ margin: '0 auto 1.25rem' }} />
-              <h3 style={{ fontSize: '1.3rem', fontWeight: '700', marginBottom: '0.5rem' }}>No matching products found</h3>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: '700', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>No matching products found</h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '420px', margin: '0 auto 1.5rem' }}>
                 We couldn't find any products matching your current search or filter combination.
               </p>
@@ -441,7 +443,7 @@ const Products = () => {
                   }}
                 >
                   {/* Image Container with Badges */}
-                  <div style={{ position: 'relative', marginBottom: '1rem', overflow: 'hidden', borderRadius: 'var(--radius-md)' }}>
+                  <div style={{ position: 'relative', marginBottom: '1rem', overflow: 'hidden', borderRadius: 'var(--radius-md)', backgroundColor: '#fafaf9' }}>
                     <Link to={`/products/${prod.slug}`} style={{ display: 'block' }}>
                       <img
                         src={prod.primary_image}
@@ -468,22 +470,23 @@ const Products = () => {
                         position: 'absolute',
                         top: '10px',
                         right: '10px',
-                        background: 'rgba(17, 24, 39, 0.75)',
+                        background: 'rgba(255, 255, 255, 0.9)',
                         backdropFilter: 'blur(6px)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        border: '1px solid var(--border-color)',
                         width: '32px',
                         height: '32px',
                         borderRadius: '50%',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: isInWishlist(prod.id) ? '#ec4899' : '#ffffff',
+                        color: isInWishlist(prod.id) ? '#ea580c' : 'var(--text-muted)',
                         cursor: 'pointer',
+                        boxShadow: 'var(--shadow-sm)',
                         transition: 'transform 0.2s ease'
                       }}
                       title={isInWishlist(prod.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
                     >
-                      <Heart size={16} fill={isInWishlist(prod.id) ? '#ec4899' : 'none'} />
+                      <Heart size={16} fill={isInWishlist(prod.id) ? '#ea580c' : 'none'} />
                     </button>
 
                     {/* Discount Badge */}
@@ -492,13 +495,13 @@ const Products = () => {
                         position: 'absolute',
                         top: '10px',
                         left: '10px',
-                        background: 'var(--accent-rose)',
+                        background: 'var(--accent-orange)',
                         color: '#fff',
                         fontSize: '0.72rem',
                         fontWeight: '800',
                         padding: '0.2rem 0.55rem',
                         borderRadius: 'var(--radius-sm)',
-                        boxShadow: '0 2px 8px rgba(244, 63, 94, 0.5)'
+                        boxShadow: '0 2px 8px rgba(234, 88, 12, 0.4)'
                       }}>
                         -{prod.discount_percentage}% OFF
                       </span>
@@ -510,7 +513,7 @@ const Products = () => {
                         position: 'absolute',
                         top: '10px',
                         left: '10px',
-                        background: 'var(--accent-primary)',
+                        background: 'var(--accent-gradient)',
                         color: '#fff',
                         fontSize: '0.72rem',
                         fontWeight: '700',
@@ -518,7 +521,8 @@ const Products = () => {
                         borderRadius: 'var(--radius-sm)',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '0.25rem'
+                        gap: '0.25rem',
+                        boxShadow: '0 2px 8px rgba(245, 158, 11, 0.4)'
                       }}>
                         <Sparkles size={12} /> Featured
                       </span>
@@ -529,7 +533,7 @@ const Products = () => {
                       position: 'absolute',
                       bottom: '10px',
                       right: '10px',
-                      backgroundColor: prod.in_stock ? 'rgba(16, 185, 129, 0.85)' : 'rgba(244, 63, 94, 0.85)',
+                      backgroundColor: prod.in_stock ? 'rgba(16, 185, 129, 0.9)' : 'rgba(239, 68, 68, 0.9)',
                       backdropFilter: 'blur(4px)',
                       color: '#ffffff',
                       fontSize: '0.68rem',
@@ -545,7 +549,7 @@ const Products = () => {
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
                       <span>{prod.brand_name || 'Generic'}</span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', color: 'var(--accent-amber)' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', color: 'var(--accent-orange)' }}>
                         <Star size={13} fill="currentColor" />
                         <strong>{prod.average_rating || '5.0'}</strong>
                       </span>
@@ -555,6 +559,7 @@ const Products = () => {
                       <h3 style={{
                         fontSize: '1rem',
                         fontWeight: '700',
+                        color: 'var(--text-primary)',
                         marginBottom: '0.5rem',
                         lineHeight: '1.35',
                         display: '-webkit-box',
@@ -592,8 +597,8 @@ const Products = () => {
                                   width: '13px',
                                   height: '13px',
                                   borderRadius: '50%',
-                                  backgroundColor: c.code || '#4f46e5',
-                                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                                  backgroundColor: c.code || '#ea580c',
+                                  border: '1px solid #ddd',
                                   display: 'inline-block'
                                 }}
                               />
@@ -624,7 +629,7 @@ const Products = () => {
                     gap: '0.5rem'
                   }}>
                     <div>
-                      <div style={{ fontSize: '1.15rem', fontWeight: '800', color: '#ffffff' }}>
+                      <div style={{ fontSize: '1.15rem', fontWeight: '800', color: 'var(--text-primary)' }}>
                         ₹{prod.current_price}
                       </div>
                       {prod.has_discount && (
@@ -702,11 +707,13 @@ const Products = () => {
                     width: '36px',
                     height: '36px',
                     borderRadius: 'var(--radius-md)',
-                    backgroundColor: page === pNum ? 'var(--accent-primary)' : 'var(--bg-surface)',
+                    backgroundColor: page === pNum ? 'var(--accent-orange)' : '#ffffff',
                     color: page === pNum ? '#ffffff' : 'var(--text-secondary)',
-                    border: page === pNum ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                    border: page === pNum ? '1px solid var(--accent-orange)' : '1px solid var(--border-color)',
                     fontWeight: '700',
-                    fontSize: '0.85rem'
+                    fontSize: '0.85rem',
+                    boxShadow: page === pNum ? '0 2px 8px rgba(234, 88, 12, 0.3)' : 'none',
+                    cursor: 'pointer'
                   }}
                 >
                   {pNum}

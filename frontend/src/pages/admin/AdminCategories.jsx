@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  FolderTree, 
   Plus, 
   Edit2, 
   Trash2, 
   Layers, 
-  Check, 
   X, 
-  AlertTriangle,
-  RotateCcw
+  AlertTriangle 
 } from 'lucide-react';
 import { 
   getAdminCategories, 
@@ -99,34 +96,35 @@ const AdminCategories = () => {
       loadCategories();
     } catch (err) {
       console.error(err);
-      showToast('Failed to save category', 'error');
+      showToast('Error saving category', 'error');
     }
   };
 
   const handleDelete = async (id) => {
     try {
       await deleteAdminCategory(id);
-      showToast('Category deleted.');
+      showToast('Category deleted successfully');
       setDeleteConfirmation(null);
       loadCategories();
     } catch (err) {
-      showToast('Failed to delete category', 'error');
+      console.error(err);
+      showToast('Could not delete category', 'error');
     }
   };
 
   return (
     <div>
-      {/* Toast */}
+      {/* Toast Notification */}
       {toast && (
         <div style={{
           position: 'fixed',
           bottom: '24px',
           right: '24px',
-          zIndex: 9999,
-          backgroundColor: toast.type === 'error' ? 'var(--accent-rose)' : 'var(--accent-emerald)',
-          color: '#ffffff',
-          padding: '0.8rem 1.25rem',
+          padding: '0.75rem 1.25rem',
           borderRadius: 'var(--radius-md)',
+          backgroundColor: toast.type === 'error' ? '#ef4444' : '#10b981',
+          color: '#ffffff',
+          zIndex: 99999,
           boxShadow: 'var(--shadow-lg)',
           fontWeight: '600',
           fontSize: '0.9rem'
@@ -138,7 +136,7 @@ const AdminCategories = () => {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.9rem', fontWeight: '800', margin: 0 }}>
+          <h1 style={{ fontSize: '1.9rem', fontWeight: '800', margin: 0, color: 'var(--text-primary)' }}>
             Category <span className="gradient-text">Hierarchies</span>
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginTop: '0.25rem' }}>
@@ -165,11 +163,12 @@ const AdminCategories = () => {
                 style={{
                   padding: '1.25rem',
                   borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--bg-surface)',
+                  backgroundColor: '#ffffff',
                   border: '1px solid var(--border-color)',
                   display: 'flex',
                   flexDirection: 'column',
-                  justifyContent: 'space-between'
+                  justifyContent: 'space-between',
+                  boxShadow: 'var(--shadow-sm)'
                 }}
               >
                 <div>
@@ -179,15 +178,15 @@ const AdminCategories = () => {
                         width: '32px',
                         height: '32px',
                         borderRadius: 'var(--radius-sm)',
-                        backgroundColor: 'rgba(99, 102, 241, 0.15)',
+                        backgroundColor: 'rgba(245, 158, 11, 0.12)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: 'var(--accent-primary)'
+                        color: 'var(--accent-orange)'
                       }}>
                         <Layers size={16} />
                       </div>
-                      <h3 style={{ fontSize: '1.05rem', fontWeight: '700', margin: 0, color: '#ffffff' }}>
+                      <h3 style={{ fontSize: '1.05rem', fontWeight: '700', margin: 0, color: 'var(--text-primary)' }}>
                         {cat.name}
                       </h3>
                     </div>
@@ -208,8 +207,8 @@ const AdminCategories = () => {
                   </p>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '0.75rem' }}>
-                  <span style={{ fontSize: '0.75rem', color: cat.is_active ? 'var(--accent-emerald)' : 'var(--accent-rose)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--border-color)', paddingTop: '0.75rem' }}>
+                  <span style={{ fontSize: '0.75rem', color: cat.is_active ? '#059669' : '#dc2626', fontWeight: '600' }}>
                     ● {cat.is_active ? 'Active' : 'Inactive'}
                   </span>
 
@@ -225,7 +224,7 @@ const AdminCategories = () => {
                     <button
                       onClick={() => setDeleteConfirmation(cat)}
                       className="btn btn-outline"
-                      style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', borderColor: 'rgba(244, 63, 94, 0.3)', color: '#fb7185' }}
+                      style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#dc2626' }}
                       title="Delete Category"
                     >
                       <Trash2 size={13} />
@@ -243,34 +242,35 @@ const AdminCategories = () => {
         <div style={{
           position: 'fixed',
           inset: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          backgroundColor: 'rgba(15, 23, 42, 0.55)',
           backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 9999,
           padding: '1.5rem'
         }}>
-          <div className="glass-card" style={{ maxWidth: '480px', width: '100%', backgroundColor: '#0f172a', borderRadius: 'var(--radius-lg)' }}>
+          <div className="glass-card" style={{ maxWidth: '480px', width: '100%', backgroundColor: '#ffffff', borderRadius: 'var(--radius-lg)', boxShadow: '0 20px 50px rgba(0,0,0,0.15)', padding: 0, overflow: 'hidden' }}>
             <div style={{
               padding: '1.25rem 1.5rem',
               borderBottom: '1px solid var(--border-color)',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(236, 72, 153, 0.15))'
+              background: 'linear-gradient(135deg, #fffbeb 0%, #ffedd5 100%)'
             }}>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0 }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0, color: 'var(--text-primary)' }}>
                 {editingCat ? 'Edit Category' : 'Add New Category'}
               </h3>
-              <button onClick={() => setIsModalOpen(false)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}>
-                <X size={18} />
+              <button onClick={() => setIsModalOpen(false)} style={{ background: '#ffffff', border: '1px solid var(--border-color)', borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+                <X size={16} />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
                   Category Name *
                 </label>
                 <input
@@ -278,18 +278,18 @@ const AdminCategories = () => {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.85rem' }}
+                  style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
                   Parent Category (Optional)
                 </label>
                 <select
                   value={formData.parent}
                   onChange={(e) => setFormData({ ...formData, parent: e.target.value })}
-                  style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.85rem' }}
+                  style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
                 >
                   <option value="">None (Top-Level Category)</option>
                   {categories.filter(c => !editingCat || c.id !== editingCat.id).map((c) => (
@@ -299,18 +299,18 @@ const AdminCategories = () => {
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
                   Description
                 </label>
                 <textarea
                   rows="3"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.85rem' }}
+                  style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
                 />
               </div>
 
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', cursor: 'pointer' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', cursor: 'pointer', color: 'var(--text-primary)', fontWeight: '600' }}>
                 <input
                   type="checkbox"
                   checked={formData.is_active}
@@ -337,17 +337,18 @@ const AdminCategories = () => {
         <div style={{
           position: 'fixed',
           inset: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          backgroundColor: 'rgba(15, 23, 42, 0.55)',
           backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 9999,
           padding: '1rem'
         }}>
-          <div className="glass-card" style={{ maxWidth: '440px', width: '100%', padding: '2rem', textAlign: 'center', backgroundColor: '#0f172a' }}>
-            <AlertTriangle size={36} color="var(--accent-rose)" style={{ margin: '0 auto 1rem' }} />
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '0.5rem' }}>Delete Category</h3>
+          <div className="glass-card" style={{ maxWidth: '440px', width: '100%', padding: '2rem', textAlign: 'center', backgroundColor: '#ffffff', boxShadow: '0 20px 50px rgba(0,0,0,0.15)' }}>
+            <AlertTriangle size={36} color="#dc2626" style={{ margin: '0 auto 1rem' }} />
+            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Delete Category</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginBottom: '1.5rem' }}>
               Are you sure you want to delete <strong>'{deleteConfirmation.name}'</strong>?
             </p>
@@ -358,7 +359,7 @@ const AdminCategories = () => {
               <button
                 onClick={() => handleDelete(deleteConfirmation.id)}
                 className="btn btn-primary"
-                style={{ backgroundColor: 'var(--accent-rose)', borderColor: 'var(--accent-rose)' }}
+                style={{ backgroundColor: '#dc2626', borderColor: '#dc2626' }}
               >
                 Yes, Delete
               </button>

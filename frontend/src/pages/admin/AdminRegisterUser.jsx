@@ -133,12 +133,12 @@ const AdminRegisterUser = () => {
               alignItems: 'center',
               justifyContent: 'center',
               color: '#ffffff',
-              boxShadow: 'var(--shadow-glow)'
+              boxShadow: '0 4px 12px rgba(245, 158, 11, 0.35)'
             }}>
               <UserPlus size={22} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, color: '#ffffff' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, color: 'var(--text-primary)' }}>
                 Account Registration Form
               </h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', margin: '0.15rem 0 0 0' }}>
@@ -171,7 +171,7 @@ const AdminRegisterUser = () => {
             <div style={{
               backgroundColor: 'rgba(16, 185, 129, 0.12)',
               border: '1px solid rgba(16, 185, 129, 0.35)',
-              color: '#34d399',
+              color: '#059669',
               padding: '0.85rem 1rem',
               borderRadius: 'var(--radius-md)',
               fontSize: '0.85rem',
@@ -185,7 +185,7 @@ const AdminRegisterUser = () => {
                 <CheckCircle size={18} style={{ flexShrink: 0 }} />
                 <span>{successMessage}</span>
               </div>
-              <Link to="/admin/customers" style={{ color: '#ffffff', fontWeight: '700', fontSize: '0.82rem', textDecoration: 'underline' }}>
+              <Link to="/admin/customers" style={{ color: 'var(--accent-orange)', fontWeight: '700', fontSize: '0.82rem', textDecoration: 'underline' }}>
                 View in Directory →
               </Link>
             </div>
@@ -210,7 +210,7 @@ const AdminRegisterUser = () => {
                     borderRadius: 'var(--radius-md)',
                     backgroundColor: 'var(--bg-surface)',
                     border: '1px solid var(--border-color)',
-                    color: '#ffffff',
+                    color: 'var(--text-primary)',
                     fontSize: '0.9rem',
                     outline: 'none'
                   }}
@@ -231,7 +231,7 @@ const AdminRegisterUser = () => {
                     borderRadius: 'var(--radius-md)',
                     backgroundColor: 'var(--bg-surface)',
                     border: '1px solid var(--border-color)',
-                    color: '#ffffff',
+                    color: 'var(--text-primary)',
                     fontSize: '0.9rem',
                     outline: 'none'
                   }}
@@ -258,7 +258,7 @@ const AdminRegisterUser = () => {
                       borderRadius: 'var(--radius-md)',
                       backgroundColor: 'var(--bg-surface)',
                       border: '1px solid var(--border-color)',
-                      color: '#ffffff',
+                      color: 'var(--text-primary)',
                       fontSize: '0.9rem',
                       outline: 'none'
                     }}
@@ -284,7 +284,7 @@ const AdminRegisterUser = () => {
                       borderRadius: 'var(--radius-md)',
                       backgroundColor: 'var(--bg-surface)',
                       border: '1px solid var(--border-color)',
-                      color: '#ffffff',
+                      color: 'var(--text-primary)',
                       fontSize: '0.9rem',
                       outline: 'none'
                     }}
@@ -311,7 +311,7 @@ const AdminRegisterUser = () => {
                     borderRadius: 'var(--radius-md)',
                     backgroundColor: 'var(--bg-surface)',
                     border: '1px solid var(--border-color)',
-                    color: '#ffffff',
+                    color: 'var(--text-primary)',
                     fontSize: '0.9rem',
                     outline: 'none'
                   }}
@@ -322,7 +322,7 @@ const AdminRegisterUser = () => {
 
             {/* ACCOUNT ROLE SELECTOR */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '700', marginBottom: '0.55rem', color: '#ffffff' }}>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '700', marginBottom: '0.55rem', color: 'var(--text-primary)' }}>
                 Account Role <span style={{ color: 'var(--accent-rose)' }}>*</span>
               </label>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
@@ -335,8 +335,8 @@ const AdminRegisterUser = () => {
                   gap: '0.35rem',
                   padding: '0.95rem 0.6rem',
                   borderRadius: 'var(--radius-md)',
-                  backgroundColor: regForm.role === 'customer' ? 'rgba(6, 182, 212, 0.16)' : 'var(--bg-surface)',
-                  border: regForm.role === 'customer' ? '2px solid var(--accent-cyan)' : '1px solid var(--border-color)',
+                  backgroundColor: regForm.role === 'customer' ? 'rgba(245, 158, 11, 0.15)' : '#ffffff',
+                  border: regForm.role === 'customer' ? '2px solid var(--accent-orange)' : '1px solid var(--border-color)',
                   cursor: 'pointer',
                   textAlign: 'center',
                   transition: 'all var(--transition-fast)'
@@ -349,9 +349,9 @@ const AdminRegisterUser = () => {
                     onChange={(e) => setRegForm({ ...regForm, role: e.target.value })}
                     style={{ display: 'none' }}
                   />
-                  <UserCheck size={22} color="var(--accent-cyan)" />
-                  <span style={{ fontSize: '0.88rem', fontWeight: '700', color: '#ffffff' }}>Customer</span>
-                  <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Storefront Shopper</span>
+                  <UserIcon size={20} color="var(--accent-orange)" />
+                  <span style={{ fontSize: '0.88rem', fontWeight: '700', color: 'var(--text-primary)' }}>Customer</span>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Standard Shopper</span>
                 </label>
 
                 {/* Admin Option */}
@@ -362,8 +362,8 @@ const AdminRegisterUser = () => {
                   gap: '0.35rem',
                   padding: '0.95rem 0.6rem',
                   borderRadius: 'var(--radius-md)',
-                  backgroundColor: regForm.role === 'admin' ? 'rgba(236, 72, 153, 0.18)' : 'var(--bg-surface)',
-                  border: regForm.role === 'admin' ? '2px solid #ec4899' : '1px solid var(--border-color)',
+                  backgroundColor: regForm.role === 'admin' ? 'rgba(234, 88, 12, 0.15)' : '#ffffff',
+                  border: regForm.role === 'admin' ? '2px solid var(--accent-orange)' : '1px solid var(--border-color)',
                   cursor: 'pointer',
                   textAlign: 'center',
                   transition: 'all var(--transition-fast)'
@@ -376,9 +376,9 @@ const AdminRegisterUser = () => {
                     onChange={(e) => setRegForm({ ...regForm, role: e.target.value })}
                     style={{ display: 'none' }}
                   />
-                  <Shield size={22} color="#ec4899" />
-                  <span style={{ fontSize: '0.88rem', fontWeight: '700', color: '#ffffff' }}>Admin</span>
-                  <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Full Store Governance</span>
+                  <Shield size={20} color="var(--accent-orange)" />
+                  <span style={{ fontSize: '0.88rem', fontWeight: '700', color: 'var(--text-primary)' }}>Admin</span>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Full System Control</span>
                 </label>
 
                 {/* Staff Option */}
@@ -389,8 +389,8 @@ const AdminRegisterUser = () => {
                   gap: '0.35rem',
                   padding: '0.95rem 0.6rem',
                   borderRadius: 'var(--radius-md)',
-                  backgroundColor: regForm.role === 'staff' ? 'rgba(245, 158, 11, 0.18)' : 'var(--bg-surface)',
-                  border: regForm.role === 'staff' ? '2px solid var(--accent-amber)' : '1px solid var(--border-color)',
+                  backgroundColor: regForm.role === 'staff' ? 'rgba(245, 158, 11, 0.15)' : '#ffffff',
+                  border: regForm.role === 'staff' ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
                   cursor: 'pointer',
                   textAlign: 'center',
                   transition: 'all var(--transition-fast)'
@@ -403,9 +403,9 @@ const AdminRegisterUser = () => {
                     onChange={(e) => setRegForm({ ...regForm, role: e.target.value })}
                     style={{ display: 'none' }}
                   />
-                  <Briefcase size={22} color="var(--accent-amber)" />
-                  <span style={{ fontSize: '0.88rem', fontWeight: '700', color: '#ffffff' }}>Staff</span>
-                  <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Orders & Inventory</span>
+                  <Briefcase size={20} color="var(--accent-primary)" />
+                  <span style={{ fontSize: '0.88rem', fontWeight: '700', color: 'var(--text-primary)' }}>Staff</span>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Operations & Catalog</span>
                 </label>
 
               </div>
@@ -415,7 +415,7 @@ const AdminRegisterUser = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>
-                  Password <span style={{ color: 'var(--accent-rose)' }}>*</span>
+                  Set Password <span style={{ color: 'var(--accent-rose)' }}>*</span>
                 </label>
                 <div style={{ position: 'relative' }}>
                   <input
@@ -430,7 +430,7 @@ const AdminRegisterUser = () => {
                       borderRadius: 'var(--radius-md)',
                       backgroundColor: 'var(--bg-surface)',
                       border: '1px solid var(--border-color)',
-                      color: '#ffffff',
+                      color: 'var(--text-primary)',
                       fontSize: '0.9rem',
                       outline: 'none'
                     }}
@@ -456,7 +456,7 @@ const AdminRegisterUser = () => {
                       borderRadius: 'var(--radius-md)',
                       backgroundColor: 'var(--bg-surface)',
                       border: '1px solid var(--border-color)',
-                      color: '#ffffff',
+                      color: 'var(--text-primary)',
                       fontSize: '0.9rem',
                       outline: 'none'
                     }}
@@ -467,13 +467,13 @@ const AdminRegisterUser = () => {
             </div>
 
             {/* Status Toggles */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginTop: '0.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginTop: '0.35rem' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)', cursor: 'pointer' }}>
                 <input
                   type="checkbox"
                   checked={regForm.is_active}
                   onChange={(e) => setRegForm({ ...regForm, is_active: e.target.checked })}
-                  style={{ accentColor: 'var(--accent-primary)' }}
+                  style={{ accentColor: 'var(--accent-orange)' }}
                 />
                 Active Account (Default)
               </label>
@@ -482,9 +482,9 @@ const AdminRegisterUser = () => {
                   type="checkbox"
                   checked={regForm.is_verified}
                   onChange={(e) => setRegForm({ ...regForm, is_verified: e.target.checked })}
-                  style={{ accentColor: 'var(--accent-primary)' }}
+                  style={{ accentColor: 'var(--accent-orange)' }}
                 />
-                Email Verified
+                Verified User
               </label>
             </div>
 

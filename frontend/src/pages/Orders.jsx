@@ -156,7 +156,7 @@ const Orders = () => {
                 {/* Left: Info & Status */}
                 <div style={{ flex: 1, minWidth: '260px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: '1.1rem', fontWeight: '800', color: '#ffffff' }}>
+                    <span style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--text-primary)' }}>
                       {order.order_number}
                     </span>
                     <span style={{
@@ -179,7 +179,7 @@ const Orders = () => {
                   </div>
 
                   <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.85rem' }}>
-                    Placed on <strong style={{ color: '#ffffff' }}>{order.formatted_date}</strong> • {order.total_items} {order.total_items === 1 ? 'item' : 'items'}
+                    Placed on <strong style={{ color: 'var(--text-primary)' }}>{order.formatted_date}</strong> • {order.total_items} {order.total_items === 1 ? 'item' : 'items'}
                   </div>
 
                   {/* Thumbnail gallery preview */}
@@ -196,7 +196,7 @@ const Orders = () => {
                               objectFit: 'cover',
                               borderRadius: 'var(--radius-sm)',
                               border: '1px solid var(--border-color)',
-                              backgroundColor: 'var(--bg-surface)'
+                              backgroundColor: '#fafaf9'
                             }}
                           />
                           {item.quantity > 1 && (
@@ -204,7 +204,7 @@ const Orders = () => {
                               position: 'absolute',
                               bottom: '-4px',
                               right: '-4px',
-                              backgroundColor: 'var(--accent-primary)',
+                              backgroundColor: 'var(--accent-orange)',
                               color: '#ffffff',
                               fontSize: '0.65rem',
                               fontWeight: '800',
@@ -227,7 +227,7 @@ const Orders = () => {
                 {/* Right: Grand Total & Action */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '1.35rem', fontWeight: '800', color: '#ffffff' }}>
+                    <div style={{ fontSize: '1.35rem', fontWeight: '800', color: 'var(--text-primary)' }}>
                       ₹{order.grand_total}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
@@ -238,10 +238,10 @@ const Orders = () => {
                   <Link
                     to={`/orders/${order.order_number}`}
                     className="btn btn-outline"
-                    style={{ padding: '0.6rem 1.1rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                    style={{ padding: '0.6rem 1.1rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                   >
                     <span>View Invoice & Track</span>
-                    <ChevronRight size={16} />
+                    <ChevronRight size={16} color="var(--accent-orange)" />
                   </Link>
                 </div>
               </div>

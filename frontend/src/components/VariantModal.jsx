@@ -1,49 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  X, 
-  ShoppingCart, 
-  Check, 
-  Layers, 
-  Star, 
-  ExternalLink,
-  Plus,
-  Minus,
-  Sparkles,
-  AlertCircle
-} from 'lucide-react';
+import { X, Check, ShoppingCart, Minus, Plus, ExternalLink, Sparkles } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
-const VariantModal = ({
-  isOpen,
-  onClose,
-  product
-}) => {
-  const { addToCart, isInCart } = useCart();
-
-  const [selectedColor, setSelectedColor] = useState('');
-  const [selectedSize, setSelectedSize] = useState('');
+const VariantModal = ({ isOpen, onClose, product }) => {
+  const { addToCart } = useCart();
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
 
-  // Initialize selected color and size when product changes
   useEffect(() => {
-    if (product) {
+    if (product && product.variants && product.variants.length > 0) {
+      // Pre-select first available in-stock variant
+      const firstInStock = product.variants.find(v => v.stock > 0) || product.variants[0];
+      setSelectedColor(firstInStock?.color_name || null);
+      setSelectedSize(firstInStock?.size_name || null);
       setQuantity(1);
-      const variants = product.variants || [];
-      const firstInStock = variants.find(v => v.stock > 0) || variants[0];
-
-      if (firstInStock) {
-        setSelectedColor(firstInStock.color_name || '');
-        setSelectedSize(firstInStock.size || '');
-      } else {
-        if (product.available_colors && product.available_colors.length > 0) {
-          setSelectedColor(product.available_colors[0].name || product.available_colors[0]);
-        }
-        if (product.available_sizes && product.available_sizes.length > 0) {
-          setSelectedSize(product.available_sizes[0]);
-        }
-      }
     }
   }, [product]);
 
@@ -51,43 +24,46 @@ const VariantModal = ({
 
   const variants = product.variants || [];
 
-  // Available colors list
-  const colorsList = product.available_colors && product.available_colors.length > 0
-    ? product.available_colors
-    : Array.from(new Set(variants.map(v => v.color_name).filter(Boolean))).map(name => {
-        const v = variants.find(item => item.color_name === name);
-        return { name, code: v?.color_code || '#6366f1' };
-      });
+  // Extract unique available colors and sizes
+  const colorsList = [];
+  const colorNamesSeen = new Set();
+  variants.forEach(v => {
+    if (v.color_name && !colorNamesSeen.has(v.color_name)) {
+      colorNamesSeen.add(v.color_name);
+      colorsList.push({ name: v.color_name, code: v.color_code });
+    }
+  });
 
-  // Available sizes for currently selected color
-  const sizesForColor = variants
-    .filter(v => !selectedColor || v.color_name === selectedColor)
-    .map(v => v.size)
-    .filter(Boolean);
+  const allSizesList = Array.from(new Set(variants.map(v => v.size_name).filter(Boolean)));
 
-  const allSizesList = product.available_sizes && product.available_sizes.length > 0
-    ? product.available_sizes
-    : Array.from(new Set(variants.map(v => v.size).filter(Boolean)));
-
-  // Current active variant matching both selected color & size
+  // Find currently matched variant based on selections
   const currentVariant = variants.find(v => {
     const matchColor = !selectedColor || v.color_name === selectedColor;
-    const matchSize = !selectedSize || v.size === selectedSize;
+    const matchSize = !selectedSize || v.size_name === selectedSize;
     return matchColor && matchSize;
   });
 
-  const variantStock = currentVariant ? currentVariant.stock : (product.stock || 0);
-  const isVariantInStock = currentVariant ? (currentVariant.stock > 0) : (product.in_stock && product.stock > 0);
-  const displayPrice = currentVariant?.price_override || product.current_price || product.price;
+  // Calculate sizes available for the currently chosen color
+  const sizesForColor = variants
+    .filter(v => !selectedColor || v.color_name === selectedColor)
+    .map(v => v.size_name)
+    .filter(Boolean);
+
+  const displayPrice = currentVariant ? currentVariant.price : product.price;
+  const isVariantInStock = currentVariant ? currentVariant.stock > 0 : product.stock > 0;
+  const variantStock = currentVariant ? currentVariant.stock : product.stock;
 
   const handleAddToCart = async () => {
-    if (!isVariantInStock) return;
+    if (!currentVariant && product.has_variants) {
+      alert('Please select valid options.');
+      return;
+    }
     setIsAdding(true);
     try {
-      await addToCart(product.id, quantity, { variantId: currentVariant?.id });
+      await addToCart(product.id, quantity, currentVariant?.id);
       onClose();
     } catch (err) {
-      console.error('Failed to add variant to cart:', err);
+      console.error('Variant add to cart error:', err);
     } finally {
       setIsAdding(false);
     }
@@ -97,8 +73,9 @@ const VariantModal = ({
     <div style={{
       position: 'fixed',
       inset: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.82)',
+      backgroundColor: 'rgba(15, 23, 42, 0.55)',
       backdropFilter: 'blur(8px)',
+      WebkitBackdropFilter: 'blur(8px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -108,15 +85,15 @@ const VariantModal = ({
       <div 
         className="glass-card" 
         style={{
-          maxWidth: '520px',
+          maxWidth: '500px',
           width: '100%',
           borderRadius: 'var(--radius-lg)',
-          border: '1px solid rgba(255, 255, 255, 0.15)',
-          backgroundColor: '#0f172a',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), var(--shadow-glow)',
+          border: '1px solid var(--border-color)',
+          backgroundColor: '#ffffff',
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.15)',
           overflow: 'hidden',
           position: 'relative',
-          padding: '2rem'
+          padding: '1.75rem'
         }}
       >
         {/* Close Button */}
@@ -126,16 +103,17 @@ const VariantModal = ({
             position: 'absolute',
             top: '16px',
             right: '16px',
-            background: 'rgba(255, 255, 255, 0.1)',
-            border: 'none',
+            background: '#f5f5f4',
+            border: '1px solid var(--border-color)',
             borderRadius: '50%',
             width: '32px',
             height: '32px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#ffffff',
-            cursor: 'pointer'
+            color: 'var(--text-secondary)',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
           }}
           title="Close"
         >
@@ -143,13 +121,13 @@ const VariantModal = ({
         </button>
 
         {/* Product Header Row */}
-        <div style={{ display: 'flex', gap: '1.25rem', marginBottom: '1.5rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '1.25rem', marginBottom: '1.25rem', alignItems: 'center' }}>
           <img
             src={product.primary_image || 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=300&auto=format&fit=crop&q=80'}
             alt={product.name}
             style={{
-              width: '84px',
-              height: '84px',
+              width: '80px',
+              height: '80px',
               objectFit: 'cover',
               borderRadius: 'var(--radius-md)',
               border: '1px solid var(--border-color)',
@@ -157,23 +135,23 @@ const VariantModal = ({
             }}
           />
           <div style={{ flex: 1 }}>
-            <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--accent-primary)', fontWeight: '700' }}>
+            <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--accent-orange)', fontWeight: '700' }}>
               {product.brand_name || product.category_name || 'Select Options'}
             </span>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: '800', color: '#ffffff', marginBottom: '0.35rem', lineHeight: '1.3' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '0.3rem', lineHeight: '1.3' }}>
               {product.name}
             </h3>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.6rem' }}>
-              <span style={{ fontSize: '1.3rem', fontWeight: '800', color: '#ffffff' }}>
-                ₹{displayPrice}
+              <span style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text-primary)' }}>
+                ₹{parseFloat(displayPrice || 0).toLocaleString('en-IN')}
               </span>
               {product.has_discount && (
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textDecoration: 'line-through' }}>
+                <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', textDecoration: 'line-through' }}>
                   ₹{product.price}
                 </span>
               )}
               {product.has_discount && (
-                <span style={{ fontSize: '0.72rem', fontWeight: '800', color: '#fb7185', background: 'rgba(244, 63, 94, 0.15)', padding: '0.15rem 0.4rem', borderRadius: '4px' }}>
+                <span style={{ fontSize: '0.7rem', fontWeight: '800', color: '#dc2626', background: 'rgba(239, 68, 68, 0.1)', padding: '0.15rem 0.4rem', borderRadius: '4px' }}>
                   -{product.discount_percentage}% OFF
                 </span>
               )}
@@ -184,14 +162,14 @@ const VariantModal = ({
         {/* Color Options Selection */}
         {colorsList.length > 0 && (
           <div style={{ marginBottom: '1.25rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
-              <span style={{ fontWeight: '700', color: '#ffffff' }}>Select Color:</span>
-              <span style={{ color: 'var(--accent-primary)', fontWeight: '700' }}>{selectedColor || 'Choose Color'}</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.45rem', fontSize: '0.85rem' }}>
+              <span style={{ fontWeight: '700', color: 'var(--text-primary)' }}>Select Color:</span>
+              <span style={{ color: 'var(--accent-orange)', fontWeight: '700' }}>{selectedColor || 'Choose Color'}</span>
             </div>
-            <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               {colorsList.map((col, idx) => {
                 const colorName = typeof col === 'string' ? col : col.name;
-                const colorCode = typeof col === 'object' ? col.code : '#6366f1';
+                const colorCode = typeof col === 'object' ? col.code : '#f59e0b';
                 const isSelected = selectedColor === colorName;
 
                 return (
@@ -203,11 +181,11 @@ const VariantModal = ({
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.45rem',
-                      padding: '0.45rem 0.85rem',
+                      padding: '0.38rem 0.8rem',
                       borderRadius: 'var(--radius-full)',
-                      border: isSelected ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
-                      backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.15)' : 'var(--bg-surface)',
-                      color: isSelected ? '#ffffff' : 'var(--text-secondary)',
+                      border: isSelected ? '2px solid var(--accent-orange)' : '1px solid var(--border-color)',
+                      backgroundColor: isSelected ? 'rgba(245, 158, 11, 0.12)' : '#ffffff',
+                      color: isSelected ? 'var(--accent-orange)' : 'var(--text-secondary)',
                       cursor: 'pointer',
                       fontSize: '0.82rem',
                       fontWeight: isSelected ? '700' : '500',
@@ -218,8 +196,8 @@ const VariantModal = ({
                       width: '14px',
                       height: '14px',
                       borderRadius: '50%',
-                      backgroundColor: colorCode || '#6366f1',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      backgroundColor: colorCode || '#f59e0b',
+                      border: '1px solid rgba(0, 0, 0, 0.15)',
                       display: 'inline-block'
                     }} />
                     <span>{colorName}</span>
@@ -232,10 +210,10 @@ const VariantModal = ({
 
         {/* Size Options Selection */}
         {allSizesList.length > 0 && (
-          <div style={{ marginBottom: '1.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
-              <span style={{ fontWeight: '700', color: '#ffffff' }}>Select Size:</span>
-              <span style={{ color: 'var(--accent-primary)', fontWeight: '700' }}>{selectedSize || 'Choose Size'}</span>
+          <div style={{ marginBottom: '1.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.45rem', fontSize: '0.85rem' }}>
+              <span style={{ fontWeight: '700', color: 'var(--text-primary)' }}>Select Size:</span>
+              <span style={{ color: 'var(--accent-orange)', fontWeight: '700' }}>{selectedSize || 'Choose Size'}</span>
             </div>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               {allSizesList.map((sizeName, idx) => {
@@ -249,17 +227,17 @@ const VariantModal = ({
                     disabled={!isAvailableForColor}
                     onClick={() => setSelectedSize(sizeName)}
                     style={{
-                      minWidth: '46px',
-                      height: '38px',
-                      padding: '0 0.8rem',
+                      minWidth: '42px',
+                      height: '36px',
+                      padding: '0 0.75rem',
                       borderRadius: 'var(--radius-sm)',
-                      border: isSelected ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
-                      backgroundColor: isSelected ? 'var(--accent-primary)' : isAvailableForColor ? 'var(--bg-surface)' : 'rgba(255, 255, 255, 0.03)',
-                      color: isSelected ? '#ffffff' : isAvailableForColor ? '#ffffff' : 'var(--text-muted)',
+                      border: isSelected ? '2px solid var(--accent-orange)' : '1px solid var(--border-color)',
+                      backgroundColor: isSelected ? 'var(--accent-primary)' : isAvailableForColor ? '#ffffff' : '#f5f5f4',
+                      color: isSelected ? '#ffffff' : isAvailableForColor ? 'var(--text-primary)' : 'var(--text-muted)',
                       cursor: isAvailableForColor ? 'pointer' : 'not-allowed',
                       fontSize: '0.85rem',
                       fontWeight: '700',
-                      opacity: isAvailableForColor ? 1 : 0.4,
+                      opacity: isAvailableForColor ? 1 : 0.5,
                       textDecoration: isAvailableForColor ? 'none' : 'line-through',
                       transition: 'all 0.2s ease'
                     }}
@@ -277,31 +255,31 @@ const VariantModal = ({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '0.75rem 1rem',
+          padding: '0.65rem 0.9rem',
           borderRadius: 'var(--radius-sm)',
-          backgroundColor: 'var(--bg-surface)',
+          backgroundColor: '#fafaf9',
           border: '1px solid var(--border-color)',
-          marginBottom: '1.5rem'
+          marginBottom: '1.25rem'
         }}>
           <div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Availability</div>
-            <div style={{ fontSize: '0.88rem', fontWeight: '700', color: isVariantInStock ? 'var(--accent-emerald)' : 'var(--accent-rose)' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Availability</div>
+            <div style={{ fontSize: '0.85rem', fontWeight: '700', color: isVariantInStock ? '#059669' : '#dc2626' }}>
               {isVariantInStock ? `In Stock (${variantStock} available)` : 'Out of Stock'}
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
             <button
               type="button"
               disabled={quantity <= 1}
               onClick={() => setQuantity(q => Math.max(1, q - 1))}
               style={{
-                width: '32px',
-                height: '32px',
+                width: '30px',
+                height: '30px',
                 borderRadius: 'var(--radius-sm)',
-                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                backgroundColor: '#ffffff',
                 border: '1px solid var(--border-color)',
-                color: '#ffffff',
+                color: 'var(--text-primary)',
                 cursor: quantity <= 1 ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -310,7 +288,7 @@ const VariantModal = ({
             >
               <Minus size={14} />
             </button>
-            <span style={{ minWidth: '24px', textAlign: 'center', fontWeight: '800', fontSize: '0.95rem' }}>
+            <span style={{ minWidth: '22px', textAlign: 'center', fontWeight: '800', fontSize: '0.9rem', color: 'var(--text-primary)' }}>
               {quantity}
             </span>
             <button
@@ -318,12 +296,12 @@ const VariantModal = ({
               disabled={quantity >= variantStock}
               onClick={() => setQuantity(q => Math.min(variantStock, q + 1))}
               style={{
-                width: '32px',
-                height: '32px',
+                width: '30px',
+                height: '30px',
                 borderRadius: 'var(--radius-sm)',
-                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                backgroundColor: '#ffffff',
                 border: '1px solid var(--border-color)',
-                color: '#ffffff',
+                color: 'var(--text-primary)',
                 cursor: quantity >= variantStock ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -336,13 +314,13 @@ const VariantModal = ({
         </div>
 
         {/* Action Buttons */}
-        <div style={{ display: 'flex', gap: '0.75rem', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', gap: '0.65rem', flexDirection: 'column' }}>
           <button
             type="button"
             disabled={!isVariantInStock || isAdding}
             onClick={handleAddToCart}
             className="btn btn-primary"
-            style={{ width: '100%', padding: '0.85rem', fontSize: '0.95rem', fontWeight: '800' }}
+            style={{ width: '100%', padding: '0.75rem', fontSize: '0.92rem', fontWeight: '800' }}
           >
             {isAdding ? (
               'Adding to Cart...'
@@ -350,7 +328,7 @@ const VariantModal = ({
               'Selected Option Out of Stock'
             ) : (
               <>
-                <ShoppingCart size={16} /> Add to Cart (₹{(parseFloat(displayPrice || 0) * quantity).toFixed(2)})
+                <ShoppingCart size={16} /> Add to Cart (₹{(parseFloat(displayPrice || 0) * quantity).toLocaleString('en-IN')})
               </>
             )}
           </button>
@@ -364,14 +342,14 @@ const VariantModal = ({
               justifyContent: 'center',
               gap: '0.4rem',
               color: 'var(--text-secondary)',
-              fontSize: '0.85rem',
+              fontSize: '0.82rem',
               fontWeight: '600',
               textDecoration: 'none',
-              padding: '0.4rem'
+              padding: '0.3rem'
             }}
           >
-            <span>View Full Product Specifications & Details</span>
-            <ExternalLink size={14} />
+            <span>View Full Product Specifications</span>
+            <ExternalLink size={13} />
           </Link>
         </div>
 

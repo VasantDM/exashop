@@ -88,7 +88,7 @@ const Categories = () => {
                 onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}
               >
                 {/* Banner Image with Gradient Overlay */}
-                <div style={{ position: 'relative', height: '180px', overflow: 'hidden' }}>
+                <div style={{ position: 'relative', height: '180px', overflow: 'hidden', backgroundColor: '#fafaf9' }}>
                   <img
                     src={cat.display_image}
                     alt={cat.name}
@@ -104,7 +104,7 @@ const Categories = () => {
                   <div style={{
                     position: 'absolute',
                     inset: 0,
-                    background: 'linear-gradient(to top, rgba(17, 24, 39, 0.95) 0%, rgba(17, 24, 39, 0.4) 60%, transparent 100%)'
+                    background: 'linear-gradient(to top, rgba(15, 23, 42, 0.75) 0%, rgba(15, 23, 42, 0.2) 60%, transparent 100%)'
                   }} />
 
                   {/* Icon Badge */}
@@ -119,7 +119,7 @@ const Categories = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: 'var(--shadow-glow)'
+                    boxShadow: '0 4px 12px rgba(245, 158, 11, 0.35)'
                   }}>
                     <IconComponent size={20} color="#ffffff" />
                   </div>
@@ -129,10 +129,10 @@ const Categories = () => {
                     position: 'absolute',
                     bottom: '16px',
                     right: '16px',
-                    backgroundColor: 'rgba(99, 102, 241, 0.25)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.92)',
                     backdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(99, 102, 241, 0.4)',
-                    color: '#c7d2fe',
+                    border: '1px solid rgba(245, 158, 11, 0.4)',
+                    color: 'var(--accent-orange)',
                     fontSize: '0.75rem',
                     fontWeight: '700',
                     padding: '0.25rem 0.65rem',
@@ -145,7 +145,7 @@ const Categories = () => {
                 {/* Content Card Info */}
                 <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                   <div>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '0.4rem' }}>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '0.4rem', color: 'var(--text-primary)' }}>
                       {cat.name}
                     </h3>
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '1.25rem' }}>
@@ -159,11 +159,12 @@ const Categories = () => {
                       {cat.subcategories.map((sub) => (
                         <span key={sub.id} style={{
                           fontSize: '0.75rem',
-                          backgroundColor: 'var(--bg-surface)',
-                          border: '1px solid var(--border-color)',
+                          backgroundColor: 'rgba(245, 158, 11, 0.08)',
+                          border: '1px solid rgba(245, 158, 11, 0.25)',
                           padding: '0.15rem 0.5rem',
                           borderRadius: 'var(--radius-sm)',
-                          color: 'var(--text-secondary)'
+                          color: 'var(--accent-orange)',
+                          fontWeight: '600'
                         }}>
                           {sub.name}
                         </span>
@@ -175,7 +176,7 @@ const Categories = () => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.4rem',
-                    color: 'var(--accent-primary)',
+                    color: 'var(--accent-orange)',
                     fontWeight: '700',
                     fontSize: '0.85rem',
                     borderTop: '1px solid var(--border-color)',

@@ -263,7 +263,7 @@ const AdminCustomers = () => {
               <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 All Accounts
               </div>
-              <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#ffffff', marginTop: '0.25rem' }}>
+              <div style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--text-primary)', marginTop: '0.25rem' }}>
                 {stats.total}
               </div>
             </div>
@@ -271,11 +271,11 @@ const AdminCustomers = () => {
               width: '42px',
               height: '42px',
               borderRadius: 'var(--radius-md)',
-              backgroundColor: 'rgba(99, 102, 241, 0.15)',
+              backgroundColor: 'rgba(245, 158, 11, 0.15)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: 'var(--accent-primary)'
+              color: 'var(--accent-orange)'
             }}>
               <Users size={22} />
             </div>
@@ -338,7 +338,7 @@ const AdminCustomers = () => {
               <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 Customers
               </div>
-              <div style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--accent-cyan)', marginTop: '0.25rem' }}>
+              <div style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--accent-orange)', marginTop: '0.25rem' }}>
                 {stats.customers}
               </div>
             </div>
@@ -346,11 +346,11 @@ const AdminCustomers = () => {
               width: '42px',
               height: '42px',
               borderRadius: 'var(--radius-md)',
-              backgroundColor: 'rgba(6, 182, 212, 0.15)',
+              backgroundColor: 'rgba(245, 158, 11, 0.15)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: 'var(--accent-cyan)'
+              color: 'var(--accent-orange)'
             }}>
               <UserIcon size={22} />
             </div>
@@ -363,7 +363,7 @@ const AdminCustomers = () => {
               <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 Admins / Staff
               </div>
-              <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#ec4899', marginTop: '0.25rem' }}>
+              <div style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--accent-orange)', marginTop: '0.25rem' }}>
                 {(stats.admins || 0) + (stats.staff || 0)}
               </div>
             </div>
@@ -371,11 +371,11 @@ const AdminCustomers = () => {
               width: '42px',
               height: '42px',
               borderRadius: 'var(--radius-md)',
-              backgroundColor: 'rgba(236, 72, 153, 0.15)',
+              backgroundColor: 'rgba(245, 158, 11, 0.15)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#ec4899'
+              color: 'var(--accent-orange)'
             }}>
               <Shield size={22} />
             </div>
@@ -407,14 +407,15 @@ const AdminCustomers = () => {
                     padding: '0.4rem 0.85rem',
                     borderRadius: 'var(--radius-md)',
                     fontSize: '0.82rem',
-                    fontWeight: isActive ? '700' : '500',
+                    fontWeight: isActive ? '700' : '600',
                     color: isActive ? '#ffffff' : 'var(--text-secondary)',
-                    backgroundColor: isActive ? 'var(--accent-primary)' : 'rgba(255, 255, 255, 0.05)',
-                    border: isActive ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                    backgroundColor: isActive ? 'var(--accent-orange)' : '#ffffff',
+                    border: isActive ? '1px solid var(--accent-orange)' : '1px solid var(--border-color)',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.45rem',
+                    boxShadow: isActive ? '0 2px 8px rgba(234, 88, 12, 0.25)' : 'none',
                     transition: 'all var(--transition-fast)'
                   }}
                 >
@@ -423,7 +424,7 @@ const AdminCustomers = () => {
                     fontSize: '0.7rem',
                     padding: '0.1rem 0.4rem',
                     borderRadius: '999px',
-                    backgroundColor: isActive ? 'rgba(0, 0, 0, 0.25)' : 'rgba(255, 255, 255, 0.08)',
+                    backgroundColor: isActive ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.06)',
                     color: isActive ? '#ffffff' : 'var(--text-muted)'
                   }}>
                     {tab.count}
@@ -437,7 +438,7 @@ const AdminCustomers = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', flex: 1, justifyContent: 'flex-end' }}>
             
             {/* Status Filter */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', backgroundColor: 'var(--bg-surface)', padding: '0.2rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', backgroundColor: '#ffffff', padding: '0.2rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
               {[
                 { key: 'all', label: 'All Status' },
                 { key: 'active', label: 'Active Only' },
@@ -452,10 +453,11 @@ const AdminCustomers = () => {
                       padding: '0.35rem 0.75rem',
                       borderRadius: 'var(--radius-sm)',
                       fontSize: '0.78rem',
-                      fontWeight: isSelected ? '700' : '500',
-                      color: isSelected ? '#ffffff' : 'var(--text-muted)',
-                      backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.12)' : 'transparent',
+                      fontWeight: isSelected ? '700' : '600',
+                      color: isSelected ? '#ffffff' : 'var(--text-secondary)',
+                      backgroundColor: isSelected ? 'var(--accent-orange)' : 'transparent',
                       cursor: 'pointer',
+                      border: 'none',
                       transition: 'all var(--transition-fast)'
                     }}
                   >
@@ -478,7 +480,7 @@ const AdminCustomers = () => {
                   borderRadius: 'var(--radius-md)',
                   backgroundColor: 'var(--bg-surface)',
                   border: '1px solid var(--border-color)',
-                  color: '#fff',
+                  color: 'var(--text-primary)',
                   fontSize: '0.85rem',
                   outline: 'none'
                 }}
@@ -520,20 +522,20 @@ const AdminCustomers = () => {
                   const isRoleAdmin = cust.role === 'admin';
                   const isRoleStaff = cust.role === 'staff';
 
-                  let roleBadgeBg = 'rgba(6, 182, 212, 0.15)';
-                  let roleBadgeBorder = 'rgba(6, 182, 212, 0.4)';
-                  let roleBadgeColor = 'var(--accent-cyan)';
+                  let roleBadgeBg = 'rgba(245, 158, 11, 0.12)';
+                  let roleBadgeBorder = 'rgba(245, 158, 11, 0.35)';
+                  let roleBadgeColor = 'var(--accent-orange)';
                   let RoleIcon = UserIcon;
 
                   if (isRoleAdmin) {
-                    roleBadgeBg = 'rgba(236, 72, 153, 0.15)';
-                    roleBadgeBorder = 'rgba(236, 72, 153, 0.4)';
-                    roleBadgeColor = '#ec4899';
+                    roleBadgeBg = 'rgba(234, 88, 12, 0.12)';
+                    roleBadgeBorder = 'rgba(234, 88, 12, 0.35)';
+                    roleBadgeColor = 'var(--accent-orange)';
                     RoleIcon = Shield;
                   } else if (isRoleStaff) {
                     roleBadgeBg = 'rgba(245, 158, 11, 0.15)';
                     roleBadgeBorder = 'rgba(245, 158, 11, 0.4)';
-                    roleBadgeColor = 'var(--accent-amber)';
+                    roleBadgeColor = 'var(--accent-primary)';
                     RoleIcon = Briefcase;
                   }
 
@@ -541,7 +543,7 @@ const AdminCustomers = () => {
                     <tr 
                       key={cust.id} 
                       style={{ 
-                        borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                        borderBottom: '1px solid var(--border-color)',
                         opacity: cust.is_active ? 1 : 0.65,
                         backgroundColor: cust.is_active ? 'transparent' : 'rgba(244, 63, 94, 0.03)'
                       }}
@@ -552,19 +554,19 @@ const AdminCustomers = () => {
                           width: '38px',
                           height: '38px',
                           borderRadius: '50%',
-                          backgroundColor: !cust.is_active ? 'var(--text-muted)' : (isRoleAdmin ? '#ec4899' : isRoleStaff ? 'var(--accent-amber)' : 'var(--accent-primary)'),
+                          background: !cust.is_active ? 'var(--text-muted)' : (isRoleAdmin ? 'var(--accent-gradient)' : isRoleStaff ? 'var(--accent-gradient)' : 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)'),
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           fontWeight: '800',
                           color: '#ffffff',
                           fontSize: '0.85rem',
-                          boxShadow: cust.is_active && isRoleAdmin ? '0 0 10px rgba(236, 72, 153, 0.4)' : 'none'
+                          boxShadow: cust.is_active ? '0 2px 8px rgba(245, 158, 11, 0.3)' : 'none'
                         }}>
                           {cust.first_name ? cust.first_name[0].toUpperCase() : (cust.username ? cust.username[0].toUpperCase() : 'U')}
                         </div>
                         <div>
-                          <div style={{ fontWeight: '700', color: '#ffffff' }}>
+                          <div style={{ fontWeight: '700', color: 'var(--text-primary)' }}>
                             {cust.full_name || cust.username}
                             {!cust.is_active && (
                               <span style={{ fontSize: '0.68rem', color: '#fb7185', marginLeft: '0.5rem', fontWeight: '600' }}>
@@ -578,7 +580,7 @@ const AdminCustomers = () => {
 
                       {/* Contact */}
                       <td style={{ padding: '0.85rem 0.75rem' }}>
-                        <div style={{ color: '#ffffff' }}>{cust.email}</div>
+                        <div style={{ color: 'var(--text-primary)', fontWeight: '500' }}>{cust.email}</div>
                         <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{cust.phone_number || 'No phone'}</div>
                       </td>
 
@@ -604,7 +606,7 @@ const AdminCustomers = () => {
                       </td>
 
                       {/* Orders */}
-                      <td style={{ padding: '0.85rem 0.75rem', fontWeight: '600', color: '#ffffff' }}>
+                      <td style={{ padding: '0.85rem 0.75rem', fontWeight: '600', color: 'var(--text-primary)' }}>
                         {cust.total_orders || 0} orders
                       </td>
 
@@ -702,8 +704,9 @@ const AdminCustomers = () => {
         <div style={{
           position: 'fixed',
           inset: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.85)',
+          backgroundColor: 'rgba(15, 23, 42, 0.6)',
           backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -714,9 +717,9 @@ const AdminCustomers = () => {
           <div className="glass-card" style={{
             maxWidth: '560px',
             width: '100%',
-            backgroundColor: '#0f172a',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
+            backgroundColor: '#ffffff',
+            border: '1px solid var(--border-color)',
+            boxShadow: 'var(--shadow-xl)',
             padding: '2rem'
           }}>
             {/* Modal Header */}
@@ -730,15 +733,16 @@ const AdminCustomers = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#ffffff'
+                  color: '#ffffff',
+                  boxShadow: '0 4px 12px rgba(245, 158, 11, 0.35)'
                 }}>
                   <UserPlus size={18} />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, color: '#ffffff' }}>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, color: 'var(--text-primary)' }}>
                     Register New User
                   </h3>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
                     Admin Panel Account Creation with Role Assignment
                   </div>
                 </div>
@@ -797,7 +801,7 @@ const AdminCustomers = () => {
                       borderRadius: 'var(--radius-md)',
                       backgroundColor: 'var(--bg-surface)',
                       border: '1px solid var(--border-color)',
-                      color: '#ffffff',
+                      color: 'var(--text-primary)',
                       fontSize: '0.88rem',
                       outline: 'none'
                     }}
@@ -818,7 +822,7 @@ const AdminCustomers = () => {
                       borderRadius: 'var(--radius-md)',
                       backgroundColor: 'var(--bg-surface)',
                       border: '1px solid var(--border-color)',
-                      color: '#ffffff',
+                      color: 'var(--text-primary)',
                       fontSize: '0.88rem',
                       outline: 'none'
                     }}
@@ -845,7 +849,7 @@ const AdminCustomers = () => {
                         borderRadius: 'var(--radius-md)',
                         backgroundColor: 'var(--bg-surface)',
                         border: '1px solid var(--border-color)',
-                        color: '#ffffff',
+                        color: 'var(--text-primary)',
                         fontSize: '0.88rem',
                         outline: 'none'
                       }}
@@ -871,7 +875,7 @@ const AdminCustomers = () => {
                         borderRadius: 'var(--radius-md)',
                         backgroundColor: 'var(--bg-surface)',
                         border: '1px solid var(--border-color)',
-                        color: '#ffffff',
+                        color: 'var(--text-primary)',
                         fontSize: '0.88rem',
                         outline: 'none'
                       }}
@@ -898,7 +902,7 @@ const AdminCustomers = () => {
                       borderRadius: 'var(--radius-md)',
                       backgroundColor: 'var(--bg-surface)',
                       border: '1px solid var(--border-color)',
-                      color: '#ffffff',
+                      color: 'var(--text-primary)',
                       fontSize: '0.88rem',
                       outline: 'none'
                     }}
@@ -909,7 +913,7 @@ const AdminCustomers = () => {
 
               {/* ACCOUNT ROLE SELECTOR (Admin Exclusive Feature) */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '700', marginBottom: '0.5rem', color: '#ffffff' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '700', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
                   Assign Account Role <span style={{ color: 'var(--accent-rose)' }}>*</span>
                 </label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
@@ -922,8 +926,8 @@ const AdminCustomers = () => {
                     gap: '0.35rem',
                     padding: '0.85rem 0.5rem',
                     borderRadius: 'var(--radius-md)',
-                    backgroundColor: regForm.role === 'customer' ? 'rgba(6, 182, 212, 0.15)' : 'var(--bg-surface)',
-                    border: regForm.role === 'customer' ? '2px solid var(--accent-cyan)' : '1px solid var(--border-color)',
+                    backgroundColor: regForm.role === 'customer' ? 'rgba(245, 158, 11, 0.15)' : '#ffffff',
+                    border: regForm.role === 'customer' ? '2px solid var(--accent-orange)' : '1px solid var(--border-color)',
                     cursor: 'pointer',
                     textAlign: 'center',
                     transition: 'all var(--transition-fast)'
@@ -936,9 +940,9 @@ const AdminCustomers = () => {
                       onChange={(e) => setRegForm({ ...regForm, role: e.target.value })}
                       style={{ display: 'none' }}
                     />
-                    <UserIcon size={20} color="var(--accent-cyan)" />
-                    <span style={{ fontSize: '0.85rem', fontWeight: '700', color: '#ffffff' }}>Customer</span>
-                    <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Storefront Shopper</span>
+                    <UserIcon size={20} color="var(--accent-orange)" />
+                    <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)' }}>Customer</span>
+                    <span style={{ fontSize: '0.68rem', color: 'var(--text-secondary)' }}>Storefront Shopper</span>
                   </label>
 
                   {/* Admin Option */}
@@ -949,8 +953,8 @@ const AdminCustomers = () => {
                     gap: '0.35rem',
                     padding: '0.85rem 0.5rem',
                     borderRadius: 'var(--radius-md)',
-                    backgroundColor: regForm.role === 'admin' ? 'rgba(236, 72, 153, 0.18)' : 'var(--bg-surface)',
-                    border: regForm.role === 'admin' ? '2px solid #ec4899' : '1px solid var(--border-color)',
+                    backgroundColor: regForm.role === 'admin' ? 'rgba(234, 88, 12, 0.15)' : '#ffffff',
+                    border: regForm.role === 'admin' ? '2px solid var(--accent-orange)' : '1px solid var(--border-color)',
                     cursor: 'pointer',
                     textAlign: 'center',
                     transition: 'all var(--transition-fast)'
@@ -963,9 +967,9 @@ const AdminCustomers = () => {
                       onChange={(e) => setRegForm({ ...regForm, role: e.target.value })}
                       style={{ display: 'none' }}
                     />
-                    <Shield size={20} color="#ec4899" />
-                    <span style={{ fontSize: '0.85rem', fontWeight: '700', color: '#ffffff' }}>Admin</span>
-                    <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Full Store Control</span>
+                    <Shield size={20} color="var(--accent-orange)" />
+                    <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)' }}>Admin</span>
+                    <span style={{ fontSize: '0.68rem', color: 'var(--text-secondary)' }}>Full Store Control</span>
                   </label>
 
                   {/* Staff Option */}
@@ -976,8 +980,8 @@ const AdminCustomers = () => {
                     gap: '0.35rem',
                     padding: '0.85rem 0.5rem',
                     borderRadius: 'var(--radius-md)',
-                    backgroundColor: regForm.role === 'staff' ? 'rgba(245, 158, 11, 0.18)' : 'var(--bg-surface)',
-                    border: regForm.role === 'staff' ? '2px solid var(--accent-amber)' : '1px solid var(--border-color)',
+                    backgroundColor: regForm.role === 'staff' ? 'rgba(245, 158, 11, 0.15)' : '#ffffff',
+                    border: regForm.role === 'staff' ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
                     cursor: 'pointer',
                     textAlign: 'center',
                     transition: 'all var(--transition-fast)'
@@ -990,9 +994,9 @@ const AdminCustomers = () => {
                       onChange={(e) => setRegForm({ ...regForm, role: e.target.value })}
                       style={{ display: 'none' }}
                     />
-                    <Briefcase size={20} color="var(--accent-amber)" />
-                    <span style={{ fontSize: '0.85rem', fontWeight: '700', color: '#ffffff' }}>Staff</span>
-                    <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Operations & Orders</span>
+                    <Briefcase size={20} color="var(--accent-primary)" />
+                    <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)' }}>Staff</span>
+                    <span style={{ fontSize: '0.68rem', color: 'var(--text-secondary)' }}>Operations & Orders</span>
                   </label>
 
                 </div>
@@ -1017,7 +1021,7 @@ const AdminCustomers = () => {
                         borderRadius: 'var(--radius-md)',
                         backgroundColor: 'var(--bg-surface)',
                         border: '1px solid var(--border-color)',
-                        color: '#ffffff',
+                        color: 'var(--text-primary)',
                         fontSize: '0.88rem',
                         outline: 'none'
                       }}
@@ -1043,7 +1047,7 @@ const AdminCustomers = () => {
                         borderRadius: 'var(--radius-md)',
                         backgroundColor: 'var(--bg-surface)',
                         border: '1px solid var(--border-color)',
-                        color: '#ffffff',
+                        color: 'var(--text-primary)',
                         fontSize: '0.88rem',
                         outline: 'none'
                       }}
@@ -1060,7 +1064,7 @@ const AdminCustomers = () => {
                     type="checkbox"
                     checked={regForm.is_active}
                     onChange={(e) => setRegForm({ ...regForm, is_active: e.target.checked })}
-                    style={{ accentColor: 'var(--accent-primary)' }}
+                    style={{ accentColor: 'var(--accent-orange)' }}
                   />
                   Active Immediately (default)
                 </label>
@@ -1069,7 +1073,7 @@ const AdminCustomers = () => {
                     type="checkbox"
                     checked={regForm.is_verified}
                     onChange={(e) => setRegForm({ ...regForm, is_verified: e.target.checked })}
-                    style={{ accentColor: 'var(--accent-primary)' }}
+                    style={{ accentColor: 'var(--accent-orange)' }}
                   />
                   Verified Account
                 </label>
@@ -1105,8 +1109,9 @@ const AdminCustomers = () => {
         <div style={{
           position: 'fixed',
           inset: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.85)',
+          backgroundColor: 'rgba(15, 23, 42, 0.6)',
           backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -1116,17 +1121,17 @@ const AdminCustomers = () => {
           <div className="glass-card" style={{
             maxWidth: '460px',
             width: '100%',
-            backgroundColor: '#0f172a',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
+            backgroundColor: '#ffffff',
+            border: '1px solid var(--border-color)',
+            boxShadow: 'var(--shadow-xl)',
             padding: '1.75rem'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
               <div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0, color: '#ffffff' }}>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0, color: 'var(--text-primary)' }}>
                   Update User Role
                 </h3>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
                   User: {editUser.email}
                 </div>
               </div>
@@ -1141,9 +1146,9 @@ const AdminCustomers = () => {
             <form onSubmit={handleUpdateRoleSubmit}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
                 {[
-                  { value: 'customer', label: 'Customer', desc: 'Standard shopping privileges', icon: UserIcon, color: 'var(--accent-cyan)' },
-                  { value: 'admin', label: 'Admin', desc: 'Full administration & settings access', icon: Shield, color: '#ec4899' },
-                  { value: 'staff', label: 'Staff', desc: 'Order and inventory management', icon: Briefcase, color: 'var(--accent-amber)' },
+                  { value: 'customer', label: 'Customer', desc: 'Standard shopping privileges', icon: UserIcon, color: 'var(--accent-orange)' },
+                  { value: 'admin', label: 'Admin', desc: 'Full administration & settings access', icon: Shield, color: 'var(--accent-orange)' },
+                  { value: 'staff', label: 'Staff', desc: 'Order and inventory management', icon: Briefcase, color: 'var(--accent-primary)' },
                 ].map((r) => {
                   const Icon = r.icon;
                   const isSelected = editRole === r.value;
@@ -1156,9 +1161,10 @@ const AdminCustomers = () => {
                         gap: '0.75rem',
                         padding: '0.75rem 1rem',
                         borderRadius: 'var(--radius-md)',
-                        backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.16)' : 'var(--bg-surface)',
-                        border: isSelected ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
-                        cursor: 'pointer'
+                        backgroundColor: isSelected ? 'rgba(245, 158, 11, 0.12)' : '#ffffff',
+                        border: isSelected ? '2px solid var(--accent-orange)' : '1px solid var(--border-color)',
+                        cursor: 'pointer',
+                        transition: 'all var(--transition-fast)'
                       }}
                     >
                       <input
@@ -1167,12 +1173,12 @@ const AdminCustomers = () => {
                         value={r.value}
                         checked={isSelected}
                         onChange={(e) => setEditRole(e.target.value)}
-                        style={{ accentColor: 'var(--accent-primary)' }}
+                        style={{ accentColor: 'var(--accent-orange)' }}
                       />
                       <Icon size={18} color={r.color} />
                       <div>
-                        <div style={{ fontWeight: '700', fontSize: '0.88rem', color: '#ffffff' }}>{r.label}</div>
-                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{r.desc}</div>
+                        <div style={{ fontWeight: '700', fontSize: '0.88rem', color: 'var(--text-primary)' }}>{r.label}</div>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{r.desc}</div>
                       </div>
                     </label>
                   );

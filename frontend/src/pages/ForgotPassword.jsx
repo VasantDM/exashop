@@ -10,10 +10,7 @@ import {
   ArrowRight, 
   ShieldCheck, 
   CheckCircle2, 
-  AlertCircle,
-  Check,
-  RefreshCw,
-  Sparkles
+  AlertCircle
 } from 'lucide-react';
 import { sendPasswordResetOTP, validatePasswordResetOTP, verifyPasswordResetOTP } from '../services/authService';
 import OtpInputAnimation from '../components/OtpInputAnimation';
@@ -213,18 +210,18 @@ const ForgotPassword = () => {
                 width: '56px',
                 height: '56px',
                 borderRadius: '50%',
-                background: 'rgba(99, 102, 241, 0.15)',
-                color: 'var(--accent-primary)',
+                background: 'rgba(245, 158, 11, 0.15)',
+                color: 'var(--accent-orange)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 margin: '0 auto 1.25rem',
-                border: '1px solid rgba(99, 102, 241, 0.35)',
+                border: '1px solid rgba(245, 158, 11, 0.35)',
                 boxShadow: 'var(--shadow-glow)'
               }}>
                 <KeyRound size={28} />
               </div>
-              <h1 style={{ fontSize: '1.75rem', fontWeight: '800', color: '#ffffff', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>
+              <h1 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>
                 Forgot Password?
               </h1>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: '1.55' }}>
@@ -234,9 +231,9 @@ const ForgotPassword = () => {
 
             {errorMessage && (
               <div style={{
-                backgroundColor: 'rgba(244, 63, 94, 0.12)',
-                border: '1px solid rgba(244, 63, 94, 0.35)',
-                color: '#fb7185',
+                backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                border: '1px solid rgba(239, 68, 68, 0.35)',
+                color: '#dc2626',
                 padding: '0.75rem 1rem',
                 borderRadius: 'var(--radius-sm)',
                 fontSize: '0.85rem',
@@ -252,7 +249,7 @@ const ForgotPassword = () => {
 
             <form onSubmit={handleSendOTP} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
                   Registered Email Address
                 </label>
                 <div style={{ position: 'relative' }}>
@@ -266,9 +263,9 @@ const ForgotPassword = () => {
                       width: '100%',
                       padding: '0.75rem 1rem 0.75rem 2.4rem',
                       borderRadius: 'var(--radius-md)',
-                      backgroundColor: 'var(--bg-surface)',
+                      backgroundColor: '#ffffff',
                       border: '1px solid var(--border-color)',
-                      color: '#ffffff',
+                      color: 'var(--text-primary)',
                       fontSize: '0.92rem',
                       outline: 'none'
                     }}
@@ -313,32 +310,32 @@ const ForgotPassword = () => {
                 width: '56px',
                 height: '56px',
                 borderRadius: '50%',
-                background: isOtpVerified ? 'rgba(16, 185, 129, 0.18)' : 'rgba(99, 102, 241, 0.15)',
-                color: isOtpVerified ? 'var(--accent-emerald)' : 'var(--accent-primary)',
+                background: isOtpVerified ? 'rgba(16, 185, 129, 0.18)' : 'rgba(245, 158, 11, 0.15)',
+                color: isOtpVerified ? 'var(--accent-emerald)' : 'var(--accent-orange)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 margin: '0 auto 1.25rem',
-                border: isOtpVerified ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(99, 102, 241, 0.35)',
+                border: isOtpVerified ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(245, 158, 11, 0.35)',
                 boxShadow: isOtpVerified ? '0 0 25px rgba(16, 185, 129, 0.3)' : 'var(--shadow-glow)',
                 transition: 'all 0.3s ease'
               }}>
                 {isOtpVerified ? <CheckCircle2 size={28} /> : <ShieldCheck size={28} />}
               </div>
-              <h1 style={{ fontSize: '1.75rem', fontWeight: '800', color: '#ffffff', marginBottom: '0.4rem', letterSpacing: '-0.02em' }}>
+              <h1 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '0.4rem', letterSpacing: '-0.02em' }}>
                 Enter OTP Code
               </h1>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: '1.55' }}>
-                We sent a 6-digit code to <strong style={{ color: '#ffffff' }}>{email}</strong>
+                We sent a 6-digit code to <strong style={{ color: 'var(--accent-orange)' }}>{email}</strong>
               </p>
             </div>
 
             {/* Error Message */}
             {errorMessage && (
               <div style={{
-                backgroundColor: 'rgba(244, 63, 94, 0.12)',
-                border: '1px solid rgba(244, 63, 94, 0.35)',
-                color: '#fb7185',
+                backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                border: '1px solid rgba(239, 68, 68, 0.35)',
+                color: '#dc2626',
                 padding: '0.75rem 1rem',
                 borderRadius: 'var(--radius-sm)',
                 fontSize: '0.85rem',
@@ -357,7 +354,7 @@ const ForgotPassword = () => {
               <div style={{
                 backgroundColor: 'rgba(16, 185, 129, 0.15)',
                 border: '1px solid rgba(16, 185, 129, 0.4)',
-                color: '#34d399',
+                color: '#059669',
                 padding: '0.85rem 1rem',
                 borderRadius: 'var(--radius-md)',
                 fontSize: '0.88rem',
@@ -367,14 +364,14 @@ const ForgotPassword = () => {
                 alignItems: 'center',
                 gap: '0.6rem'
               }}>
-                <CheckCircle2 size={18} color="#34d399" />
+                <CheckCircle2 size={18} color="#059669" />
                 <span>✓ OTP Code Verified! Set your new password below:</span>
               </div>
             ) : successMessage && (
               <div style={{
-                backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                border: '1px solid rgba(99, 102, 241, 0.25)',
-                color: '#a5b4fc',
+                backgroundColor: 'rgba(245, 158, 11, 0.12)',
+                border: '1px solid rgba(245, 158, 11, 0.3)',
+                color: 'var(--accent-orange)',
                 padding: '0.75rem 1rem',
                 borderRadius: 'var(--radius-sm)',
                 fontSize: '0.85rem',
@@ -392,7 +389,7 @@ const ForgotPassword = () => {
               {/* Animated Morphing OTP Digit Inputs */}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.2rem' }}>
-                  <label style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <label style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                     Enter 6-Digit Code
                     {isOtpVerified && <span style={{ color: 'var(--accent-emerald)', fontSize: '0.75rem', fontWeight: '800' }}>(Verified ✓)</span>}
                   </label>
@@ -404,7 +401,7 @@ const ForgotPassword = () => {
                       style={{
                         background: 'none',
                         border: 'none',
-                        color: resendCooldown > 0 ? 'var(--text-muted)' : 'var(--accent-primary)',
+                        color: resendCooldown > 0 ? 'var(--text-muted)' : 'var(--accent-orange)',
                         fontSize: '0.78rem',
                         fontWeight: '700',
                         cursor: resendCooldown > 0 ? 'default' : 'pointer'
@@ -415,7 +412,6 @@ const ForgotPassword = () => {
                   )}
                 </div>
                 
-                {/* Visual OTP Input & Orbiting Merge Animation matching otp_animation.mp4 */}
                 <OtpInputAnimation
                   length={6}
                   value={otp}
@@ -440,7 +436,7 @@ const ForgotPassword = () => {
 
               {/* New Password */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
                   New Password
                 </label>
                 <div style={{ position: 'relative' }}>
@@ -454,9 +450,9 @@ const ForgotPassword = () => {
                       width: '100%',
                       padding: '0.75rem 2.4rem 0.75rem 2.4rem',
                       borderRadius: 'var(--radius-md)',
-                      backgroundColor: 'var(--bg-surface)',
+                      backgroundColor: '#ffffff',
                       border: '1px solid var(--border-color)',
-                      color: '#ffffff',
+                      color: 'var(--text-primary)',
                       fontSize: '0.92rem',
                       outline: 'none'
                     }}
@@ -483,7 +479,7 @@ const ForgotPassword = () => {
 
               {/* Confirm New Password */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
                   Confirm New Password
                 </label>
                 <div style={{ position: 'relative' }}>
@@ -497,9 +493,9 @@ const ForgotPassword = () => {
                       width: '100%',
                       padding: '0.75rem 2.4rem 0.75rem 2.4rem',
                       borderRadius: 'var(--radius-md)',
-                      backgroundColor: 'var(--bg-surface)',
+                      backgroundColor: '#ffffff',
                       border: '1px solid var(--border-color)',
-                      color: '#ffffff',
+                      color: 'var(--text-primary)',
                       fontSize: '0.92rem',
                       outline: 'none'
                     }}
@@ -546,7 +542,7 @@ const ForgotPassword = () => {
               >
                 ← Change Email
               </button>
-              <Link to="/login" style={{ color: 'var(--accent-primary)', fontSize: '0.85rem', fontWeight: '700' }}>
+              <Link to="/login" style={{ color: 'var(--accent-orange)', fontSize: '0.85rem', fontWeight: '700' }}>
                 Cancel & Sign In
               </Link>
             </div>
@@ -570,7 +566,7 @@ const ForgotPassword = () => {
             }}>
               <CheckCircle2 size={36} />
             </div>
-            <h2 style={{ fontSize: '1.75rem', fontWeight: '800', color: '#ffffff', marginBottom: '0.5rem' }}>
+            <h2 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
               Password Reset Complete!
             </h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6', marginBottom: '2rem' }}>

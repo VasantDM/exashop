@@ -1,118 +1,119 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   ShieldCheck, 
-  Lock, 
   CreditCard, 
   Smartphone, 
   Building2, 
-  Wallet, 
+  QrCode, 
+  Lock, 
   CheckCircle2, 
   AlertCircle, 
-  QrCode, 
-  ArrowRight,
-  Sparkles,
+  RefreshCw, 
   X,
-  Clock,
-  RefreshCw,
-  ExternalLink
+  ExternalLink,
+  Sparkles
 } from 'lucide-react';
-import { verifyPayment } from '../services/paymentService';
 import { openRazorpayCheckout } from '../utils/razorpay';
 
-const PaymentModal = ({
-  isOpen,
-  onClose,
+const PaymentModal = ({ 
+  isOpen, 
+  onClose, 
+  orderId, 
+  amount, 
+  customerData,
   paymentIntent,
-  orderNumber,
-  amount,
-  onSuccess,
+  onPaymentSuccess, 
+  onPaymentFailure 
 }) => {
-  const [activeTab, setActiveTab] = useState('razorpay'); // 'razorpay' | 'upi' | 'card' | 'netbanking'
-  const [selectedUpiApp, setSelectedUpiApp] = useState('gpay');
-  const [upiId, setUpiId] = useState('customer@okaxis');
-  const [selectedBank, setSelectedBank] = useState('HDFC');
-  
-  const [cardData, setCardData] = useState({
-    number: '4242 •••• •••• 4242',
-    name: paymentIntent?.customer?.name || 'Alex Taylor',
-    expiry: '12/28',
-    cvv: '888'
-  });
-
+  const [activeTab, setActiveTab] = useState('upi'); // 'upi' | 'card' | 'netbanking'
   const [paymentState, setPaymentState] = useState('idle'); // 'idle' | 'processing' | 'verifying' | 'success' | 'failed'
   const [statusMessage, setStatusMessage] = useState('');
+  
+  // Simulator form states
+  const [upiId, setUpiId] = useState('');
+  const [selectedUpiApp, setSelectedUpiApp] = useState('gpay');
+  const [cardData, setCardData] = useState({ number: '', name: '', expiry: '', cvv: '' });
+  const [selectedBank, setSelectedBank] = useState('HDFC Bank');
 
   if (!isOpen) return null;
 
-  const handleLaunchRazorpay = async () => {
-    if (!paymentIntent) {
-      handleProcessPayment('upi');
+  // Real Razorpay SDK Integration Trigger
+  const handleLaunchRazorpay = () => {
+    if (!paymentIntent || !paymentIntent.razorpay_order_id) {
+      alert('Razorpay Order details not loaded. Falling back to sandbox simulation.');
       return;
     }
-    await openRazorpayCheckout({
-      paymentIntent,
-      onSuccess: (verifyResult) => {
-        setPaymentState('success');
-        setStatusMessage(`Payment of ₹${amount} Confirmed & Captured via Razorpay!`);
-        setTimeout(() => {
-          if (onSuccess) onSuccess(verifyResult);
-        }, 1200);
-      },
-      onError: (err) => {
-        setPaymentState('failed');
-        setStatusMessage(err.message || 'Payment authentication failed on Razorpay.');
+
+    setPaymentState('processing');
+    setStatusMessage('Connecting to Razorpay checkout...');
+
+    openRazorpayCheckout({
+      keyId: paymentIntent.key_id,
+      orderId: paymentIntent.razorpay_order_id,
+      amount: paymentIntent.amount_in_paise || (parseFloat(amount) * 100),
+      currency: paymentIntent.currency || 'INR',
+      customerName: customerData?.name || 'Valued Customer',
+      customerEmail: customerData?.email || 'customer@example.com',
+      customerPhone: customerData?.phone || '9876543210',
+      onSuccess: async (response) => {
+        setPaymentState('verifying');
+        setStatusMessage('Verifying digital signature with backend...');
+        try {
+          if (onPaymentSuccess) {
+            await onPaymentSuccess(response);
+          }
+          setPaymentState('success');
+          setStatusMessage('Payment verified successfully! Redirecting...');
+        } catch (err) {
+          setPaymentState('failed');
+          setStatusMessage(err.message || 'Payment signature verification failed.');
+        }
       },
       onDismiss: () => {
-        // Stays on modal
+        setPaymentState('idle');
       }
     });
   };
 
-  const handleProcessPayment = async (method = activeTab) => {
+  // Sandbox simulation
+  const handleProcessPayment = async (method) => {
     setPaymentState('processing');
-    setStatusMessage('Connecting to Secure Gateway Network...');
+    setStatusMessage('Authorizing sandbox payment...');
 
-    try {
-      // 1. Simulate gateway processing latency
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
+    setTimeout(async () => {
       setPaymentState('verifying');
-      setStatusMessage('Verifying Cryptographic Transaction Token...');
-      await new Promise((resolve) => setTimeout(resolve, 700));
+      setStatusMessage('Updating order settlement records...');
 
-      const mockPaymentId = `pay_${method}_${Date.now().toString(36)}${Math.random().toString(36).substring(2, 6)}`;
-      const mockSignature = 'test_valid_signature';
+      setTimeout(async () => {
+        const mockResponse = {
+          razorpay_payment_id: `pay_sim_${Date.now()}`,
+          razorpay_order_id: paymentIntent?.razorpay_order_id || `order_sim_${Date.now()}`,
+          razorpay_signature: `sig_mock_${Math.random().toString(36).substring(7)}`,
+          method: method
+        };
 
-      // 2. Call backend verification endpoint
-      const result = await verifyPayment({
-        orderNumber: orderNumber || paymentIntent?.order_number,
-        gateway: method === 'card' ? 'card_instant' : 'razorpay',
-        gatewayOrderId: paymentIntent?.gateway_order_id || `order_rzp_${Date.now()}`,
-        gatewayPaymentId: mockPaymentId,
-        gatewaySignature: mockSignature,
-      });
-
-      setPaymentState('success');
-      setStatusMessage(`Payment of ₹${amount} Confirmed & Captured!`);
-
-      // 3. Delay slightly to show celebration, then trigger callback
-      setTimeout(() => {
-        if (onSuccess) onSuccess(result);
-      }, 1200);
-
-    } catch (err) {
-      console.error('Payment failed:', err);
-      setPaymentState('failed');
-      setStatusMessage(err.data?.detail || err.message || 'Payment authentication failed. Please retry.');
-    }
+        try {
+          if (onPaymentSuccess) {
+            await onPaymentSuccess(mockResponse);
+          }
+          setPaymentState('success');
+          setStatusMessage('Payment verified successfully! Redirecting to orders...');
+        } catch (err) {
+          setPaymentState('failed');
+          setStatusMessage(err.message || 'Payment processing encountered an error.');
+          if (onPaymentFailure) onPaymentFailure(err);
+        }
+      }, 1500);
+    }, 1200);
   };
 
   return (
     <div style={{
       position: 'fixed',
       inset: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.82)',
+      backgroundColor: 'rgba(15, 23, 42, 0.55)',
       backdropFilter: 'blur(8px)',
+      WebkitBackdropFilter: 'blur(8px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -123,26 +124,26 @@ const PaymentModal = ({
         maxWidth: '520px',
         width: '100%',
         borderRadius: 'var(--radius-lg)',
-        border: '1px solid rgba(255, 255, 255, 0.15)',
-        backgroundColor: '#0f172a',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7), var(--shadow-glow)',
+        border: '1px solid var(--border-color)',
+        backgroundColor: '#ffffff',
+        boxShadow: '0 20px 50px rgba(0, 0, 0, 0.15)',
         overflow: 'hidden',
         position: 'relative'
       }}>
         {/* Header */}
         <div style={{
           padding: '1.25rem 1.5rem',
-          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2))',
+          background: 'linear-gradient(135deg, #fffbeb 0%, #ffedd5 100%)',
           borderBottom: '1px solid var(--border-color)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-primary)', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-orange)', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               <ShieldCheck size={14} /> Razorpay Secure Gateway
             </div>
-            <div style={{ fontSize: '1.25rem', fontWeight: '800', color: '#ffffff', marginTop: '0.15rem' }}>
+            <div style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text-primary)', marginTop: '0.15rem' }}>
               Payable Amount: <span className="gradient-text">₹{amount}</span>
             </div>
           </div>
@@ -151,15 +152,15 @@ const PaymentModal = ({
             onClick={onClose}
             disabled={paymentState === 'processing' || paymentState === 'verifying' || paymentState === 'success'}
             style={{
-              background: 'rgba(255, 255, 255, 0.1)',
-              border: 'none',
+              background: '#ffffff',
+              border: '1px solid var(--border-color)',
               borderRadius: '50%',
               width: '32px',
               height: '32px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#ffffff',
+              color: 'var(--text-secondary)',
               cursor: 'pointer'
             }}
           >
@@ -173,16 +174,16 @@ const PaymentModal = ({
             {paymentState === 'processing' || paymentState === 'verifying' ? (
               <div>
                 <div style={{
-                  width: '64px',
-                  height: '64px',
-                  border: '3px solid rgba(99, 102, 241, 0.2)',
-                  borderTopColor: 'var(--accent-primary)',
+                  width: '60px',
+                  height: '60px',
+                  border: '3px solid rgba(245, 158, 11, 0.2)',
+                  borderTopColor: 'var(--accent-orange)',
                   borderRadius: '50%',
                   animation: 'spin 1s linear infinite',
                   margin: '0 auto 1.5rem'
                 }} />
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: '#ffffff', marginBottom: '0.5rem' }}>
-                  {paymentState === 'processing' ? 'Connecting to Payment Network' : 'Confirming Payment'}
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
+                  {paymentState === 'processing' ? 'Processing Transaction...' : 'Verifying Security Signature...'}
                 </h3>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
                   {statusMessage}
@@ -191,34 +192,34 @@ const PaymentModal = ({
             ) : paymentState === 'success' ? (
               <div>
                 <div style={{
-                  width: '64px',
-                  height: '64px',
+                  width: '60px',
+                  height: '60px',
                   borderRadius: '50%',
-                  backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                  color: 'var(--accent-emerald)',
+                  backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                  color: '#059669',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   margin: '0 auto 1.5rem',
-                  border: '2px solid var(--accent-emerald)'
+                  border: '2px solid #10b981'
                 }}>
                   <CheckCircle2 size={36} />
                 </div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#ffffff', marginBottom: '0.5rem' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
                   Payment Successful!
                 </h3>
-                <p style={{ color: 'var(--accent-emerald)', fontSize: '0.9rem', fontWeight: '600' }}>
+                <p style={{ color: '#059669', fontSize: '0.9rem', fontWeight: '600' }}>
                   {statusMessage}
                 </p>
               </div>
             ) : (
               <div>
                 <div style={{
-                  width: '64px',
-                  height: '64px',
+                  width: '60px',
+                  height: '60px',
                   borderRadius: '50%',
-                  backgroundColor: 'rgba(244, 63, 94, 0.15)',
-                  color: 'var(--accent-rose)',
+                  backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                  color: '#dc2626',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -226,16 +227,16 @@ const PaymentModal = ({
                 }}>
                   <AlertCircle size={36} />
                 </div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--accent-rose)', marginBottom: '0.5rem' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: '#dc2626', marginBottom: '0.5rem' }}>
                   Payment Failed
                 </h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginBottom: '1.75rem' }}>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginBottom: '1.5rem' }}>
                   {statusMessage}
                 </p>
                 <button
                   onClick={() => setPaymentState('idle')}
                   className="btn btn-primary"
-                  style={{ padding: '0.75rem 1.5rem' }}
+                  style={{ padding: '0.65rem 1.35rem' }}
                 >
                   <RefreshCw size={14} /> Try Again
                 </button>
@@ -252,16 +253,16 @@ const PaymentModal = ({
                 className="btn btn-primary"
                 style={{
                   width: '100%',
-                  padding: '0.9rem 1.25rem',
+                  padding: '0.85rem 1.25rem',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '0.6rem',
                   fontWeight: '800',
                   fontSize: '0.95rem',
-                  background: 'linear-gradient(135deg, #0284c7 0%, #4f46e5 100%)',
+                  background: 'var(--accent-gradient)',
                   borderRadius: 'var(--radius-md)',
-                  boxShadow: '0 8px 20px -4px rgba(79, 70, 229, 0.4)',
+                  boxShadow: 'var(--shadow-orange)',
                   cursor: 'pointer',
                   border: 'none',
                   color: '#fff'
@@ -280,9 +281,9 @@ const PaymentModal = ({
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              margin: '1rem 1.5rem 0.5rem',
+              margin: '0.85rem 1.5rem 0.4rem',
               color: 'var(--text-muted)',
-              fontSize: '0.75rem'
+              fontSize: '0.72rem'
             }}>
               <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }} />
               <span style={{ padding: '0 0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>or Sandbox Simulator</span>
@@ -294,17 +295,17 @@ const PaymentModal = ({
               display: 'grid',
               gridTemplateColumns: 'repeat(3, 1fr)',
               borderBottom: '1px solid var(--border-color)',
-              backgroundColor: 'rgba(0, 0, 0, 0.2)'
+              backgroundColor: '#fafaf9'
             }}>
               <button
                 type="button"
                 onClick={() => setActiveTab('upi')}
                 style={{
-                  padding: '0.85rem 0.5rem',
+                  padding: '0.75rem 0.5rem',
                   background: 'none',
                   border: 'none',
-                  borderBottom: activeTab === 'upi' ? '2px solid var(--accent-primary)' : '2px solid transparent',
-                  color: activeTab === 'upi' ? '#ffffff' : 'var(--text-muted)',
+                  borderBottom: activeTab === 'upi' ? '2px solid var(--accent-orange)' : '2px solid transparent',
+                  color: activeTab === 'upi' ? 'var(--accent-orange)' : 'var(--text-secondary)',
                   fontWeight: activeTab === 'upi' ? '700' : '500',
                   fontSize: '0.85rem',
                   display: 'flex',
@@ -321,11 +322,11 @@ const PaymentModal = ({
                 type="button"
                 onClick={() => setActiveTab('card')}
                 style={{
-                  padding: '0.85rem 0.5rem',
+                  padding: '0.75rem 0.5rem',
                   background: 'none',
                   border: 'none',
-                  borderBottom: activeTab === 'card' ? '2px solid var(--accent-primary)' : '2px solid transparent',
-                  color: activeTab === 'card' ? '#ffffff' : 'var(--text-muted)',
+                  borderBottom: activeTab === 'card' ? '2px solid var(--accent-orange)' : '2px solid transparent',
+                  color: activeTab === 'card' ? 'var(--accent-orange)' : 'var(--text-secondary)',
                   fontWeight: activeTab === 'card' ? '700' : '500',
                   fontSize: '0.85rem',
                   display: 'flex',
@@ -342,11 +343,11 @@ const PaymentModal = ({
                 type="button"
                 onClick={() => setActiveTab('netbanking')}
                 style={{
-                  padding: '0.85rem 0.5rem',
+                  padding: '0.75rem 0.5rem',
                   background: 'none',
                   border: 'none',
-                  borderBottom: activeTab === 'netbanking' ? '2px solid var(--accent-primary)' : '2px solid transparent',
-                  color: activeTab === 'netbanking' ? '#ffffff' : 'var(--text-muted)',
+                  borderBottom: activeTab === 'netbanking' ? '2px solid var(--accent-orange)' : '2px solid transparent',
+                  color: activeTab === 'netbanking' ? 'var(--accent-orange)' : 'var(--text-secondary)',
                   fontWeight: activeTab === 'netbanking' ? '700' : '500',
                   fontSize: '0.85rem',
                   display: 'flex',
@@ -364,27 +365,27 @@ const PaymentModal = ({
             <div style={{ padding: '1.25rem 1.5rem' }}>
               {/* UPI Tab */}
               {activeTab === 'upi' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                   {/* Quick App Selectors */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.65rem' }}>
                     {[
-                      { id: 'gpay', label: 'Google Pay', color: '#4285F4' },
-                      { id: 'phonepe', label: 'PhonePe', color: '#5f259f' },
-                      { id: 'paytm', label: 'Paytm UPI', color: '#00BAF2' },
+                      { id: 'gpay', label: 'Google Pay' },
+                      { id: 'phonepe', label: 'PhonePe' },
+                      { id: 'paytm', label: 'Paytm UPI' },
                     ].map((app) => (
                       <div
                         key={app.id}
                         onClick={() => setSelectedUpiApp(app.id)}
                         style={{
-                          padding: '0.75rem 0.5rem',
+                          padding: '0.65rem 0.5rem',
                           borderRadius: 'var(--radius-md)',
-                          backgroundColor: selectedUpiApp === app.id ? 'rgba(99, 102, 241, 0.15)' : 'var(--bg-surface)',
-                          border: selectedUpiApp === app.id ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                          backgroundColor: selectedUpiApp === app.id ? 'rgba(245, 158, 11, 0.12)' : '#fafaf9',
+                          border: selectedUpiApp === app.id ? '2px solid var(--accent-orange)' : '1px solid var(--border-color)',
                           textAlign: 'center',
                           cursor: 'pointer',
-                          fontSize: '0.8rem',
+                          fontSize: '0.78rem',
                           fontWeight: '700',
-                          color: selectedUpiApp === app.id ? '#ffffff' : 'var(--text-secondary)'
+                          color: selectedUpiApp === app.id ? 'var(--accent-orange)' : 'var(--text-secondary)'
                         }}
                       >
                         {app.label}
@@ -394,7 +395,7 @@ const PaymentModal = ({
 
                   {/* UPI ID Input */}
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', marginBottom: '0.35rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.3rem' }}>
                       Enter UPI ID / VPA
                     </label>
                     <input
@@ -404,12 +405,12 @@ const PaymentModal = ({
                       placeholder="e.g. mobile@upi or username@okaxis"
                       style={{
                         width: '100%',
-                        padding: '0.65rem 0.85rem',
+                        padding: '0.6rem 0.85rem',
                         borderRadius: 'var(--radius-sm)',
-                        backgroundColor: 'var(--bg-surface)',
+                        backgroundColor: '#ffffff',
                         border: '1px solid var(--border-color)',
-                        color: '#fff',
-                        fontSize: '0.88rem',
+                        color: 'var(--text-primary)',
+                        fontSize: '0.85rem',
                         outline: 'none'
                       }}
                     />
@@ -417,68 +418,70 @@ const PaymentModal = ({
 
                   {/* QR Option Box */}
                   <div style={{
-                    padding: '0.85rem',
+                    padding: '0.75rem',
                     borderRadius: 'var(--radius-md)',
-                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                    backgroundColor: '#fafaf9',
                     border: '1px dashed var(--border-color)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     gap: '1rem'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                       <div style={{
-                        padding: '0.5rem',
-                        backgroundColor: 'var(--bg-surface)',
+                        padding: '0.45rem',
+                        backgroundColor: '#ffffff',
+                        border: '1px solid var(--border-color)',
                         borderRadius: 'var(--radius-sm)',
-                        color: 'var(--accent-primary)'
+                        color: 'var(--accent-orange)'
                       }}>
-                        <QrCode size={24} />
+                        <QrCode size={22} />
                       </div>
                       <div>
-                        <div style={{ fontSize: '0.82rem', fontWeight: '700' }}>Instant QR Code</div>
+                        <div style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-primary)' }}>Instant QR Code</div>
                         <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Scan with any UPI application</div>
                       </div>
                     </div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--accent-emerald)', fontWeight: '700' }}>Active</span>
+                    <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: '700' }}>Active</span>
                   </div>
 
                   {/* Pay Button */}
                   <button
                     onClick={() => handleProcessPayment('upi')}
                     className="btn btn-primary"
-                    style={{ width: '100%', padding: '0.85rem', fontSize: '1rem', fontWeight: '800', marginTop: '0.25rem' }}
+                    style={{ width: '100%', padding: '0.8rem', fontSize: '0.95rem', fontWeight: '800', marginTop: '0.2rem' }}
                   >
-                    <Lock size={16} /> Simulate UPI Payment • ₹{amount}
+                    <Lock size={15} /> Simulate UPI Payment • ₹{amount}
                   </button>
                 </div>
               )}
 
               {/* Card Tab */}
               {activeTab === 'card' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: '600', marginBottom: '0.25rem' }}>
                       Cardholder Name
                     </label>
                     <input
                       type="text"
                       value={cardData.name}
                       onChange={(e) => setCardData({ ...cardData, name: e.target.value })}
+                      placeholder="e.g. John Doe"
                       style={{
                         width: '100%',
-                        padding: '0.65rem 0.85rem',
+                        padding: '0.6rem 0.85rem',
                         borderRadius: 'var(--radius-sm)',
-                        backgroundColor: 'var(--bg-surface)',
+                        backgroundColor: '#ffffff',
                         border: '1px solid var(--border-color)',
-                        color: '#fff',
-                        fontSize: '0.88rem'
+                        color: 'var(--text-primary)',
+                        fontSize: '0.85rem'
                       }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: '600', marginBottom: '0.25rem' }}>
                       Card Number
                     </label>
                     <input
@@ -488,19 +491,19 @@ const PaymentModal = ({
                       placeholder="4242 4242 4242 4242"
                       style={{
                         width: '100%',
-                        padding: '0.65rem 0.85rem',
+                        padding: '0.6rem 0.85rem',
                         borderRadius: 'var(--radius-sm)',
-                        backgroundColor: 'var(--bg-surface)',
+                        backgroundColor: '#ffffff',
                         border: '1px solid var(--border-color)',
-                        color: '#fff',
-                        fontSize: '0.88rem'
+                        color: 'var(--text-primary)',
+                        fontSize: '0.85rem'
                       }}
                     />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>
+                      <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: '600', marginBottom: '0.25rem' }}>
                         Expiry (MM/YY)
                       </label>
                       <input
@@ -510,17 +513,17 @@ const PaymentModal = ({
                         placeholder="12/28"
                         style={{
                           width: '100%',
-                          padding: '0.65rem 0.85rem',
+                          padding: '0.6rem 0.85rem',
                           borderRadius: 'var(--radius-sm)',
-                          backgroundColor: 'var(--bg-surface)',
+                          backgroundColor: '#ffffff',
                           border: '1px solid var(--border-color)',
-                          color: '#fff',
-                          fontSize: '0.88rem'
+                          color: 'var(--text-primary)',
+                          fontSize: '0.85rem'
                         }}
                       />
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>
+                      <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: '600', marginBottom: '0.25rem' }}>
                         CVV / CVC
                       </label>
                       <input
@@ -531,45 +534,44 @@ const PaymentModal = ({
                         placeholder="888"
                         style={{
                           width: '100%',
-                          padding: '0.65rem 0.85rem',
+                          padding: '0.6rem 0.85rem',
                           borderRadius: 'var(--radius-sm)',
-                          backgroundColor: 'var(--bg-surface)',
+                          backgroundColor: '#ffffff',
                           border: '1px solid var(--border-color)',
-                          color: '#fff',
-                          fontSize: '0.88rem'
+                          color: 'var(--text-primary)',
+                          fontSize: '0.85rem'
                         }}
                       />
                     </div>
                   </div>
 
-                  {/* Pay Button */}
                   <button
                     onClick={() => handleProcessPayment('card')}
                     className="btn btn-primary"
-                    style={{ width: '100%', padding: '0.85rem', fontSize: '1rem', fontWeight: '800', marginTop: '0.5rem' }}
+                    style={{ width: '100%', padding: '0.8rem', fontSize: '0.95rem', fontWeight: '800', marginTop: '0.35rem' }}
                   >
-                    <Lock size={16} /> Simulate Card Payment • ₹{amount}
+                    <Lock size={15} /> Simulate Card Payment • ₹{amount}
                   </button>
                 </div>
               )}
 
               {/* Netbanking Tab */}
               {activeTab === 'netbanking' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem' }}>
                     {['HDFC Bank', 'ICICI Bank', 'State Bank of India', 'Axis Bank', 'Kotak Mahindra', 'Punjab National Bank'].map((b) => (
                       <div
                         key={b}
                         onClick={() => setSelectedBank(b)}
                         style={{
-                          padding: '0.75rem',
+                          padding: '0.65rem',
                           borderRadius: 'var(--radius-md)',
-                          backgroundColor: selectedBank === b ? 'rgba(99, 102, 241, 0.15)' : 'var(--bg-surface)',
-                          border: selectedBank === b ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                          backgroundColor: selectedBank === b ? 'rgba(245, 158, 11, 0.12)' : '#fafaf9',
+                          border: selectedBank === b ? '2px solid var(--accent-orange)' : '1px solid var(--border-color)',
                           cursor: 'pointer',
-                          fontSize: '0.82rem',
+                          fontSize: '0.8rem',
                           fontWeight: '700',
-                          color: selectedBank === b ? '#ffffff' : 'var(--text-secondary)'
+                          color: selectedBank === b ? 'var(--accent-orange)' : 'var(--text-secondary)'
                         }}
                       >
                         {b}
@@ -580,7 +582,7 @@ const PaymentModal = ({
                   <button
                     onClick={() => handleProcessPayment('netbanking')}
                     className="btn btn-primary"
-                    style={{ width: '100%', padding: '0.85rem', fontSize: '1rem', fontWeight: '800', marginTop: '0.5rem' }}
+                    style={{ width: '100%', padding: '0.8rem', fontSize: '0.95rem', fontWeight: '800', marginTop: '0.35rem' }}
                   >
                     Proceed with {selectedBank} • ₹{amount}
                   </button>
@@ -593,7 +595,7 @@ const PaymentModal = ({
         {/* Footer Security Badges */}
         <div style={{
           padding: '0.75rem 1.5rem',
-          backgroundColor: 'rgba(0, 0, 0, 0.4)',
+          backgroundColor: '#fafaf9',
           borderTop: '1px solid var(--border-color)',
           display: 'flex',
           justifyContent: 'space-between',
@@ -602,10 +604,10 @@ const PaymentModal = ({
           color: 'var(--text-muted)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-            <ShieldCheck size={14} color="var(--accent-emerald)" />
+            <ShieldCheck size={14} color="#059669" />
             <span>PCI-DSS Level 1 & Razorpay Verified</span>
           </div>
-          <div>Key ID: {paymentIntent?.key_id || 'rzp_test_TV1JcZlkdJ5SZh'}</div>
+          <div>Key ID: {paymentIntent?.key_id || 'rzp_test_key'}</div>
         </div>
       </div>
     </div>

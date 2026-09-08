@@ -18,8 +18,8 @@ const Wishlist = () => {
       <div style={{ maxWidth: '560px', margin: '3.5rem auto', textAlign: 'center' }}>
         <div className="glass-card" style={{ padding: '3.5rem 2rem' }}>
           <div style={{
-            background: 'rgba(236, 72, 153, 0.12)',
-            color: '#ec4899',
+            background: 'rgba(245, 158, 11, 0.12)',
+            color: 'var(--accent-orange)',
             width: '72px',
             height: '72px',
             borderRadius: '50%',
@@ -27,11 +27,11 @@ const Wishlist = () => {
             alignItems: 'center',
             justifyContent: 'center',
             margin: '0 auto 1.5rem',
-            boxShadow: '0 0 20px rgba(236, 72, 153, 0.25)'
+            boxShadow: '0 4px 15px rgba(245, 158, 11, 0.25)'
           }}>
             <Lock size={36} />
           </div>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '0.75rem' }}>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '0.75rem', color: 'var(--text-primary)' }}>
             Sign In to View Wishlist
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', marginBottom: '2rem', lineHeight: '1.6' }}>
@@ -55,8 +55,8 @@ const Wishlist = () => {
       <div style={{ maxWidth: '560px', margin: '3.5rem auto', textAlign: 'center' }}>
         <div className="glass-card" style={{ padding: '3.5rem 2rem' }}>
           <div style={{
-            background: 'rgba(236, 72, 153, 0.12)',
-            color: '#ec4899',
+            background: 'rgba(234, 88, 12, 0.12)',
+            color: '#ea580c',
             width: '72px',
             height: '72px',
             borderRadius: '50%',
@@ -64,11 +64,11 @@ const Wishlist = () => {
             alignItems: 'center',
             justifyContent: 'center',
             margin: '0 auto 1.5rem',
-            boxShadow: '0 0 20px rgba(236, 72, 153, 0.25)'
+            boxShadow: '0 4px 15px rgba(234, 88, 12, 0.25)'
           }}>
             <Heart size={36} />
           </div>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '0.75rem' }}>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '0.75rem', color: 'var(--text-primary)' }}>
             Your Wishlist is Empty
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', marginBottom: '2rem', lineHeight: '1.6' }}>
@@ -90,7 +90,7 @@ const Wishlist = () => {
           <h1 style={{ fontSize: '2.1rem', fontWeight: '800', letterSpacing: '-0.02em', margin: 0 }}>
             My <span className="gradient-text">Wishlist</span>
           </h1>
-          <span className="badge badge-info" style={{ fontSize: '0.8rem' }}>
+          <span className="badge badge-info" style={{ fontSize: '0.8rem', backgroundColor: 'rgba(245, 158, 11, 0.15)', color: 'var(--accent-orange)', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
             {wishlist.length} {wishlist.length === 1 ? 'Item' : 'Items'}
           </span>
         </div>
@@ -117,7 +117,7 @@ const Wishlist = () => {
               }}
             >
               {/* Product Image */}
-              <Link to={`/products/${product.slug}`} style={{ display: 'block', position: 'relative', marginBottom: '1rem', overflow: 'hidden', borderRadius: 'var(--radius-md)' }}>
+              <Link to={`/products/${product.slug}`} style={{ display: 'block', position: 'relative', marginBottom: '1rem', overflow: 'hidden', borderRadius: 'var(--radius-md)', backgroundColor: '#fafaf9' }}>
                 <img
                   src={product.primary_image}
                   alt={product.name}
@@ -134,12 +134,13 @@ const Wishlist = () => {
                     position: 'absolute',
                     top: '10px',
                     left: '10px',
-                    background: 'var(--accent-rose)',
+                    background: 'var(--accent-orange)',
                     color: '#fff',
                     fontSize: '0.72rem',
                     fontWeight: '800',
                     padding: '0.2rem 0.55rem',
-                    borderRadius: 'var(--radius-sm)'
+                    borderRadius: 'var(--radius-sm)',
+                    boxShadow: '0 2px 8px rgba(234, 88, 12, 0.4)'
                   }}>
                     -{product.discount_percentage}% OFF
                   </span>
@@ -154,21 +155,22 @@ const Wishlist = () => {
                     position: 'absolute',
                     top: '10px',
                     right: '10px',
-                    background: 'rgba(17, 24, 39, 0.8)',
+                    background: 'rgba(255, 255, 255, 0.9)',
                     backdropFilter: 'blur(6px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    border: '1px solid var(--border-color)',
                     width: '34px',
                     height: '34px',
                     borderRadius: '50%',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#ec4899',
-                    cursor: 'pointer'
+                    color: '#ea580c',
+                    cursor: 'pointer',
+                    boxShadow: 'var(--shadow-sm)'
                   }}
                   title="Remove from Wishlist"
                 >
-                  <Heart size={16} fill="#ec4899" />
+                  <Heart size={16} fill="#ea580c" />
                 </button>
               </Link>
 
@@ -176,7 +178,7 @@ const Wishlist = () => {
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
                   <span>{product.brand_name || 'Brand'}</span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', color: 'var(--accent-amber)' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', color: 'var(--accent-orange)' }}>
                     <Star size={12} fill="currentColor" /> {product.average_rating || '5.0'}
                   </span>
                 </div>
@@ -185,6 +187,7 @@ const Wishlist = () => {
                   <h3 style={{
                     fontSize: '1rem',
                     fontWeight: '700',
+                    color: 'var(--text-primary)',
                     marginBottom: '0.75rem',
                     lineHeight: '1.35',
                     display: '-webkit-box',
@@ -201,7 +204,7 @@ const Wishlist = () => {
               {/* Pricing & Move to Cart CTA */}
               <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '0.85rem', marginTop: '0.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginBottom: '0.85rem' }}>
-                  <span style={{ fontSize: '1.2rem', fontWeight: '800', color: '#ffffff' }}>
+                  <span style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--text-primary)' }}>
                     ₹{product.current_price}
                   </span>
                   {product.has_discount && (
@@ -230,7 +233,7 @@ const Wishlist = () => {
                   <button
                     onClick={() => toggleWishlist(product)}
                     className="btn btn-outline"
-                    style={{ padding: '0.5rem 0.7rem', color: 'var(--accent-rose)' }}
+                    style={{ padding: '0.5rem 0.7rem', color: 'var(--accent-rose)', borderColor: 'rgba(244, 63, 94, 0.3)' }}
                     title="Delete from Wishlist"
                   >
                     <Trash2 size={16} />

@@ -3,16 +3,12 @@ import { Link } from 'react-router-dom';
 import { 
   ShoppingBag, 
   Search, 
-  Filter, 
   Clock, 
   Truck, 
   CheckCircle2, 
-  XCircle, 
   RotateCcw,
   Edit3,
   ExternalLink,
-  MapPin,
-  User,
   X
 } from 'lucide-react';
 import { getAdminOrders, updateAdminOrderStatus } from '../../services/adminService';
@@ -103,7 +99,7 @@ const AdminOrders = () => {
           bottom: '24px',
           right: '24px',
           zIndex: 9999,
-          backgroundColor: toast.type === 'error' ? 'var(--accent-rose)' : 'var(--accent-emerald)',
+          backgroundColor: toast.type === 'error' ? '#ef4444' : '#10b981',
           color: '#ffffff',
           padding: '0.8rem 1.25rem',
           borderRadius: 'var(--radius-md)',
@@ -118,7 +114,7 @@ const AdminOrders = () => {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.9rem', fontWeight: '800', margin: 0 }}>
+          <h1 style={{ fontSize: '1.9rem', fontWeight: '800', margin: 0, color: 'var(--text-primary)' }}>
             Order <span className="gradient-text">Fulfillment Hub</span>
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginTop: '0.25rem' }}>
@@ -140,15 +136,16 @@ const AdminOrders = () => {
               key={tab.key}
               onClick={() => setStatusFilter(tab.key)}
               style={{
-                padding: '0.55rem 1rem',
+                padding: '0.5rem 0.95rem',
                 borderRadius: 'var(--radius-md)',
-                backgroundColor: isActive ? 'var(--accent-primary)' : 'var(--bg-surface)',
+                backgroundColor: isActive ? 'var(--accent-primary)' : '#ffffff',
                 color: isActive ? '#ffffff' : 'var(--text-secondary)',
                 border: isActive ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
                 fontWeight: isActive ? '700' : '500',
                 fontSize: '0.85rem',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
+                boxShadow: isActive ? 'var(--shadow-orange)' : 'var(--shadow-sm)',
                 transition: 'all var(--transition-fast)'
               }}
             >
@@ -159,7 +156,7 @@ const AdminOrders = () => {
       </div>
 
       {/* Search Bar */}
-      <div className="glass-card" style={{ padding: '1rem 1.25rem', marginBottom: '1.5rem' }}>
+      <div className="glass-card" style={{ padding: '0.85rem 1.25rem', marginBottom: '1.5rem' }}>
         <form onSubmit={handleSearchSubmit} style={{ display: 'flex', position: 'relative' }}>
           <input
             type="text"
@@ -170,9 +167,9 @@ const AdminOrders = () => {
               width: '100%',
               padding: '0.6rem 0.8rem 0.6rem 2.4rem',
               borderRadius: 'var(--radius-md)',
-              backgroundColor: 'var(--bg-surface)',
+              backgroundColor: '#ffffff',
               border: '1px solid var(--border-color)',
-              color: '#fff',
+              color: 'var(--text-primary)',
               fontSize: '0.88rem',
               outline: 'none'
             }}
@@ -191,7 +188,7 @@ const AdminOrders = () => {
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left', color: 'var(--text-muted)' }}>
+                <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left', color: 'var(--text-secondary)', backgroundColor: '#fafaf9' }}>
                   <th style={{ padding: '0.75rem' }}>Order Number</th>
                   <th style={{ padding: '0.75rem' }}>Customer</th>
                   <th style={{ padding: '0.75rem' }}>Items</th>
@@ -204,31 +201,33 @@ const AdminOrders = () => {
               </thead>
               <tbody>
                 {orders.map((ord) => (
-                  <tr key={ord.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                    <td style={{ padding: '0.85rem 0.75rem', fontWeight: '700', color: 'var(--accent-primary)' }}>
-                      #{ord.order_number}
+                  <tr key={ord.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                    <td style={{ padding: '0.85rem 0.75rem', fontWeight: '700', color: 'var(--accent-orange)' }}>
+                      <Link to={`/orders/${ord.order_number}`} style={{ color: 'var(--accent-orange)', textDecoration: 'none' }}>
+                        #{ord.order_number}
+                      </Link>
                     </td>
                     <td style={{ padding: '0.85rem 0.75rem' }}>
-                      <div style={{ fontWeight: '600', color: '#ffffff' }}>{ord.customer_name || 'Registered Customer'}</div>
+                      <div style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{ord.customer_name || 'Registered Customer'}</div>
                       <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{ord.customer_email}</div>
                     </td>
                     <td style={{ padding: '0.85rem 0.75rem', color: 'var(--text-secondary)' }}>
                       {ord.total_items} items
                     </td>
-                    <td style={{ padding: '0.85rem 0.75rem', fontWeight: '800', color: '#ffffff' }}>
+                    <td style={{ padding: '0.85rem 0.75rem', fontWeight: '800', color: 'var(--text-primary)' }}>
                       ₹{ord.grand_total}
                     </td>
                     <td style={{ padding: '0.85rem 0.75rem' }}>
-                      <span className={`badge ${ord.status === 'delivered' ? 'badge-success' : ord.status === 'cancelled' ? 'badge-danger' : ord.status === 'shipped' ? 'badge-info' : ord.status === 'processing' ? 'badge-primary' : 'badge-warning'}`} style={{ fontSize: '0.72rem' }}>
+                      <span className={`badge ${ord.status === 'delivered' ? 'badge-success' : ord.status === 'cancelled' ? 'badge-danger' : 'badge-info'}`} style={{ fontSize: '0.72rem' }}>
                         {ord.status_display}
                       </span>
                     </td>
                     <td style={{ padding: '0.85rem 0.75rem' }}>
-                      <span style={{ fontSize: '0.75rem', color: ord.payment_status === 'paid' ? 'var(--accent-emerald)' : 'var(--text-muted)' }}>
+                      <span style={{ fontSize: '0.75rem', color: ord.payment_status === 'paid' ? '#059669' : 'var(--text-secondary)' }}>
                         ● {ord.payment_status_display} ({ord.payment_method})
                       </span>
                     </td>
-                    <td style={{ padding: '0.85rem 0.75rem', fontFamily: 'monospace', fontSize: '0.78rem', color: ord.tracking_number ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
+                    <td style={{ padding: '0.85rem 0.75rem', fontFamily: 'monospace', fontSize: '0.78rem', color: ord.tracking_number ? 'var(--accent-orange)' : 'var(--text-muted)' }}>
                       {ord.tracking_number || '-'}
                     </td>
                     <td style={{ padding: '0.85rem 0.75rem', textAlign: 'right' }}>
@@ -265,45 +264,46 @@ const AdminOrders = () => {
         <div style={{
           position: 'fixed',
           inset: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          backgroundColor: 'rgba(15, 23, 42, 0.55)',
           backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 9999,
           padding: '1.5rem'
         }}>
-          <div className="glass-card" style={{ maxWidth: '520px', width: '100%', backgroundColor: '#0f172a', borderRadius: 'var(--radius-lg)' }}>
+          <div className="glass-card" style={{ maxWidth: '520px', width: '100%', backgroundColor: '#ffffff', borderRadius: 'var(--radius-lg)', boxShadow: '0 20px 50px rgba(0,0,0,0.15)', padding: 0, overflow: 'hidden' }}>
             <div style={{
               padding: '1.25rem 1.5rem',
               borderBottom: '1px solid var(--border-color)',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(236, 72, 153, 0.15))'
+              background: 'linear-gradient(135deg, #fffbeb 0%, #ffedd5 100%)'
             }}>
               <div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0 }}>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0, color: 'var(--text-primary)' }}>
                   Update Order #{selectedOrder.order_number}
                 </h3>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
                   Customer: {selectedOrder.customer_name} ({selectedOrder.customer_email})
                 </span>
               </div>
-              <button onClick={() => setIsModalOpen(false)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}>
-                <X size={18} />
+              <button onClick={() => setIsModalOpen(false)} style={{ background: '#ffffff', border: '1px solid var(--border-color)', borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+                <X size={16} />
               </button>
             </div>
 
             <form onSubmit={handleStatusSubmit} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
               <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
                   Fulfillment Lifecycle Stage *
                 </label>
                 <select
                   value={newStatus}
                   onChange={(e) => setNewStatus(e.target.value)}
-                  style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.88rem' }}
+                  style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.88rem' }}
                 >
                   <option value="pending">Pending (Awaiting payment/confirmation)</option>
                   <option value="processing">Processing (Packing in warehouse)</option>
@@ -314,7 +314,7 @@ const AdminOrders = () => {
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
                   Courier Tracking Number (e.g. BlueDart / Delhivery / FedEx)
                 </label>
                 <input
@@ -322,12 +322,12 @@ const AdminOrders = () => {
                   placeholder="e.g. BLUEDART-948172635"
                   value={trackingNumber}
                   onChange={(e) => setTrackingNumber(e.target.value)}
-                  style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.85rem' }}
+                  style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
                   Timeline Activity Log Message (Optional)
                 </label>
                 <input
@@ -335,7 +335,7 @@ const AdminOrders = () => {
                   placeholder="e.g. Package dispatched via express air courier."
                   value={statusMessage}
                   onChange={(e) => setStatusMessage(e.target.value)}
-                  style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.85rem' }}
+                  style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
                 />
               </div>
 

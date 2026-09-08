@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Lock, Mail, ArrowRight, ShieldCheck, Eye, EyeOff, AlertCircle, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Lock, Mail, ArrowRight, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
@@ -60,24 +60,25 @@ const Login = () => {
             alignItems: 'center',
             justifyContent: 'center',
             margin: '0 auto 1.25rem',
-            boxShadow: 'var(--shadow-glow)'
+            boxShadow: 'var(--shadow-glow)',
+            color: '#ffffff'
           }}>
-            <Lock size={24} color="#ffffff" />
+            <Lock size={24} />
           </div>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '0.4rem', letterSpacing: '-0.02em' }}>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '0.4rem', letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
             Welcome Back
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-            Sign in to access your AuraStore account & orders
+            Sign in to access your ExaShop account & orders
           </p>
         </div>
 
         {/* Error Alert */}
         {errorMessage && (
           <div style={{
-            backgroundColor: 'rgba(244, 63, 94, 0.12)',
-            border: '1px solid rgba(244, 63, 94, 0.35)',
-            color: '#fb7185',
+            backgroundColor: 'rgba(239, 68, 68, 0.12)',
+            border: '1px solid rgba(239, 68, 68, 0.35)',
+            color: '#dc2626',
             padding: '0.75rem 1rem',
             borderRadius: 'var(--radius-md)',
             fontSize: '0.85rem',
@@ -96,7 +97,7 @@ const Login = () => {
           <div style={{
             backgroundColor: 'rgba(16, 185, 129, 0.12)',
             border: '1px solid rgba(16, 185, 129, 0.35)',
-            color: '#34d399',
+            color: '#059669',
             padding: '0.75rem 1rem',
             borderRadius: 'var(--radius-md)',
             fontSize: '0.85rem',
@@ -113,7 +114,7 @@ const Login = () => {
         {/* Form */}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.45rem' }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.45rem', color: 'var(--text-primary)' }}>
               Email or Username
             </label>
             <div style={{ position: 'relative' }}>
@@ -127,9 +128,9 @@ const Login = () => {
                   width: '100%',
                   padding: '0.8rem 1rem 0.8rem 2.6rem',
                   borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--bg-surface)',
+                  backgroundColor: '#ffffff',
                   border: '1px solid var(--border-color)',
-                  color: '#ffffff',
+                  color: 'var(--text-primary)',
                   fontSize: '0.9rem',
                   outline: 'none',
                   transition: 'border-color var(--transition-fast)'
@@ -141,8 +142,8 @@ const Login = () => {
 
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem' }}>
-              <label style={{ fontSize: '0.85rem', fontWeight: '600' }}>Password</label>
-              <Link to="/forgot-password" style={{ fontSize: '0.8rem', color: 'var(--accent-primary)', fontWeight: '600' }}>
+              <label style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-primary)' }}>Password</label>
+              <Link to="/forgot-password" style={{ fontSize: '0.8rem', color: 'var(--accent-orange)', fontWeight: '600' }}>
                 Forgot password?
               </Link>
             </div>
@@ -157,9 +158,9 @@ const Login = () => {
                   width: '100%',
                   padding: '0.8rem 2.6rem 0.8rem 2.6rem',
                   borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--bg-surface)',
+                  backgroundColor: '#ffffff',
                   border: '1px solid var(--border-color)',
-                  color: '#ffffff',
+                  color: 'var(--text-primary)',
                   fontSize: '0.9rem',
                   outline: 'none',
                   transition: 'border-color var(--transition-fast)'
@@ -177,7 +178,8 @@ const Login = () => {
                   background: 'none',
                   color: 'var(--text-muted)',
                   display: 'flex',
-                  alignItems: 'center'
+                  alignItems: 'center',
+                  cursor: 'pointer'
                 }}
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
@@ -199,7 +201,7 @@ const Login = () => {
 
         <div style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
           Don't have an account yet?{' '}
-          <Link to="/register" style={{ color: 'var(--accent-primary)', fontWeight: '600' }}>
+          <Link to="/register" style={{ color: 'var(--accent-orange)', fontWeight: '700' }}>
             Create one now
           </Link>
         </div>

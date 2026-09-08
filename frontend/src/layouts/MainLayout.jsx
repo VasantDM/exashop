@@ -1,6 +1,7 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import MobileBottomNav from '../components/MobileBottomNav';
 
 const MainLayout = ({ children }) => {
   return (
@@ -10,6 +11,7 @@ const MainLayout = ({ children }) => {
         {children}
       </main>
       <Footer />
+      <MobileBottomNav />
     </div>
   );
 };

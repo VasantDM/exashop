@@ -478,8 +478,9 @@ const Cart = () => {
         <div style={{
           position: 'fixed',
           inset: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          backgroundColor: 'rgba(15, 23, 42, 0.55)',
           backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -490,36 +491,36 @@ const Cart = () => {
             maxWidth: '480px',
             width: '100%',
             borderRadius: 'var(--radius-lg)',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            backgroundColor: '#0f172a',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7), var(--shadow-glow)',
+            border: '1px solid var(--border-color)',
+            backgroundColor: '#ffffff',
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.15)',
             overflow: 'hidden'
           }}>
             {/* Modal Header */}
             <div style={{
               padding: '1.25rem 1.5rem',
-              background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(236, 72, 153, 0.15))',
+              background: 'linear-gradient(135deg, #fffbeb 0%, #ffedd5 100%)',
               borderBottom: '1px solid var(--border-color)',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: '800', fontSize: '1.1rem' }}>
-                <Heart size={20} color="#ec4899" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: '800', fontSize: '1.1rem', color: 'var(--text-primary)' }}>
+                <Heart size={20} color="var(--accent-orange)" />
                 <span>Remove Item from Cart</span>
               </div>
               <button
                 onClick={() => setItemToRemove(null)}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  border: 'none',
+                  background: '#ffffff',
+                  border: '1px solid var(--border-color)',
                   borderRadius: '50%',
                   width: '30px',
                   height: '30px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#ffffff',
+                  color: 'var(--text-secondary)',
                   cursor: 'pointer'
                 }}
               >
@@ -546,16 +547,16 @@ const Cart = () => {
                   style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }}
                 />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <h4 style={{ fontSize: '0.92rem', fontWeight: '700', margin: '0 0 0.25rem 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <h4 style={{ fontSize: '0.92rem', fontWeight: '700', margin: '0 0 0.25rem 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--text-primary)' }}>
                     {itemToRemove.product.name}
                   </h4>
                   {(itemToRemove.color_name || itemToRemove.size) && (
-                    <div style={{ fontSize: '0.75rem', color: 'var(--accent-primary)', marginBottom: '0.2rem' }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--accent-orange)', marginBottom: '0.2rem', fontWeight: '600' }}>
                       {[itemToRemove.color_name && `Color: ${itemToRemove.color_name}`, itemToRemove.size && `Size: ${itemToRemove.size}`].filter(Boolean).join(' • ')}
                     </div>
                   )}
                   <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                    ₹{itemToRemove.unit_price} × {itemToRemove.quantity} = <strong style={{ color: '#ffffff' }}>₹{parseFloat(itemToRemove.total_price).toFixed(2)}</strong>
+                    ₹{itemToRemove.unit_price} × {itemToRemove.quantity} = <strong style={{ color: 'var(--text-primary)' }}>₹{parseFloat(itemToRemove.total_price).toFixed(2)}</strong>
                   </div>
                 </div>
               </div>
@@ -580,7 +581,7 @@ const Cart = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '0.5rem',
-                    background: 'linear-gradient(135deg, #ec4899, #8b5cf6)'
+                    background: 'var(--accent-gradient)'
                   }}
                 >
                   <Heart size={16} fill="#ffffff" /> Yes, Move to Wishlist & Remove
@@ -596,8 +597,8 @@ const Cart = () => {
                     style={{
                       padding: '0.75rem',
                       fontSize: '0.85rem',
-                      borderColor: 'rgba(244, 63, 94, 0.4)',
-                      color: '#fb7185',
+                      borderColor: 'rgba(239, 68, 68, 0.4)',
+                      color: '#dc2626',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',

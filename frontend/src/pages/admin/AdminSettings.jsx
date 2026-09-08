@@ -86,8 +86,8 @@ const AdminSettings = () => {
         <Link to="/admin/customers" style={{ textDecoration: 'none' }}>
           <div className="glass-card" style={{
             padding: '1.5rem',
-            border: '1px solid rgba(99, 102, 241, 0.25)',
-            backgroundColor: 'rgba(99, 102, 241, 0.06)',
+            border: '1px solid rgba(245, 158, 11, 0.3)',
+            backgroundColor: 'rgba(245, 158, 11, 0.05)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -99,16 +99,16 @@ const AdminSettings = () => {
                 width: '48px',
                 height: '48px',
                 borderRadius: 'var(--radius-md)',
-                backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                backgroundColor: 'rgba(245, 158, 11, 0.15)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'var(--accent-primary)'
+                color: 'var(--accent-orange)'
               }}>
                 <Users size={24} />
               </div>
               <div>
-                <div style={{ fontWeight: '800', fontSize: '1.05rem', color: '#ffffff' }}>
+                <div style={{ fontWeight: '800', fontSize: '1.05rem', color: 'var(--text-primary)' }}>
                   Users & Accounts Directory
                 </div>
                 <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
@@ -116,7 +116,7 @@ const AdminSettings = () => {
                 </div>
               </div>
             </div>
-            <ArrowRight size={20} color="var(--accent-primary)" />
+            <ArrowRight size={20} color="var(--accent-orange)" />
           </div>
         </Link>
       </div>
@@ -134,12 +134,13 @@ const AdminSettings = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#ffffff'
+              color: '#ffffff',
+              boxShadow: '0 4px 12px rgba(245, 158, 11, 0.35)'
             }}>
               <Sliders size={20} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0, color: '#ffffff' }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0, color: 'var(--text-primary)' }}>
                 Store & Branding
               </h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', margin: 0 }}>
@@ -150,7 +151,7 @@ const AdminSettings = () => {
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem' }}>
+              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>
                 Store Name
               </label>
               <input
@@ -163,7 +164,7 @@ const AdminSettings = () => {
                   borderRadius: 'var(--radius-md)',
                   backgroundColor: 'var(--bg-surface)',
                   border: '1px solid var(--border-color)',
-                  color: '#ffffff',
+                  color: 'var(--text-primary)',
                   fontSize: '0.88rem',
                   outline: 'none'
                 }}
@@ -172,7 +173,7 @@ const AdminSettings = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>
                   Support Email
                 </label>
                 <input
@@ -185,7 +186,7 @@ const AdminSettings = () => {
                     borderRadius: 'var(--radius-md)',
                     backgroundColor: 'var(--bg-surface)',
                     border: '1px solid var(--border-color)',
-                    color: '#ffffff',
+                    color: 'var(--text-primary)',
                     fontSize: '0.88rem',
                     outline: 'none'
                   }}
@@ -193,7 +194,7 @@ const AdminSettings = () => {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>
                   Support Phone
                 </label>
                 <input
@@ -206,7 +207,7 @@ const AdminSettings = () => {
                     borderRadius: 'var(--radius-md)',
                     backgroundColor: 'var(--bg-surface)',
                     border: '1px solid var(--border-color)',
-                    color: '#ffffff',
+                    color: 'var(--text-primary)',
                     fontSize: '0.88rem',
                     outline: 'none'
                   }}
@@ -216,7 +217,7 @@ const AdminSettings = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>
                   Default Currency
                 </label>
                 <input
@@ -227,7 +228,7 @@ const AdminSettings = () => {
                     width: '100%',
                     padding: '0.65rem 0.85rem',
                     borderRadius: 'var(--radius-md)',
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    backgroundColor: 'var(--bg-secondary)',
                     border: '1px solid var(--border-color)',
                     color: 'var(--text-muted)',
                     fontSize: '0.88rem',
@@ -237,7 +238,7 @@ const AdminSettings = () => {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>
                   Low Stock Threshold
                 </label>
                 <input
@@ -250,7 +251,7 @@ const AdminSettings = () => {
                     borderRadius: 'var(--radius-md)',
                     backgroundColor: 'var(--bg-surface)',
                     border: '1px solid var(--border-color)',
-                    color: '#ffffff',
+                    color: 'var(--text-primary)',
                     fontSize: '0.88rem',
                     outline: 'none'
                   }}
@@ -273,8 +274,8 @@ const AdminSettings = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           
           <div className="glass-card" style={{ padding: '1.75rem' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '1rem', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <ShieldCheck size={18} color="var(--accent-primary)" />
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '1rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <ShieldCheck size={18} color="var(--accent-orange)" />
               Authentication & Role Policy
             </h3>
 
@@ -282,10 +283,10 @@ const AdminSettings = () => {
               <div style={{
                 padding: '0.85rem 1rem',
                 borderRadius: 'var(--radius-md)',
-                backgroundColor: 'rgba(6, 182, 212, 0.08)',
-                border: '1px solid rgba(6, 182, 212, 0.25)'
+                backgroundColor: 'rgba(245, 158, 11, 0.08)',
+                border: '1px solid rgba(245, 158, 11, 0.25)'
               }}>
-                <div style={{ fontWeight: '700', color: 'var(--accent-cyan)', marginBottom: '0.2rem' }}>
+                <div style={{ fontWeight: '700', color: 'var(--accent-orange)', marginBottom: '0.2rem' }}>
                   Public Registration Role: Customer (Strict)
                 </div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>

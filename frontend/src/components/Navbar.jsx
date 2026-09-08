@@ -3,13 +3,13 @@ import { Link, useLocation } from 'react-router-dom';
 import { 
   ShoppingBag, 
   ShoppingCart, 
-  Heart,
-  User, 
+  Heart, 
   Layers, 
   ShieldCheck,
   LogOut,
   Home,
-  Package
+  Package,
+  Search
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -37,50 +37,25 @@ const Navbar = () => {
   ) : 'CU';
 
   return (
-    <header style={{
-      borderBottom: '1px solid var(--border-color)',
-      backgroundColor: 'rgba(10, 14, 23, 0.88)',
-      backdropFilter: 'blur(16px)',
-      position: 'sticky',
-      top: 0,
-      zIndex: 50
-    }}>
-      <div style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: '0.85rem 1.5rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '1rem'
-      }}>
+    <header className="site-header">
+      <div className="navbar-container">
         {/* Brand Logo */}
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div style={{
-            background: 'var(--accent-gradient)',
-            width: '40px',
-            height: '40px',
-            borderRadius: 'var(--radius-md)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: 'var(--shadow-glow)'
-          }}>
-            <ShoppingBag size={22} color="#ffffff" />
+        <Link to="/" className="brand-logo">
+          <div className="brand-icon">
+            <ShoppingBag size={20} />
           </div>
-          <div>
-            <span style={{ fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.02em' }}>
-              Aura<span className="gradient-text">Store</span>
+          <div className="brand-text">
+            <span className="brand-name">
+              Exa<span className="gradient-text">Shop</span>
             </span>
-            <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '-2px' }}>
-              Full-Stack E-Commerce
+            <div className="brand-tagline">
+              Shop what you love
             </div>
           </div>
         </Link>
 
-        {/* Navigation Links */}
-        <nav style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        {/* Desktop Navigation Links */}
+        <nav className="desktop-nav-links">
           {navLinks.map((link) => {
             const Icon = link.icon;
             const isActive = location.pathname === link.path;
@@ -88,81 +63,35 @@ const Navbar = () => {
               <Link
                 key={link.path}
                 to={link.path}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.4rem',
-                  padding: '0.5rem 0.9rem',
-                  borderRadius: 'var(--radius-md)',
-                  fontSize: '0.9rem',
-                  fontWeight: '500',
-                  color: isActive ? '#ffffff' : 'var(--text-secondary)',
-                  backgroundColor: isActive ? 'var(--bg-surface)' : 'transparent',
-                  border: isActive ? '1px solid var(--border-color)' : '1px solid transparent',
-                  transition: 'all var(--transition-fast)'
-                }}
+                className={`nav-link ${isActive ? 'active' : ''}`}
               >
-                <Icon size={16} />
-                {link.name}
+                <Icon size={15} color={isActive ? 'var(--accent-orange)' : 'currentColor'} />
+                <span>{link.name}</span>
               </Link>
             );
           })}
         </nav>
 
         {/* System Health Status & User Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          {/* Live Stack Status Indicator */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.35rem 0.75rem',
-            borderRadius: 'var(--radius-full)',
-            backgroundColor: isDbConnected ? 'rgba(16, 185, 129, 0.1)' : 'rgba(244, 63, 94, 0.1)',
-            border: `1px solid ${isDbConnected ? 'rgba(16, 185, 129, 0.3)' : 'rgba(244, 63, 94, 0.3)'}`,
-            fontSize: '0.75rem',
-            fontWeight: '600'
-          }} title={`API: ${isHealthy ? 'Online' : 'Offline'} | DB: ${isDbConnected ? 'PostgreSQL 18 Connected' : 'Disconnected'}`}>
+        <div className="navbar-actions">
+          {/* Live Stack Status Indicator (Desktop only for compact view) */}
+          <div className="desktop-status-pill" title={`API: ${isHealthy ? 'Online' : 'Offline'} | DB: ${isDbConnected ? 'Connected' : 'Disconnected'}`}>
             <span className={`pulse-dot ${isDbConnected ? 'success' : 'danger'}`}></span>
-            <span style={{ color: isDbConnected ? '#34d399' : '#fb7185' }}>
-              {loading ? 'Checking...' : isDbConnected ? 'Full-Stack Connected' : 'API / DB Disconnected'}
+            <span style={{ color: isDbConnected ? '#059669' : '#dc2626' }}>
+              {loading ? 'Checking...' : isDbConnected ? 'System Online' : 'Offline'}
             </span>
           </div>
 
           {/* Wishlist Icon with Dynamic Badge */}
           <Link
             to="/wishlist"
-            style={{
-              position: 'relative',
-              padding: '0.5rem',
-              borderRadius: 'var(--radius-md)',
-              backgroundColor: 'var(--bg-surface)',
-              border: '1px solid var(--border-color)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: wishlistCount > 0 ? '#ec4899' : 'var(--text-primary)'
-            }}
+            className="action-icon-btn"
             aria-label="View Wishlist"
             title="Saved Wishlist Items"
           >
-            <Heart size={20} fill={wishlistCount > 0 ? '#ec4899' : 'none'} />
+            <Heart size={18} color={wishlistCount > 0 ? '#ea580c' : 'var(--text-secondary)'} fill={wishlistCount > 0 ? '#ea580c' : 'none'} />
             {wishlistCount > 0 && (
-              <span style={{
-                position: 'absolute',
-                top: '-4px',
-                right: '-4px',
-                background: '#ec4899',
-                color: '#fff',
-                fontSize: '0.7rem',
-                fontWeight: '700',
-                width: '18px',
-                height: '18px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
+              <span className="action-badge badge-orange">
                 {wishlistCount}
               </span>
             )}
@@ -171,91 +100,48 @@ const Navbar = () => {
           {/* Cart Icon with Dynamic Badge */}
           <Link
             to="/cart"
-            style={{
-              position: 'relative',
-              padding: '0.5rem',
-              borderRadius: 'var(--radius-md)',
-              backgroundColor: 'var(--bg-surface)',
-              border: '1px solid var(--border-color)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--text-primary)'
-            }}
+            className="action-icon-btn"
             aria-label="View Cart"
             title="View Shopping Cart"
           >
-            <ShoppingCart size={20} />
-            <span style={{
-              position: 'absolute',
-              top: '-4px',
-              right: '-4px',
-              background: 'var(--accent-primary)',
-              color: '#fff',
-              fontSize: '0.7rem',
-              fontWeight: '700',
-              width: '18px',
-              height: '18px',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'transform 0.2s ease'
-            }}>
+            <ShoppingCart size={18} color="var(--text-primary)" />
+            <span className="action-badge badge-amber">
               {totalItems}
             </span>
           </Link>
 
           {/* User Auth Links */}
           {isAuthenticated && user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <div className="user-logged-in-wrap">
               <Link
                 to="/orders"
-                className="btn btn-outline"
+                className="desktop-only-btn btn btn-outline"
                 style={{
-                  padding: '0.4rem 0.75rem',
-                  fontSize: '0.85rem',
+                  padding: '0.35rem 0.65rem',
+                  fontSize: '0.8rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.4rem',
-                  backgroundColor: location.pathname.startsWith('/orders') ? 'rgba(99, 102, 241, 0.15)' : 'var(--bg-surface)',
+                  gap: '0.35rem',
+                  backgroundColor: location.pathname.startsWith('/orders') ? 'rgba(245, 158, 11, 0.12)' : '#ffffff',
                   borderColor: location.pathname.startsWith('/orders') ? 'var(--accent-primary)' : 'var(--border-color)',
-                  color: location.pathname.startsWith('/orders') ? 'var(--accent-primary)' : 'var(--text-primary)'
+                  color: location.pathname.startsWith('/orders') ? 'var(--accent-orange)' : 'var(--text-primary)'
                 }}
                 title="View & Track Your Orders"
               >
-                <Package size={16} color="var(--accent-primary)" />
+                <Package size={14} color="var(--accent-orange)" />
                 <span>Orders</span>
               </Link>
 
               <Link
                 to="/profile"
-                className="btn btn-outline"
-                style={{
-                  padding: '0.4rem 0.85rem',
-                  fontSize: '0.85rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  backgroundColor: 'var(--bg-surface)'
-                }}
+                className="user-profile-btn"
+                title="Your Profile"
               >
-                <div style={{
-                  width: '24px',
-                  height: '24px',
-                  borderRadius: '50%',
-                  background: 'var(--accent-gradient)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '0.7rem',
-                  fontWeight: '700',
-                  color: '#fff'
-                }}>
+                <div className="user-avatar">
                   {initials}
                 </div>
-                <span>{user.first_name || user.username}</span>
-                <span className={`badge ${user.role === 'admin' ? 'badge-danger' : 'badge-info'}`} style={{ padding: '0.15rem 0.45rem', fontSize: '0.68rem' }}>
+                <span className="user-name-label">{user.first_name || user.username}</span>
+                <span className={`badge ${user.role === 'admin' ? 'badge-danger' : 'badge-info'} user-role-badge`}>
                   {user.role}
                 </span>
               </Link>
@@ -263,47 +149,317 @@ const Navbar = () => {
               {isAdmin && (
                 <Link
                   to="/admin"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.35rem',
-                    padding: '0.4rem 0.75rem',
-                    borderRadius: 'var(--radius-md)',
-                    backgroundColor: 'rgba(99, 102, 241, 0.15)',
-                    border: '1px solid rgba(99, 102, 241, 0.4)',
-                    color: 'var(--accent-primary)',
-                    fontSize: '0.82rem',
-                    fontWeight: '700',
-                    textDecoration: 'none'
-                  }}
+                  className="admin-link-badge"
                   title="Store Admin Management Suite"
                 >
-                  <ShieldCheck size={16} />
+                  <ShieldCheck size={15} />
                   <span>Admin</span>
                 </Link>
               )}
 
               <button
                 onClick={logout}
-                className="btn btn-outline"
-                style={{ padding: '0.45rem 0.75rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}
+                className="logout-btn"
                 title="Logout"
               >
                 <LogOut size={16} />
               </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Link to="/login" className="btn btn-outline" style={{ padding: '0.5rem 0.9rem', fontSize: '0.85rem' }}>
+            <div className="guest-auth-actions">
+              <Link to="/login" className="btn btn-outline login-btn">
                 Login
               </Link>
-              <Link to="/register" className="btn btn-primary" style={{ padding: '0.5rem 0.9rem', fontSize: '0.85rem' }}>
+              <Link to="/register" className="btn btn-primary register-btn">
                 Register
               </Link>
             </div>
           )}
         </div>
       </div>
+
+      <style>{`
+        .site-header {
+          border-bottom: 1px solid var(--border-color);
+          background-color: rgba(255, 255, 255, 0.94);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          position: sticky;
+          top: 0;
+          z-index: 50;
+          box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.04);
+        }
+
+        .navbar-container {
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 0.75rem 1.5rem;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+        }
+
+        .brand-logo {
+          display: flex;
+          align-items: center;
+          gap: 0.65rem;
+          text-decoration: none;
+        }
+
+        .brand-icon {
+          background: var(--accent-gradient);
+          width: 38px;
+          height: 38px;
+          border-radius: var(--radius-md);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+          color: #ffffff;
+          flex-shrink: 0;
+        }
+
+        .brand-name {
+          font-size: 1.25rem;
+          font-weight: 800;
+          letter-spacing: -0.02em;
+          color: var(--text-primary);
+          line-height: 1.2;
+          display: block;
+        }
+
+        .brand-tagline {
+          font-size: 0.68rem;
+          color: var(--text-secondary);
+          margin-top: -2px;
+          font-weight: 500;
+        }
+
+        .desktop-nav-links {
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+        }
+
+        .nav-link {
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+          padding: 0.45rem 0.85rem;
+          border-radius: var(--radius-md);
+          font-size: 0.88rem;
+          font-weight: 600;
+          color: var(--text-secondary);
+          background-color: transparent;
+          border: 1px solid transparent;
+          transition: all var(--transition-fast);
+          text-decoration: none;
+        }
+
+        .nav-link:hover {
+          color: var(--accent-orange);
+          background-color: rgba(245, 158, 11, 0.06);
+        }
+
+        .nav-link.active {
+          color: var(--accent-orange);
+          background-color: rgba(245, 158, 11, 0.12);
+          border-color: rgba(245, 158, 11, 0.3);
+          font-weight: 700;
+        }
+
+        .navbar-actions {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+
+        .desktop-status-pill {
+          display: flex;
+          align-items: center;
+          gap: 0.45rem;
+          padding: 0.3rem 0.65rem;
+          border-radius: var(--radius-full);
+          background-color: rgba(16, 185, 129, 0.1);
+          border: 1px solid rgba(16, 185, 129, 0.25);
+          font-size: 0.72rem;
+          font-weight: 600;
+        }
+
+        .action-icon-btn {
+          position: relative;
+          padding: 0.45rem;
+          border-radius: var(--radius-md);
+          background-color: #ffffff;
+          border: 1px solid var(--border-color);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: var(--shadow-sm);
+          transition: all var(--transition-fast);
+          text-decoration: none;
+        }
+
+        .action-icon-btn:hover {
+          border-color: var(--accent-primary);
+          background-color: rgba(245, 158, 11, 0.05);
+        }
+
+        .action-badge {
+          position: absolute;
+          top: -5px;
+          right: -5px;
+          color: #fff;
+          font-size: 0.62rem;
+          font-weight: 800;
+          min-width: 16px;
+          height: 16px;
+          border-radius: var(--radius-full);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0 3px;
+        }
+
+        .badge-orange {
+          background-color: #ea580c;
+        }
+
+        .badge-amber {
+          background: var(--accent-gradient);
+          box-shadow: 0 2px 5px rgba(245, 158, 11, 0.4);
+        }
+
+        .user-logged-in-wrap {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .user-profile-btn {
+          display: flex;
+          align-items: center;
+          gap: 0.45rem;
+          padding: 0.35rem 0.7rem;
+          border-radius: var(--radius-md);
+          background-color: #ffffff;
+          border: 1px solid var(--border-color);
+          box-shadow: var(--shadow-sm);
+          text-decoration: none;
+          color: var(--text-primary);
+          font-size: 0.8rem;
+          font-weight: 600;
+          transition: all var(--transition-fast);
+        }
+
+        .user-profile-btn:hover {
+          border-color: var(--accent-primary);
+        }
+
+        .user-avatar {
+          width: 22px;
+          height: 22px;
+          border-radius: 50%;
+          background: var(--accent-gradient);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.65rem;
+          font-weight: 700;
+          color: #fff;
+        }
+
+        .admin-link-badge {
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+          padding: 0.35rem 0.65rem;
+          border-radius: var(--radius-md);
+          background-color: rgba(245, 158, 11, 0.12);
+          border: 1px solid rgba(245, 158, 11, 0.35);
+          color: var(--accent-orange);
+          font-size: 0.8rem;
+          font-weight: 700;
+          text-decoration: none;
+          transition: all var(--transition-fast);
+        }
+
+        .admin-link-badge:hover {
+          background-color: rgba(245, 158, 11, 0.2);
+        }
+
+        .logout-btn {
+          padding: 0.4rem 0.65rem;
+          border-radius: var(--radius-md);
+          background: #ffffff;
+          border: 1px solid var(--border-color);
+          color: var(--text-muted);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all var(--transition-fast);
+        }
+
+        .logout-btn:hover {
+          color: var(--accent-rose);
+          border-color: rgba(239, 68, 68, 0.3);
+          background-color: rgba(239, 68, 68, 0.05);
+        }
+
+        .guest-auth-actions {
+          display: flex;
+          align-items: center;
+          gap: 0.45rem;
+        }
+
+        .login-btn {
+          padding: 0.45rem 0.8rem;
+          font-size: 0.82rem;
+        }
+
+        .register-btn {
+          padding: 0.45rem 0.85rem;
+          font-size: 0.82rem;
+        }
+
+        /* Mobile View Rules */
+        @media (max-width: 768px) {
+          .navbar-container {
+            padding: 0.65rem 1rem;
+          }
+
+          .desktop-nav-links,
+          .desktop-status-pill,
+          .desktop-only-btn {
+            display: none !important;
+          }
+
+          .brand-name {
+            font-size: 1.15rem;
+          }
+
+          .brand-tagline {
+            display: none;
+          }
+
+          .user-role-badge,
+          .user-name-label {
+            display: none;
+          }
+
+          .user-profile-btn {
+            padding: 0.35rem 0.45rem;
+          }
+
+          .login-btn,
+          .register-btn {
+            padding: 0.35rem 0.65rem;
+            font-size: 0.78rem;
+          }
+        }
+      `}</style>
     </header>
   );
 };

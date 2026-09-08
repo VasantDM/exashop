@@ -1,24 +1,9 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { 
-  Lock, 
-  Mail, 
-  Eye, 
-  EyeOff, 
-  X, 
-  ArrowRight, 
-  Sparkles, 
-  AlertCircle,
-  CheckCircle2,
-  UserCheck
-} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Lock, Mail, Eye, EyeOff, AlertCircle, CheckCircle2, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-const AuthModal = ({
-  isOpen,
-  onClose,
-  config = {}
-}) => {
+const AuthModal = ({ isOpen, onClose, redirectPath = '/checkout', customMessage }) => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -35,35 +20,21 @@ const AuthModal = ({
     e.preventDefault();
     setErrorMessage('');
     setSuccessMessage('');
-
-    if (!identifier.trim() || !password) {
-      setErrorMessage('Please enter your email/username and password.');
-      return;
-    }
-
     setIsLoading(true);
+
     try {
-      const credentials = identifier.includes('@')
-        ? { email: identifier.trim(), password }
-        : { username: identifier.trim(), password };
-
-      await login(credentials);
-      setSuccessMessage('Signed in successfully!');
-
-      // If a post-auth callback was provided (e.g. add to cart / wishlist), execute it
-      if (config.onAuthSuccess) {
-        await config.onAuthSuccess();
-      }
-
+      await login(identifier.trim(), password);
+      setSuccessMessage('Successfully signed in! Proceeding...');
       setTimeout(() => {
         onClose();
-        setIdentifier('');
-        setPassword('');
-        setSuccessMessage('');
+        if (redirectPath) {
+          navigate(redirectPath);
+        }
       }, 700);
-
     } catch (err) {
-      setErrorMessage(err.message || 'Login failed. Please verify your credentials.');
+      console.error('Modal login failed:', err);
+      const detail = err.response?.data?.detail || err.response?.data?.message || 'Invalid credentials. Please verify and try again.';
+      setErrorMessage(detail);
     } finally {
       setIsLoading(false);
     }
@@ -71,7 +42,7 @@ const AuthModal = ({
 
   const handleGoToRegister = () => {
     onClose();
-    navigate('/register');
+    navigate('/register', { state: { from: redirectPath } });
   };
 
   const handleGoToForgotPassword = () => {
@@ -83,8 +54,9 @@ const AuthModal = ({
     <div style={{
       position: 'fixed',
       inset: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.82)',
+      backgroundColor: 'rgba(15, 23, 42, 0.55)',
       backdropFilter: 'blur(8px)',
+      WebkitBackdropFilter: 'blur(8px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -97,9 +69,9 @@ const AuthModal = ({
           maxWidth: '440px',
           width: '100%',
           borderRadius: 'var(--radius-lg)',
-          border: '1px solid rgba(255, 255, 255, 0.15)',
-          backgroundColor: '#0f172a',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), var(--shadow-glow)',
+          border: '1px solid var(--border-color)',
+          backgroundColor: '#ffffff',
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.15)',
           overflow: 'hidden',
           position: 'relative',
           padding: '2.25rem 2rem'
@@ -112,15 +84,15 @@ const AuthModal = ({
             position: 'absolute',
             top: '16px',
             right: '16px',
-            background: 'rgba(255, 255, 255, 0.1)',
-            border: 'none',
+            background: '#f5f5f4',
+            border: '1px solid var(--border-color)',
             borderRadius: '50%',
             width: '32px',
             height: '32px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#ffffff',
+            color: 'var(--text-secondary)',
             cursor: 'pointer'
           }}
           title="Close Modal"
@@ -129,34 +101,35 @@ const AuthModal = ({
         </button>
 
         {/* Header Icon */}
-        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
           <div style={{
             background: 'var(--accent-gradient)',
-            width: '48px',
-            height: '48px',
+            width: '46px',
+            height: '46px',
             borderRadius: 'var(--radius-md)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            margin: '0 auto 1rem',
-            boxShadow: 'var(--shadow-glow)'
+            margin: '0 auto 0.85rem',
+            boxShadow: '0 4px 14px rgba(245, 158, 11, 0.35)',
+            color: '#ffffff'
           }}>
-            <Lock size={22} color="#ffffff" />
+            <Lock size={20} />
           </div>
-          <h2 style={{ fontSize: '1.45rem', fontWeight: '800', marginBottom: '0.35rem', letterSpacing: '-0.02em', color: '#ffffff' }}>
-            {config.title || 'Sign In to Continue'}
+          <h2 style={{ fontSize: '1.35rem', fontWeight: '800', marginBottom: '0.3rem', letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
+            Sign In to Continue
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.5', maxWidth: '340px', margin: '0 auto' }}>
-            {config.subtitle || 'Please sign in to your AuraStore account to save items and complete your order.'}
+            {customMessage || 'Please sign in to your ExaShop account to save items and complete your order.'}
           </p>
         </div>
 
         {/* Error Alert */}
         {errorMessage && (
           <div style={{
-            backgroundColor: 'rgba(244, 63, 94, 0.12)',
-            border: '1px solid rgba(244, 63, 94, 0.35)',
-            color: '#fb7185',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            color: '#dc2626',
             padding: '0.65rem 0.85rem',
             borderRadius: 'var(--radius-sm)',
             fontSize: '0.82rem',
@@ -174,8 +147,8 @@ const AuthModal = ({
         {successMessage && (
           <div style={{
             backgroundColor: 'rgba(16, 185, 129, 0.12)',
-            border: '1px solid rgba(16, 185, 129, 0.35)',
-            color: '#34d399',
+            border: '1px solid rgba(16, 185, 129, 0.3)',
+            color: '#059669',
             padding: '0.65rem 0.85rem',
             borderRadius: 'var(--radius-sm)',
             fontSize: '0.82rem',
@@ -192,7 +165,7 @@ const AuthModal = ({
         {/* Login Form */}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>
+            <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
               Email or Username
             </label>
             <div style={{ position: 'relative' }}>
@@ -206,9 +179,9 @@ const AuthModal = ({
                   width: '100%',
                   padding: '0.65rem 0.85rem 0.65rem 2.25rem',
                   borderRadius: 'var(--radius-sm)',
-                  backgroundColor: 'var(--bg-surface)',
+                  backgroundColor: '#ffffff',
                   border: '1px solid var(--border-color)',
-                  color: '#ffffff',
+                  color: 'var(--text-primary)',
                   fontSize: '0.88rem',
                   outline: 'none'
                 }}
@@ -219,7 +192,7 @@ const AuthModal = ({
 
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: 'var(--text-secondary)' }}>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: 'var(--text-primary)' }}>
                 Password
               </label>
               <button
@@ -228,7 +201,7 @@ const AuthModal = ({
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: 'var(--accent-primary)',
+                  color: 'var(--accent-orange)',
                   fontSize: '0.75rem',
                   fontWeight: '600',
                   cursor: 'pointer'
@@ -248,9 +221,9 @@ const AuthModal = ({
                   width: '100%',
                   padding: '0.65rem 2.25rem 0.65rem 2.25rem',
                   borderRadius: 'var(--radius-sm)',
-                  backgroundColor: 'var(--bg-surface)',
+                  backgroundColor: '#ffffff',
                   border: '1px solid var(--border-color)',
-                  color: '#ffffff',
+                  color: 'var(--text-primary)',
                   fontSize: '0.88rem',
                   outline: 'none'
                 }}
@@ -286,10 +259,10 @@ const AuthModal = ({
           </button>
         </form>
 
-        {/* Footer Link: Redirect to Register */}
+        {/* Footer Link */}
         <div style={{
-          marginTop: '1.5rem',
-          paddingTop: '1.25rem',
+          marginTop: '1.25rem',
+          paddingTop: '1rem',
           borderTop: '1px solid var(--border-color)',
           textAlign: 'center',
           fontSize: '0.82rem',
@@ -302,7 +275,7 @@ const AuthModal = ({
             style={{
               background: 'none',
               border: 'none',
-              color: 'var(--accent-primary)',
+              color: 'var(--accent-orange)',
               fontWeight: '700',
               cursor: 'pointer',
               textDecoration: 'underline'

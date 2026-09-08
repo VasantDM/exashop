@@ -129,7 +129,7 @@ const AdminInventory = () => {
               borderRadius: 'var(--radius-md)',
               backgroundColor: 'var(--bg-surface)',
               border: '1px solid var(--border-color)',
-              color: '#fff',
+              color: 'var(--text-primary)',
               fontSize: '0.88rem',
               outline: 'none'
             }}
@@ -147,7 +147,7 @@ const AdminInventory = () => {
           borderRadius: 'var(--radius-md)',
           backgroundColor: lowStockOnly ? 'rgba(245, 158, 11, 0.15)' : 'var(--bg-surface)',
           border: lowStockOnly ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid var(--border-color)',
-          color: lowStockOnly ? 'var(--accent-amber)' : 'var(--text-secondary)'
+          color: lowStockOnly ? 'var(--accent-orange)' : 'var(--text-secondary)'
         }}>
           <input
             type="checkbox"
@@ -182,18 +182,18 @@ const AdminInventory = () => {
                 {items.map((item) => {
                   const isBusy = updatingId === `${item.is_variant ? 'v' : 'p'}-${item.id}`;
                   return (
-                    <tr key={`${item.is_variant ? 'v' : 'p'}-${item.id}`} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                    <tr key={`${item.is_variant ? 'v' : 'p'}-${item.id}`} style={{ borderBottom: '1px solid var(--border-color)' }}>
                       <td style={{ padding: '0.85rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <img
                           src={item.image}
                           alt={item.name}
-                          style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-surface)' }}
+                          style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}
                         />
                         <div>
-                          <div style={{ fontWeight: '700', color: '#ffffff' }}>{item.name}</div>
+                          <div style={{ fontWeight: '700', color: 'var(--text-primary)' }}>{item.name}</div>
                           {item.is_variant && (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
-                              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: item.color_code, display: 'inline-block' }} />
+                              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: item.color_code, display: 'inline-block', border: '1px solid #ccc' }} />
                               <span>Color: {item.color_name} • Size: {item.size}</span>
                             </div>
                           )}
@@ -208,12 +208,12 @@ const AdminInventory = () => {
                         {item.category}
                       </td>
 
-                      <td style={{ padding: '0.85rem 0.75rem', fontWeight: '700', color: '#ffffff' }}>
+                      <td style={{ padding: '0.85rem 0.75rem', fontWeight: '700', color: 'var(--text-primary)' }}>
                         ₹{item.price}
                       </td>
 
                       <td style={{ padding: '0.85rem 0.75rem' }}>
-                        <span style={{ fontSize: '1.05rem', fontWeight: '800', color: item.is_out_of_stock ? 'var(--accent-rose)' : item.is_low_stock ? 'var(--accent-amber)' : 'var(--accent-emerald)' }}>
+                        <span style={{ fontSize: '1.05rem', fontWeight: '800', color: item.is_out_of_stock ? 'var(--accent-rose)' : item.is_low_stock ? 'var(--accent-orange)' : 'var(--accent-emerald)' }}>
                           {item.stock}
                         </span>
                         <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: '0.3rem' }}>units</span>

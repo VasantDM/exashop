@@ -250,26 +250,26 @@ const ProductDetails = () => {
           </div>
 
           {/* Title */}
-          <h1 style={{ fontSize: '1.9rem', fontWeight: '800', marginBottom: '0.75rem', lineHeight: '1.3', letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontSize: '1.9rem', fontWeight: '800', marginBottom: '0.75rem', lineHeight: '1.3', letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
             {product.name}
           </h1>
 
           {/* Rating */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem', fontSize: '0.85rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', color: 'var(--accent-amber)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', color: 'var(--accent-orange)' }}>
               {[1, 2, 3, 4, 5].map((s) => (
                 <Star key={s} size={15} fill={s <= Math.round(Number(product.average_rating || 5)) ? 'currentColor' : 'none'} />
               ))}
-              <strong style={{ marginLeft: '0.35rem', color: '#ffffff' }}>{product.average_rating || '5.0'}</strong>
+              <strong style={{ marginLeft: '0.35rem', color: 'var(--text-primary)' }}>{product.average_rating || '5.0'}</strong>
             </div>
             <span style={{ color: 'var(--text-muted)' }}>•</span>
             <span style={{ color: 'var(--text-secondary)' }}>{product.reviews_count || 0} customer reviews</span>
           </div>
 
           {/* Pricing Box */}
-          <div className="glass-card" style={{ padding: '1.25rem 1.5rem', marginBottom: '1.5rem', backgroundColor: 'rgba(99, 102, 241, 0.05)' }}>
+          <div className="glass-card" style={{ padding: '1.25rem 1.5rem', marginBottom: '1.5rem', backgroundColor: 'rgba(245, 158, 11, 0.06)', border: '1px solid rgba(245, 158, 11, 0.25)' }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '1rem', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '2.1rem', fontWeight: '800', color: '#ffffff' }}>
+              <span style={{ fontSize: '2.1rem', fontWeight: '800', color: 'var(--text-primary)' }}>
                 ₹{currentVariant?.current_price || product.current_price}
               </span>
               {product.has_discount && (
@@ -278,9 +278,9 @@ const ProductDetails = () => {
                     ₹{product.price}
                   </span>
                   <span style={{
-                    backgroundColor: 'rgba(244, 63, 94, 0.15)',
-                    color: '#fb7185',
-                    border: '1px solid rgba(244, 63, 94, 0.3)',
+                    backgroundColor: 'rgba(234, 88, 12, 0.12)',
+                    color: 'var(--accent-orange)',
+                    border: '1px solid rgba(234, 88, 12, 0.3)',
                     padding: '0.2rem 0.6rem',
                     borderRadius: 'var(--radius-sm)',
                     fontSize: '0.8rem',
@@ -314,7 +314,7 @@ const ProductDetails = () => {
             <div style={{ marginBottom: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
                 <span style={{ fontSize: '0.88rem', fontWeight: '700', color: 'var(--text-primary)' }}>
-                  Color: <strong style={{ color: 'var(--accent-primary)' }}>{selectedColor}</strong>
+                  Color: <strong style={{ color: 'var(--accent-orange)' }}>{selectedColor}</strong>
                 </span>
               </div>
               <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
@@ -334,8 +334,8 @@ const ProductDetails = () => {
                         gap: '0.5rem',
                         padding: '0.45rem 0.85rem',
                         borderRadius: 'var(--radius-md)',
-                        backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.18)' : 'var(--bg-surface)',
-                        border: isSelected ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                        backgroundColor: isSelected ? 'rgba(245, 158, 11, 0.15)' : '#ffffff',
+                        border: isSelected ? '2px solid var(--accent-orange)' : '1px solid var(--border-color)',
                         cursor: 'pointer',
                         transition: 'all var(--transition-fast)'
                       }}
@@ -345,12 +345,12 @@ const ProductDetails = () => {
                         width: '18px',
                         height: '18px',
                         borderRadius: '50%',
-                        backgroundColor: c.code || '#4f46e5',
-                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        backgroundColor: c.code || '#ea580c',
+                        border: '1px solid #ddd',
                         display: 'inline-block',
-                        boxShadow: isSelected ? '0 0 8px rgba(99, 102, 241, 0.6)' : 'none'
+                        boxShadow: isSelected ? '0 0 8px rgba(245, 158, 11, 0.6)' : 'none'
                       }} />
-                      <span style={{ fontSize: '0.85rem', fontWeight: isSelected ? '700' : '500', color: isSelected ? '#ffffff' : 'var(--text-secondary)' }}>
+                      <span style={{ fontSize: '0.85rem', fontWeight: isSelected ? '700' : '600', color: isSelected ? 'var(--accent-orange)' : 'var(--text-secondary)' }}>
                         {c.name}
                       </span>
                     </button>
@@ -365,7 +365,7 @@ const ProductDetails = () => {
             <div style={{ marginBottom: '1.75rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
                 <span style={{ fontSize: '0.88rem', fontWeight: '700', color: 'var(--text-primary)' }}>
-                  Size: <strong style={{ color: 'var(--accent-primary)' }}>{selectedSize}</strong>
+                  Size: <strong style={{ color: 'var(--accent-orange)' }}>{selectedSize}</strong>
                 </span>
                 {currentVariant && (
                   <span style={{ fontSize: '0.78rem', color: isBuyable ? 'var(--accent-emerald)' : 'var(--accent-rose)' }}>
@@ -390,15 +390,16 @@ const ProductDetails = () => {
                         height: '42px',
                         padding: '0 0.85rem',
                         borderRadius: 'var(--radius-md)',
-                        backgroundColor: isSelected ? 'var(--accent-primary)' : 'var(--bg-surface)',
+                        backgroundColor: isSelected ? 'var(--accent-orange)' : '#ffffff',
                         color: isSelected ? '#ffffff' : (isSzOut ? 'var(--text-muted)' : 'var(--text-primary)'),
-                        border: isSelected ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                        border: isSelected ? '2px solid var(--accent-orange)' : '1px solid var(--border-color)',
                         fontWeight: isSelected ? '800' : '600',
                         fontSize: '0.88rem',
                         cursor: 'pointer',
                         position: 'relative',
                         textDecoration: isSzOut ? 'line-through' : 'none',
                         opacity: isSzOut ? 0.45 : 1,
+                        boxShadow: isSelected ? '0 2px 8px rgba(234, 88, 12, 0.25)' : 'none',
                         transition: 'all var(--transition-fast)'
                       }}
                       title={isSzOut ? `${sz} (Out of Stock for ${selectedColor})` : `${sz} (${szStock} available)`}
@@ -421,22 +422,22 @@ const ProductDetails = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
               {/* Quantity selector */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: '600' }}>Quantity:</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-primary)' }}>Quantity:</span>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  backgroundColor: 'var(--bg-surface)',
+                  backgroundColor: '#ffffff',
                   border: '1px solid var(--border-color)',
                   borderRadius: 'var(--radius-md)',
                   overflow: 'hidden'
                 }}>
                   <button
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                    style={{ padding: '0.5rem 0.9rem', color: '#fff', fontSize: '1rem', background: 'transparent' }}
+                    style={{ padding: '0.5rem 0.9rem', color: 'var(--text-primary)', fontSize: '1rem', background: 'transparent', border: 'none', cursor: 'pointer' }}
                   >
                     -
                   </button>
-                  <span style={{ padding: '0.5rem 0.8rem', fontWeight: '700', fontSize: '0.9rem', minWidth: '32px', textAlign: 'center' }}>
+                  <span style={{ padding: '0.5rem 0.8rem', fontWeight: '700', fontSize: '0.9rem', minWidth: '32px', textAlign: 'center', color: 'var(--text-primary)' }}>
                     {quantity}
                   </span>
                   <button
@@ -444,9 +445,10 @@ const ProductDetails = () => {
                     disabled={quantity >= availableStock}
                     style={{
                       padding: '0.5rem 0.9rem',
-                      color: quantity >= availableStock ? 'var(--text-muted)' : '#fff',
+                      color: quantity >= availableStock ? 'var(--text-muted)' : 'var(--text-primary)',
                       fontSize: '1rem',
                       background: 'transparent',
+                      border: 'none',
                       cursor: quantity >= availableStock ? 'not-allowed' : 'pointer'
                     }}
                   >
@@ -455,7 +457,7 @@ const ProductDetails = () => {
                 </div>
 
                 {quantity >= availableStock && (
-                  <span style={{ fontSize: '0.78rem', color: 'var(--accent-amber)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--accent-orange)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                     <AlertTriangle size={13} /> Max available stock reached ({availableStock})
                   </span>
                 )}
@@ -490,7 +492,7 @@ const ProductDetails = () => {
                 <button
                   onClick={handleBuyNow}
                   className="btn btn-outline"
-                  style={{ padding: '0.85rem 1.5rem', fontSize: '0.95rem', borderColor: 'var(--accent-primary)', color: 'var(--accent-primary)' }}
+                  style={{ padding: '0.85rem 1.5rem', fontSize: '0.95rem', borderColor: 'var(--accent-orange)', color: 'var(--accent-orange)' }}
                 >
                   <Zap size={18} /> Buy Now
                 </button>
@@ -515,8 +517,8 @@ const ProductDetails = () => {
                   ? `Selected option (${selectedColor} / Size ${selectedSize}) is currently out of stock. Please select another size or color.` 
                   : 'This product is currently out of stock.'}
               </span>
-              <button onClick={() => toggleWishlist(product)} className="btn btn-outline" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', color: inWish ? '#ec4899' : '#fff' }}>
-                <Heart size={14} fill={inWish ? '#ec4899' : 'none'} /> {inWish ? 'Wishlisted' : 'Save to Wishlist'}
+              <button onClick={() => toggleWishlist(product)} className="btn btn-outline" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', color: inWish ? '#ea580c' : 'var(--text-primary)' }}>
+                <Heart size={14} fill={inWish ? '#ea580c' : 'none'} /> {inWish ? 'Wishlisted' : 'Save to Wishlist'}
               </button>
             </div>
           )}
@@ -524,20 +526,20 @@ const ProductDetails = () => {
           {/* Guarantee Badges */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
             <div style={{ textAlign: 'center', padding: '0.75rem 0.5rem' }}>
-              <Truck size={20} color="var(--accent-primary)" style={{ margin: '0 auto 0.35rem' }} />
-              <div style={{ fontSize: '0.78rem', fontWeight: '700' }}>Free Delivery</div>
-              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Orders over $100</div>
+              <Truck size={20} color="var(--accent-orange)" style={{ margin: '0 auto 0.35rem' }} />
+              <div style={{ fontSize: '0.78rem', fontWeight: '700', color: 'var(--text-primary)' }}>Free Delivery</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Orders over ₹999</div>
             </div>
 
             <div style={{ textAlign: 'center', padding: '0.75rem 0.5rem' }}>
               <ShieldCheck size={20} color="var(--accent-emerald)" style={{ margin: '0 auto 0.35rem' }} />
-              <div style={{ fontSize: '0.78rem', fontWeight: '700' }}>2-Year Warranty</div>
-              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>100% Guaranteed</div>
+              <div style={{ fontSize: '0.78rem', fontWeight: '700', color: 'var(--text-primary)' }}>2-Year Warranty</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>100% Genuine</div>
             </div>
 
             <div style={{ textAlign: 'center', padding: '0.75rem 0.5rem' }}>
-              <RotateCcw size={20} color="var(--accent-cyan)" style={{ margin: '0 auto 0.35rem' }} />
-              <div style={{ fontSize: '0.78rem', fontWeight: '700' }}>Easy Returns</div>
+              <RotateCcw size={20} color="var(--accent-orange)" style={{ margin: '0 auto 0.35rem' }} />
+              <div style={{ fontSize: '0.78rem', fontWeight: '700', color: 'var(--text-primary)' }}>Easy Returns</div>
               <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>30-day policy</div>
             </div>
           </div>
@@ -555,8 +557,8 @@ const ProductDetails = () => {
               padding: '0.5rem 1rem',
               fontSize: '0.95rem',
               fontWeight: '700',
-              color: activeTab === 'description' ? 'var(--accent-primary)' : 'var(--text-secondary)',
-              borderBottom: activeTab === 'description' ? '2px solid var(--accent-primary)' : '2px solid transparent',
+              color: activeTab === 'description' ? 'var(--accent-orange)' : 'var(--text-secondary)',
+              borderBottom: activeTab === 'description' ? '2px solid var(--accent-orange)' : '2px solid transparent',
               cursor: 'pointer'
             }}
           >
@@ -570,8 +572,8 @@ const ProductDetails = () => {
               padding: '0.5rem 1rem',
               fontSize: '0.95rem',
               fontWeight: '700',
-              color: activeTab === 'specs' ? 'var(--accent-primary)' : 'var(--text-secondary)',
-              borderBottom: activeTab === 'specs' ? '2px solid var(--accent-primary)' : '2px solid transparent',
+              color: activeTab === 'specs' ? 'var(--accent-orange)' : 'var(--text-secondary)',
+              borderBottom: activeTab === 'specs' ? '2px solid var(--accent-orange)' : '2px solid transparent',
               cursor: 'pointer'
             }}
           >
@@ -585,8 +587,8 @@ const ProductDetails = () => {
               padding: '0.5rem 1rem',
               fontSize: '0.95rem',
               fontWeight: '700',
-              color: activeTab === 'shipping' ? 'var(--accent-primary)' : 'var(--text-secondary)',
-              borderBottom: activeTab === 'shipping' ? '2px solid var(--accent-primary)' : '2px solid transparent',
+              color: activeTab === 'shipping' ? 'var(--accent-orange)' : 'var(--text-secondary)',
+              borderBottom: activeTab === 'shipping' ? '2px solid var(--accent-orange)' : '2px solid transparent',
               cursor: 'pointer'
             }}
           >
@@ -605,23 +607,23 @@ const ProductDetails = () => {
             <tbody>
               <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
                 <td style={{ padding: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', width: '30%' }}>Product SKU</td>
-                <td style={{ padding: '0.75rem', color: '#fff' }}>{product.sku}</td>
+                <td style={{ padding: '0.75rem', color: 'var(--text-primary)' }}>{product.sku}</td>
               </tr>
               <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
                 <td style={{ padding: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>Category</td>
-                <td style={{ padding: '0.75rem', color: '#fff' }}>{product.category?.name || 'N/A'}</td>
+                <td style={{ padding: '0.75rem', color: 'var(--text-primary)' }}>{product.category?.name || 'N/A'}</td>
               </tr>
               <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
                 <td style={{ padding: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>Brand Manufacturer</td>
-                <td style={{ padding: '0.75rem', color: '#fff' }}>{product.brand?.name || 'N/A'}</td>
+                <td style={{ padding: '0.75rem', color: 'var(--text-primary)' }}>{product.brand?.name || 'N/A'}</td>
               </tr>
               <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
                 <td style={{ padding: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>Inventory Units</td>
-                <td style={{ padding: '0.75rem', color: '#fff' }}>{product.stock} units</td>
+                <td style={{ padding: '0.75rem', color: 'var(--text-primary)' }}>{product.stock} units</td>
               </tr>
               <tr>
                 <td style={{ padding: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>Customer Rating</td>
-                <td style={{ padding: '0.75rem', color: '#fff' }}>{product.average_rating} / 5.0 ({product.reviews_count} reviews)</td>
+                <td style={{ padding: '0.75rem', color: 'var(--text-primary)' }}>{product.average_rating} / 5.0 ({product.reviews_count} reviews)</td>
               </tr>
             </tbody>
           </table>

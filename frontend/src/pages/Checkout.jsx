@@ -152,118 +152,150 @@ const Checkout = () => {
       return;
     }
 
-    if (!selectedAddressId && useNewAddress) {
-      if (!newAddress.full_name || !newAddress.street_address || !newAddress.city || !newAddress.state || !newAddress.postal_code) {
-        setErrorMessage('Please complete all required shipping address fields.');
+    // Resolve shipping address object
+    let shippingAddressData = null;
+
+    if (!useNewAddress && selectedAddressId) {
+      const found = savedAddresses.find((a) => a.id === selectedAddressId);
+      if (found) {
+        shippingAddressData = {
+          full_name: found.full_name,
+          phone_number: found.phone_number,
+          street_address: found.street_address,
+          apartment_suite: found.apartment_suite || '',
+          city: found.city,
+          state: found.state,
+          postal_code: found.postal_code,
+          country: found.country,
+        };
+      }
+    } else {
+      if (!newAddress.full_name || !newAddress.phone_number || !newAddress.street_address || !newAddress.city || !newAddress.postal_code) {
+        setErrorMessage('Please fill in all mandatory shipping address fields (Name, Phone, Street, City, Pincode).');
         return;
+      }
+      shippingAddressData = { ...newAddress };
+
+      if (isAuthenticated) {
+        try {
+          await createAddress(newAddress);
+        } catch (err) {
+          console.warn('Address save non-fatal error:', err);
+        }
       }
     }
 
+    if (!shippingAddressData) {
+      setErrorMessage('Please select or specify a valid shipping delivery address.');
+      return;
+    }
+
     setIsSubmitting(true);
+
     try {
-      const payload = {
+      // 1. Create order on backend
+      const orderPayload = {
+        shipping_address: shippingAddressData,
+        billing_address: shippingAddressData,
         payment_method: paymentMethod,
-        notes: orderNotes.trim(),
-        promo_code: promoCode.trim().toUpperCase(),
+        order_notes: orderNotes,
       };
 
-      if (!useNewAddress && selectedAddressId) {
-        payload.address_id = selectedAddressId;
-      } else {
-        payload.shipping_address = newAddress;
-      }
+      const createdOrder = await createOrder(orderPayload);
+      setPendingOrder(createdOrder);
 
-      // Step 1: Create Order
-      const res = await createOrder(payload);
-
-      // Step 2: Handle Gateway vs COD
+      // 2. Handle Payment Flow based on selected method
       if (paymentMethod === 'cod') {
         await refreshCart();
-        navigate(`/orders/${res.order.order_number}`);
-      } else if (paymentMethod === 'razorpay') {
-        // Step 2b: Create payment gateway intent and open Razorpay Checkout
-        const intent = await createPaymentIntent({
-          orderNumber: res.order.order_number,
-          gateway: 'razorpay'
-        });
-        setPendingOrder(res.order);
-        setCurrentPaymentIntent(intent);
+        navigate(`/orders/${createdOrder.id}?status=success&msg=Order+placed+successfully+via+Cash+on+Delivery`);
+        return;
+      }
 
-        // Open Razorpay Standard Checkout Popup
-        await openRazorpayCheckout({
-          paymentIntent: intent,
-          onSuccess: async (verifyResult) => {
-            await refreshCart();
-            navigate(`/orders/${res.order.order_number}`);
-          },
-          onError: (err) => {
-            console.error('Razorpay popup error:', err);
-            setIsPaymentModalOpen(true);
-          },
-          onDismiss: () => {
-            // User closed Razorpay modal without completing payment
-            setIsPaymentModalOpen(true);
-          }
-        });
-      } else {
-        // Step 2c: Instant card modal
+      if (paymentMethod === 'razorpay') {
         const intent = await createPaymentIntent({
-          orderNumber: res.order.order_number,
-          gateway: paymentMethod
+          order_id: createdOrder.id,
+          payment_method: 'razorpay',
+          gateway: 'razorpay',
         });
-        setPendingOrder(res.order);
+
+        if (intent.razorpay_order_id && window.Razorpay) {
+          try {
+            await openRazorpayCheckout({
+              orderId: intent.razorpay_order_id,
+              amount: intent.amount,
+              currency: intent.currency || 'INR',
+              customerName: shippingAddressData.full_name || user?.full_name || user?.username,
+              customerEmail: user?.email || '',
+              customerPhone: shippingAddressData.phone_number || user?.phone_number || '',
+            });
+
+            await refreshCart();
+            navigate(`/orders/${createdOrder.id}?status=paid`);
+            return;
+          } catch (rErr) {
+            console.warn('Razorpay checkout cancelled or fallback triggered:', rErr);
+            setCurrentPaymentIntent(intent);
+            setIsPaymentModalOpen(true);
+            return;
+          }
+        } else {
+          setCurrentPaymentIntent(intent);
+          setIsPaymentModalOpen(true);
+          return;
+        }
+      }
+
+      if (paymentMethod === 'card_instant') {
+        const intent = await createPaymentIntent({
+          order_id: createdOrder.id,
+          payment_method: 'card_instant',
+          gateway: 'stripe',
+        });
         setCurrentPaymentIntent(intent);
         setIsPaymentModalOpen(true);
+        return;
       }
+
+      await refreshCart();
+      navigate(`/orders/${createdOrder.id}?status=pending`);
     } catch (err) {
-      let msg = 'Failed to place order. Please try again.';
-      if (err.data) {
-        if (typeof err.data === 'string') {
-          msg = err.data;
-        } else if (err.data.detail) {
-          msg = err.data.detail;
-        } else if (err.data.error) {
-          msg = err.data.error;
-        } else if (typeof err.data === 'object') {
-          const errorEntries = Object.entries(err.data).map(([k, v]) => `${k.replace('_', ' ')}: ${Array.isArray(v) ? v.join(', ') : v}`);
-          msg = errorEntries.join(' | ');
-        }
-      } else if (err.message) {
-        msg = err.message;
-      }
-      setErrorMessage(msg);
+      console.error('Checkout error:', err);
+      setErrorMessage(err.message || 'Failed to complete checkout. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handlePaymentSuccess = async (verifyResult) => {
+  const handlePaymentSuccess = async (paymentResult) => {
     setIsPaymentModalOpen(false);
     await refreshCart();
     if (pendingOrder) {
-      navigate(`/orders/${pendingOrder.order_number}`);
+      navigate(`/orders/${pendingOrder.id}?status=paid&payment_id=${paymentResult.transaction_id || ''}`);
+    } else {
+      navigate('/orders');
     }
   };
 
-  // If not authenticated, prompt login
+  // If user is not authenticated, prompt to sign in or register
   if (!isAuthenticated) {
     return (
       <div style={{ maxWidth: '560px', margin: '3.5rem auto', textAlign: 'center' }}>
         <div className="glass-card" style={{ padding: '3rem 2rem' }}>
           <div style={{
-            background: 'rgba(99, 102, 241, 0.12)',
-            color: 'var(--accent-primary)',
+            background: 'rgba(245, 158, 11, 0.12)',
+            color: 'var(--accent-orange)',
             width: '64px',
             height: '64px',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            margin: '0 auto 1.5rem'
+            margin: '0 auto 1.5rem',
+            border: '1px solid rgba(245, 158, 11, 0.25)'
           }}>
             <Lock size={30} />
           </div>
-          <h2 style={{ fontSize: '1.6rem', fontWeight: '800', marginBottom: '0.75rem' }}>
+          <h2 style={{ fontSize: '1.6rem', fontWeight: '800', marginBottom: '0.75rem', color: 'var(--text-primary)' }}>
             Account Required for Checkout
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '2rem', lineHeight: '1.6' }}>
@@ -289,7 +321,7 @@ const Checkout = () => {
       <div style={{ maxWidth: '560px', margin: '3.5rem auto', textAlign: 'center' }}>
         <div className="glass-card" style={{ padding: '3.5rem 2rem' }}>
           <ShoppingBag size={48} color="var(--text-muted)" style={{ margin: '0 auto 1.25rem' }} />
-          <h2 style={{ fontSize: '1.6rem', fontWeight: '800', marginBottom: '0.75rem' }}>
+          <h2 style={{ fontSize: '1.6rem', fontWeight: '800', marginBottom: '0.75rem', color: 'var(--text-primary)' }}>
             Your Cart is Empty
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.75rem' }}>
@@ -307,10 +339,10 @@ const Checkout = () => {
     <div>
       {/* Header */}
       <div style={{ marginBottom: '2rem' }}>
-        <Link to="/cart" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-primary)', marginBottom: '0.75rem', fontSize: '0.85rem', fontWeight: '600' }}>
+        <Link to="/cart" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-orange)', marginBottom: '0.75rem', fontSize: '0.85rem', fontWeight: '600' }}>
           <ArrowLeft size={16} /> Back to Shopping Cart
         </Link>
-        <h1 style={{ fontSize: '2.1rem', fontWeight: '800', letterSpacing: '-0.02em', margin: 0 }}>
+        <h1 style={{ fontSize: '2.1rem', fontWeight: '800', letterSpacing: '-0.02em', margin: 0, color: 'var(--text-primary)' }}>
           Express <span className="gradient-text">Checkout</span>
         </h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.3rem' }}>
@@ -325,10 +357,10 @@ const Checkout = () => {
           {/* Step 1: Shipping Destination */}
           <div className="glass-card" style={{ padding: '1.75rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem' }}>
-              <div style={{ background: 'var(--accent-primary)', color: '#fff', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: '800' }}>
+              <div style={{ background: 'var(--accent-gradient)', color: '#fff', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: '800', boxShadow: '0 2px 6px rgba(245, 158, 11, 0.35)' }}>
                 1
               </div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0 }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0, color: 'var(--text-primary)' }}>
                 Shipping Destination
               </h3>
             </div>
@@ -345,8 +377,8 @@ const Checkout = () => {
                       style={{
                         padding: '1rem 1.25rem',
                         borderRadius: 'var(--radius-md)',
-                        backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.15)' : 'var(--bg-surface)',
-                        border: isSelected ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                        backgroundColor: isSelected ? 'rgba(245, 158, 11, 0.12)' : '#ffffff',
+                        border: isSelected ? '2px solid var(--accent-orange)' : '1px solid var(--border-color)',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -355,8 +387,8 @@ const Checkout = () => {
                       }}
                     >
                       <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '700', fontSize: '0.95rem' }}>
-                          <MapPin size={16} color={isSelected ? 'var(--accent-primary)' : 'var(--text-muted)'} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '700', fontSize: '0.95rem', color: 'var(--text-primary)' }}>
+                          <MapPin size={16} color={isSelected ? 'var(--accent-orange)' : 'var(--text-muted)'} />
                           <span>{addr.full_name}</span>
                           {addr.is_default && <span className="badge badge-info" style={{ fontSize: '0.65rem' }}>Default</span>}
                         </div>
@@ -367,7 +399,7 @@ const Checkout = () => {
                           Phone: {addr.phone_number}
                         </div>
                       </div>
-                      {isSelected && <Check size={20} color="var(--accent-primary)" />}
+                      {isSelected && <Check size={20} color="var(--accent-orange)" />}
                     </div>
                   );
                 })}
@@ -404,25 +436,25 @@ const Checkout = () => {
                 {/* 1. Recipient Details */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '0.35rem' }}>Full Name *</label>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '0.35rem', color: 'var(--text-primary)' }}>Full Name *</label>
                     <input
                       type="text"
                       required
                       value={newAddress.full_name}
                       onChange={(e) => setNewAddress({ ...newAddress, full_name: e.target.value })}
                       placeholder="e.g. Alex Taylor"
-                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', outline: 'none', fontSize: '0.85rem' }}
+                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem' }}
                     />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '0.35rem' }}>Phone Number *</label>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '0.35rem', color: 'var(--text-primary)' }}>Phone Number *</label>
                     <input
                       type="tel"
                       required
                       value={newAddress.phone_number}
                       onChange={(e) => setNewAddress({ ...newAddress, phone_number: e.target.value })}
                       placeholder="+91 98765 43210 or +1 (555) 000-0000"
-                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', outline: 'none', fontSize: '0.85rem' }}
+                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem' }}
                     />
                   </div>
                 </div>
@@ -430,14 +462,14 @@ const Checkout = () => {
                 {/* 2. Pincode / Postal Code First (Auto-detects City & State) */}
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-                    <label style={{ fontSize: '0.8rem', fontWeight: '700' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)' }}>
                       Pincode / Postal Code *
                     </label>
                     {pincodeStatus.message && (
                       <span style={{
                         fontSize: '0.72rem',
                         fontWeight: '600',
-                        color: pincodeStatus.success ? 'var(--accent-emerald)' : 'var(--accent-amber)',
+                        color: pincodeStatus.success ? 'var(--accent-emerald)' : 'var(--accent-orange)',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.25rem'
@@ -457,20 +489,20 @@ const Checkout = () => {
                       width: '100%',
                       padding: '0.65rem',
                       borderRadius: 'var(--radius-sm)',
-                      backgroundColor: 'var(--bg-surface)',
+                      backgroundColor: '#ffffff',
                       border: pincodeStatus.success ? '1px solid var(--accent-emerald)' : '1px solid var(--border-color)',
-                      color: '#fff',
+                      color: 'var(--text-primary)',
                       outline: 'none',
                       fontSize: '0.85rem'
                     }}
                   />
                 </div>
 
-                {/* 3. City & State (Auto-filled via Pincode, or manually editable/optional type) */}
+                {/* 3. City & State */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '0.35rem' }}>
-                      City / District * <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>(Auto-filled / Optional manual edit)</span>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '0.35rem', color: 'var(--text-primary)' }}>
+                      City / District * <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>(Auto-filled)</span>
                     </label>
                     <input
                       type="text"
@@ -478,12 +510,12 @@ const Checkout = () => {
                       value={newAddress.city}
                       onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
                       placeholder="City or District"
-                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', outline: 'none', fontSize: '0.85rem' }}
+                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem' }}
                     />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '0.35rem' }}>
-                      State / Province * <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>(Auto-filled / Optional manual edit)</span>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '0.35rem', color: 'var(--text-primary)' }}>
+                      State / Province * <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>(Auto-filled)</span>
                     </label>
                     <input
                       type="text"
@@ -491,14 +523,14 @@ const Checkout = () => {
                       value={newAddress.state}
                       onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
                       placeholder="State"
-                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', outline: 'none', fontSize: '0.85rem' }}
+                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem' }}
                     />
                   </div>
                 </div>
 
-                {/* 4. Street Address (House/Flat No., Building, Road, Area) */}
+                {/* 4. Street Address */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '0.35rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '0.35rem', color: 'var(--text-primary)' }}>
                     Street Address (Flat/House No., Building, Street/Road, Area) *
                   </label>
                   <input
@@ -507,14 +539,14 @@ const Checkout = () => {
                     value={newAddress.street_address}
                     onChange={(e) => setNewAddress({ ...newAddress, street_address: e.target.value })}
                     placeholder="e.g. Flat 402, Sunshine Heights, MG Road"
-                    style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', outline: 'none', fontSize: '0.85rem' }}
+                    style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem' }}
                   />
                 </div>
 
-                {/* 5. Apartment / Landmark (Optional) & Country */}
+                {/* 5. Apartment & Country */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '0.35rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '0.35rem', color: 'var(--text-primary)' }}>
                       Apartment / Landmark / Suite <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem' }}>(Optional)</span>
                     </label>
                     <input
@@ -522,19 +554,19 @@ const Checkout = () => {
                       value={newAddress.apartment_suite}
                       onChange={(e) => setNewAddress({ ...newAddress, apartment_suite: e.target.value })}
                       placeholder="e.g. Near Metro Station / Floor 4"
-                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', outline: 'none', fontSize: '0.85rem' }}
+                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem' }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '0.35rem' }}>Country *</label>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '0.35rem', color: 'var(--text-primary)' }}>Country *</label>
                     <input
                       type="text"
                       required
                       value={newAddress.country}
                       onChange={(e) => setNewAddress({ ...newAddress, country: e.target.value })}
                       placeholder="India / United States"
-                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', outline: 'none', fontSize: '0.85rem' }}
+                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem' }}
                     />
                   </div>
                 </div>
@@ -545,10 +577,10 @@ const Checkout = () => {
           {/* Step 2: Payment Method */}
           <div className="glass-card" style={{ padding: '1.75rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem' }}>
-              <div style={{ background: 'var(--accent-primary)', color: '#fff', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: '800' }}>
+              <div style={{ background: 'var(--accent-gradient)', color: '#fff', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: '800', boxShadow: '0 2px 6px rgba(245, 158, 11, 0.35)' }}>
                 2
               </div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0 }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0, color: 'var(--text-primary)' }}>
                 Payment Method
               </h3>
             </div>
@@ -560,8 +592,8 @@ const Checkout = () => {
                 style={{
                   padding: '1rem',
                   borderRadius: 'var(--radius-md)',
-                  backgroundColor: paymentMethod === 'razorpay' ? 'rgba(99, 102, 241, 0.15)' : 'var(--bg-surface)',
-                  border: paymentMethod === 'razorpay' ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                  backgroundColor: paymentMethod === 'razorpay' ? 'rgba(245, 158, 11, 0.12)' : '#ffffff',
+                  border: paymentMethod === 'razorpay' ? '2px solid var(--accent-orange)' : '1px solid var(--border-color)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -569,9 +601,9 @@ const Checkout = () => {
                   transition: 'all var(--transition-fast)'
                 }}
               >
-                <Smartphone size={22} color={paymentMethod === 'razorpay' ? 'var(--accent-primary)' : 'var(--text-muted)'} />
+                <Smartphone size={22} color={paymentMethod === 'razorpay' ? 'var(--accent-orange)' : 'var(--text-muted)'} />
                 <div>
-                  <div style={{ fontWeight: '700', fontSize: '0.9rem' }}>Razorpay / UPI</div>
+                  <div style={{ fontWeight: '700', fontSize: '0.9rem', color: 'var(--text-primary)' }}>Razorpay / UPI</div>
                   <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>GPay, PhonePe, QR, Netbanking</div>
                 </div>
               </div>
@@ -582,8 +614,8 @@ const Checkout = () => {
                 style={{
                   padding: '1rem',
                   borderRadius: 'var(--radius-md)',
-                  backgroundColor: paymentMethod === 'card_instant' ? 'rgba(99, 102, 241, 0.15)' : 'var(--bg-surface)',
-                  border: paymentMethod === 'card_instant' ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                  backgroundColor: paymentMethod === 'card_instant' ? 'rgba(245, 158, 11, 0.12)' : '#ffffff',
+                  border: paymentMethod === 'card_instant' ? '2px solid var(--accent-orange)' : '1px solid var(--border-color)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -591,9 +623,9 @@ const Checkout = () => {
                   transition: 'all var(--transition-fast)'
                 }}
               >
-                <CreditCard size={22} color={paymentMethod === 'card_instant' ? 'var(--accent-primary)' : 'var(--text-muted)'} />
+                <CreditCard size={22} color={paymentMethod === 'card_instant' ? 'var(--accent-orange)' : 'var(--text-muted)'} />
                 <div>
-                  <div style={{ fontWeight: '700', fontSize: '0.9rem' }}>Cards</div>
+                  <div style={{ fontWeight: '700', fontSize: '0.9rem', color: 'var(--text-primary)' }}>Cards</div>
                   <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Visa, MasterCard, RuPay</div>
                 </div>
               </div>
@@ -604,8 +636,8 @@ const Checkout = () => {
                 style={{
                   padding: '1rem',
                   borderRadius: 'var(--radius-md)',
-                  backgroundColor: paymentMethod === 'cod' ? 'rgba(99, 102, 241, 0.15)' : 'var(--bg-surface)',
-                  border: paymentMethod === 'cod' ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                  backgroundColor: paymentMethod === 'cod' ? 'rgba(245, 158, 11, 0.12)' : '#ffffff',
+                  border: paymentMethod === 'cod' ? '2px solid var(--accent-orange)' : '1px solid var(--border-color)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -613,9 +645,9 @@ const Checkout = () => {
                   transition: 'all var(--transition-fast)'
                 }}
               >
-                <Truck size={22} color={paymentMethod === 'cod' ? 'var(--accent-primary)' : 'var(--text-muted)'} />
+                <Truck size={22} color={paymentMethod === 'cod' ? 'var(--accent-orange)' : 'var(--text-muted)'} />
                 <div>
-                  <div style={{ fontWeight: '700', fontSize: '0.9rem' }}>Cash on Delivery</div>
+                  <div style={{ fontWeight: '700', fontSize: '0.9rem', color: 'var(--text-primary)' }}>Cash on Delivery</div>
                   <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Pay upon receipt</div>
                 </div>
               </div>
@@ -623,7 +655,7 @@ const Checkout = () => {
 
             {/* Gateway Information Banner */}
             <div style={{
-              backgroundColor: 'var(--bg-surface)',
+              backgroundColor: 'var(--bg-secondary)',
               padding: '0.85rem 1rem',
               borderRadius: 'var(--radius-md)',
               border: '1px solid var(--border-color)',
@@ -645,10 +677,10 @@ const Checkout = () => {
           {/* Step 3: Order Instructions */}
           <div className="glass-card" style={{ padding: '1.75rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
-              <div style={{ background: 'var(--accent-primary)', color: '#fff', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: '800' }}>
+              <div style={{ background: 'var(--accent-gradient)', color: '#fff', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: '800', boxShadow: '0 2px 6px rgba(245, 158, 11, 0.35)' }}>
                 3
               </div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0 }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0, color: 'var(--text-primary)' }}>
                 Delivery Instructions (Optional)
               </h3>
             </div>
@@ -657,15 +689,15 @@ const Checkout = () => {
               value={orderNotes}
               onChange={(e) => setOrderNotes(e.target.value)}
               placeholder="e.g. Please leave package at the front porch or call upon arrival."
-              style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', outline: 'none', fontSize: '0.88rem' }}
+              style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.88rem' }}
             />
           </div>
 
           {errorMessage && (
             <div style={{
-              backgroundColor: 'rgba(244, 63, 94, 0.15)',
-              border: '1px solid rgba(244, 63, 94, 0.4)',
-              color: '#fb7185',
+              backgroundColor: 'rgba(239, 68, 68, 0.12)',
+              border: '1px solid rgba(239, 68, 68, 0.35)',
+              color: '#dc2626',
               padding: '1rem 1.25rem',
               borderRadius: 'var(--radius-md)',
               fontSize: '0.9rem',
@@ -692,7 +724,7 @@ const Checkout = () => {
         {/* Right Sidebar: Itemized Order Summary */}
         <div style={{ position: 'sticky', top: '90px' }}>
           <div className="glass-card" style={{ padding: '2rem' }}>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '1.25rem' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
               Order Review ({totalItems} items)
             </h3>
 
@@ -703,17 +735,17 @@ const Checkout = () => {
                   <img
                     src={item.product.primary_image}
                     alt={item.product.name}
-                    style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }}
+                    style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}
                   />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '0.85rem', fontWeight: '700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {item.product.name}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                       Qty: {item.quantity} × ₹{item.unit_price}
                     </div>
                   </div>
-                  <div style={{ fontSize: '0.9rem', fontWeight: '800' }}>
+                  <div style={{ fontSize: '0.9rem', fontWeight: '800', color: 'var(--text-primary)' }}>
                     ₹{parseFloat(item.total_price).toFixed(2)}
                   </div>
                 </div>
@@ -724,7 +756,7 @@ const Checkout = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.88rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem', marginBottom: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
                 <span>Subtotal</span>
-                <span style={{ color: '#fff', fontWeight: '600' }}>₹{numSubtotal.toFixed(2)}</span>
+                <span style={{ color: 'var(--text-primary)', fontWeight: '600' }}>₹{numSubtotal.toFixed(2)}</span>
               </div>
 
               {numDiscount > 0 && (
@@ -736,14 +768,14 @@ const Checkout = () => {
 
               <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
                 <span>Express Tracked Shipping</span>
-                <span style={{ color: isFreeShipping ? 'var(--accent-emerald)' : '#fff', fontWeight: '600' }}>
+                <span style={{ color: isFreeShipping ? 'var(--accent-emerald)' : 'var(--text-primary)', fontWeight: '600' }}>
                   {isFreeShipping ? 'FREE' : `₹${shippingFee.toFixed(2)}`}
                 </span>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderTop: '1px solid var(--border-color)', paddingTop: '0.85rem', marginTop: '0.25rem' }}>
-                <span style={{ fontSize: '1.05rem', fontWeight: '800' }}>Grand Total</span>
-                <span style={{ fontSize: '1.5rem', fontWeight: '800', color: '#ffffff' }} className="gradient-text">
+                <span style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-primary)' }}>Grand Total</span>
+                <span style={{ fontSize: '1.5rem', fontWeight: '800' }} className="gradient-text">
                   ₹{grandTotal}
                 </span>
               </div>

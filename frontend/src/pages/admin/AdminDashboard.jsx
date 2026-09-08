@@ -7,12 +7,8 @@ import {
   Users, 
   AlertTriangle, 
   ArrowRight, 
-  Clock, 
-  CheckCircle2, 
-  Boxes,
   RotateCcw,
-  Sparkles,
-  DollarSign
+  Sparkles
 } from 'lucide-react';
 import { getAdminDashboard } from '../../services/adminService';
 
@@ -51,7 +47,7 @@ const AdminDashboard = () => {
     return (
       <div className="glass-card" style={{ padding: '3rem', textAlign: 'center', maxWidth: '500px', margin: '4rem auto' }}>
         <AlertTriangle size={36} color="var(--accent-rose)" style={{ margin: '0 auto 1rem' }} />
-        <h3 style={{ fontSize: '1.3rem', fontWeight: '700', marginBottom: '0.5rem' }}>Failed to Load Dashboard</h3>
+        <h3 style={{ fontSize: '1.3rem', fontWeight: '700', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Failed to Load Dashboard</h3>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginBottom: '1.5rem' }}>{error}</p>
         <button onClick={fetchDashboard} className="btn btn-primary">
           <RotateCcw size={16} /> Retry
@@ -60,7 +56,7 @@ const AdminDashboard = () => {
     );
   }
 
-  const { kpis, recent_orders, low_stock_items, sales_trend, categories_overview } = data;
+  const { kpis, recent_orders, low_stock_items, sales_trend } = data;
 
   const kpiCards = [
     {
@@ -68,36 +64,36 @@ const AdminDashboard = () => {
       value: `₹${parseFloat(kpis.total_revenue).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`,
       subtitle: 'From settled customer orders',
       icon: TrendingUp,
-      gradient: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 95, 70, 0.1))',
-      borderColor: 'rgba(16, 185, 129, 0.3)',
-      iconColor: 'var(--accent-emerald)',
+      gradient: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
+      borderColor: '#a7f3d0',
+      iconColor: '#059669',
     },
     {
       title: 'Total Orders',
       value: kpis.total_orders,
       subtitle: `${kpis.pending_orders} pending · ${kpis.processing_orders} processing`,
       icon: ShoppingBag,
-      gradient: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(49, 46, 129, 0.1))',
-      borderColor: 'rgba(99, 102, 241, 0.3)',
-      iconColor: 'var(--accent-primary)',
+      gradient: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
+      borderColor: '#fde68a',
+      iconColor: 'var(--accent-orange)',
     },
     {
       title: 'Catalog Items',
       value: kpis.total_products,
       subtitle: `${kpis.low_stock_count} low-stock alerts`,
       icon: Package,
-      gradient: 'linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(131, 24, 67, 0.1))',
-      borderColor: 'rgba(236, 72, 153, 0.3)',
-      iconColor: '#ec4899',
+      gradient: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)',
+      borderColor: '#fed7aa',
+      iconColor: '#ea580c',
     },
     {
       title: 'Customer Accounts',
       value: kpis.total_customers,
       subtitle: 'Registered shoppers',
       icon: Users,
-      gradient: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(120, 53, 15, 0.1))',
-      borderColor: 'rgba(245, 158, 11, 0.3)',
-      iconColor: 'var(--accent-amber)',
+      gradient: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+      borderColor: '#bbf7d0',
+      iconColor: '#16a34a',
     },
   ];
 
@@ -106,7 +102,7 @@ const AdminDashboard = () => {
       {/* Page Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.9rem', fontWeight: '800', margin: 0, letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontSize: '1.9rem', fontWeight: '800', margin: 0, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
             Store <span className="gradient-text">Overview</span>
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginTop: '0.25rem' }}>
@@ -138,32 +134,34 @@ const AdminDashboard = () => {
                 borderColor: card.borderColor,
                 display: 'flex',
                 flexDirection: 'column',
-                justifyContent: 'space-between'
+                justifyContent: 'space-between',
+                borderRadius: 'var(--radius-lg)',
+                boxShadow: 'var(--shadow-sm)'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                <span style={{ fontSize: '0.82rem', fontWeight: '600', color: 'var(--text-secondary)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                <span style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   {card.title}
                 </span>
                 <div style={{
-                  width: '36px',
-                  height: '36px',
+                  padding: '0.5rem',
                   borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  backgroundColor: '#ffffff',
+                  color: card.iconColor,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: card.iconColor
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
                 }}>
-                  <Icon size={18} />
+                  <Icon size={20} />
                 </div>
               </div>
 
               <div>
-                <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#ffffff', lineHeight: '1.2', marginBottom: '0.25rem' }}>
+                <div style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
                   {card.value}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.35rem', fontWeight: '500' }}>
                   {card.subtitle}
                 </div>
               </div>
@@ -172,31 +170,31 @@ const AdminDashboard = () => {
         })}
       </div>
 
-      {/* Grid: Sales Trend + Low Stock Radar */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.75rem', marginBottom: '2rem' }}>
+      {/* Grid: Sales Trend & Low Stock Radar */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
         {/* Left: 7-Day Revenue Trend */}
         <div className="glass-card" style={{ padding: '1.75rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: '700', margin: 0 }}>7-Day Revenue Trend</h3>
-            <span className="badge badge-success" style={{ fontSize: '0.72rem' }}>Settled Paid Orders</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+            <div>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: '700', margin: 0, color: 'var(--text-primary)' }}>7-Day Revenue Velocity</h3>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>Daily order receipts breakdown</div>
+            </div>
+            <span className="badge badge-info" style={{ fontSize: '0.75rem' }}>Live Graph</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '0.5rem', height: '180px', paddingTop: '1rem' }}>
-            {sales_trend.map((day, idx) => {
-              const maxRev = Math.max(...sales_trend.map((s) => s.revenue), 1000);
-              const heightPct = Math.max(12, Math.round((day.revenue / maxRev) * 100));
+          {/* Bar Chart Visualization */}
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: '160px', gap: '0.75rem', paddingTop: '1rem', borderBottom: '1px solid var(--border-color)' }}>
+            {(sales_trend || []).map((day, idx) => {
+              const maxRev = Math.max(...(sales_trend || []).map(d => parseFloat(d.revenue || 0)), 100);
+              const heightPercent = Math.max(12, (parseFloat(day.revenue || 0) / maxRev) * 100);
 
               return (
                 <div key={idx} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end' }}>
-                  <div style={{ fontSize: '0.68rem', fontWeight: '700', color: '#ffffff', marginBottom: '0.35rem' }}>
-                    {day.revenue > 0 ? `₹${Math.round(day.revenue)}` : '-'}
-                  </div>
                   <div
                     style={{
                       width: '100%',
-                      maxWidth: '38px',
-                      height: `${heightPct}%`,
-                      background: 'linear-gradient(180deg, #6366f1, rgba(99, 102, 241, 0.2))',
+                      height: `${heightPercent}%`,
+                      background: 'var(--accent-gradient)',
                       borderRadius: '4px 4px 0 0',
                       transition: 'height 0.4s ease'
                     }}
@@ -215,16 +213,16 @@ const AdminDashboard = () => {
         <div className="glass-card" style={{ padding: '1.75rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <AlertTriangle size={18} color="var(--accent-amber)" />
-              <h3 style={{ fontSize: '1.05rem', fontWeight: '700', margin: 0 }}>Low Stock Alert</h3>
+              <AlertTriangle size={18} color="var(--accent-orange)" />
+              <h3 style={{ fontSize: '1.05rem', fontWeight: '700', margin: 0, color: 'var(--text-primary)' }}>Low Stock Alert</h3>
             </div>
-            <Link to="/admin/inventory" style={{ fontSize: '0.78rem', color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: '600' }}>
+            <Link to="/admin/inventory" style={{ fontSize: '0.78rem', color: 'var(--accent-orange)', textDecoration: 'none', fontWeight: '700' }}>
               View Inventory →
             </Link>
           </div>
 
           {low_stock_items.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '2rem 0', color: 'var(--accent-emerald)', fontSize: '0.88rem' }}>
+            <div style={{ textAlign: 'center', padding: '2rem 0', color: '#059669', fontSize: '0.88rem', fontWeight: '600' }}>
               ✓ All products and variants are well-stocked!
             </div>
           ) : (
@@ -250,7 +248,7 @@ const AdminDashboard = () => {
                       style={{ width: '36px', height: '36px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }}
                     />
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontWeight: '600', color: '#ffffff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <div style={{ fontWeight: '600', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {item.name}
                       </div>
                       <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
@@ -259,7 +257,7 @@ const AdminDashboard = () => {
                     </div>
                   </div>
 
-                  <span className={`badge ${item.stock === 0 ? 'badge-danger' : 'badge-warning'}`} style={{ fontSize: '0.72rem' }}>
+                  <span className={`badge ${item.stock === 0 ? 'badge-danger' : 'badge-info'}`} style={{ fontSize: '0.72rem' }}>
                     {item.stock === 0 ? 'Out of Stock' : `${item.stock} left`}
                   </span>
                 </div>
@@ -272,8 +270,8 @@ const AdminDashboard = () => {
       {/* Recent Orders Ledger */}
       <div className="glass-card" style={{ padding: '1.75rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: '800', margin: 0 }}>Recent Orders</h3>
-          <Link to="/admin/orders" style={{ fontSize: '0.82rem', color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: '600' }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: '800', margin: 0, color: 'var(--text-primary)' }}>Recent Orders</h3>
+          <Link to="/admin/orders" style={{ fontSize: '0.82rem', color: 'var(--accent-orange)', textDecoration: 'none', fontWeight: '700' }}>
             View All Orders ({kpis.total_orders}) →
           </Link>
         </div>
@@ -286,7 +284,7 @@ const AdminDashboard = () => {
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left', color: 'var(--text-muted)' }}>
+                <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left', color: 'var(--text-secondary)', backgroundColor: '#fafaf9' }}>
                   <th style={{ padding: '0.75rem' }}>Order #</th>
                   <th style={{ padding: '0.75rem' }}>Customer</th>
                   <th style={{ padding: '0.75rem' }}>Items</th>
@@ -298,29 +296,29 @@ const AdminDashboard = () => {
               </thead>
               <tbody>
                 {recent_orders.map((ord) => (
-                  <tr key={ord.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                    <td style={{ padding: '0.85rem 0.75rem', fontWeight: '700', color: 'var(--accent-primary)' }}>
-                      <Link to={`/admin/orders`} style={{ color: 'var(--accent-primary)', textDecoration: 'none' }}>
+                  <tr key={ord.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                    <td style={{ padding: '0.85rem 0.75rem', fontWeight: '700', color: 'var(--accent-orange)' }}>
+                      <Link to={`/admin/orders`} style={{ color: 'var(--accent-orange)', textDecoration: 'none' }}>
                         #{ord.order_number}
                       </Link>
                     </td>
                     <td style={{ padding: '0.85rem 0.75rem' }}>
-                      <div style={{ fontWeight: '600', color: '#ffffff' }}>{ord.customer_name || 'Customer'}</div>
+                      <div style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{ord.customer_name || 'Customer'}</div>
                       <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{ord.customer_email}</div>
                     </td>
                     <td style={{ padding: '0.85rem 0.75rem', color: 'var(--text-secondary)' }}>
                       {ord.total_items} items
                     </td>
-                    <td style={{ padding: '0.85rem 0.75rem', fontWeight: '700', color: '#ffffff' }}>
+                    <td style={{ padding: '0.85rem 0.75rem', fontWeight: '700', color: 'var(--text-primary)' }}>
                       ₹{ord.grand_total}
                     </td>
                     <td style={{ padding: '0.85rem 0.75rem' }}>
-                      <span className={`badge ${ord.status === 'delivered' ? 'badge-success' : ord.status === 'cancelled' ? 'badge-danger' : ord.status === 'shipped' ? 'badge-info' : 'badge-warning'}`} style={{ fontSize: '0.72rem' }}>
+                      <span className={`badge ${ord.status === 'delivered' ? 'badge-success' : ord.status === 'cancelled' ? 'badge-danger' : 'badge-info'}`} style={{ fontSize: '0.72rem' }}>
                         {ord.status_display}
                       </span>
                     </td>
                     <td style={{ padding: '0.85rem 0.75rem' }}>
-                      <span style={{ fontSize: '0.75rem', color: ord.payment_status === 'paid' ? 'var(--accent-emerald)' : 'var(--text-muted)' }}>
+                      <span style={{ fontSize: '0.75rem', color: ord.payment_status === 'paid' ? '#059669' : 'var(--text-secondary)' }}>
                         ● {ord.payment_status_display}
                       </span>
                     </td>

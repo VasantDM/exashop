@@ -23,7 +23,7 @@ const OtpInputAnimation = ({
     setDigits(newDigits);
   }, [value, length]);
 
-  // Handle cinematic morphing animation states matching the mp4 video
+  // Handle cinematic morphing animation states
   useEffect(() => {
     if (isVerified) {
       // 1. Form circle
@@ -187,21 +187,21 @@ const OtpInputAnimation = ({
                       textAlign: 'center',
                       fontSize: '1.5rem',
                       fontWeight: '800',
-                      color: isVerified ? '#34d399' : '#ffffff',
-                      backgroundColor: isVerified ? 'rgba(16, 185, 129, 0.15)' : 'var(--bg-surface)',
+                      color: isVerified ? '#059669' : 'var(--text-primary)',
+                      backgroundColor: isVerified ? 'rgba(16, 185, 129, 0.12)' : '#ffffff',
                       borderRadius: '14px',
                       border: isFocused 
-                        ? '2px solid #6366f1' 
+                        ? '2px solid var(--accent-orange)' 
                         : isVerified
                           ? '2px solid #10b981'
                           : digit 
-                            ? '1.5px solid rgba(255, 255, 255, 0.25)' 
+                            ? '1.5px solid var(--accent-primary)' 
                             : '1.5px solid var(--border-color)',
                       boxShadow: isFocused 
-                        ? '0 0 16px rgba(99, 102, 241, 0.4), inset 0 0 8px rgba(99, 102, 241, 0.2)' 
+                        ? '0 0 16px rgba(245, 158, 11, 0.35)' 
                         : isVerified
-                          ? '0 0 16px rgba(16, 185, 129, 0.35)'
-                          : '0 4px 12px rgba(0, 0, 0, 0.2)',
+                          ? '0 0 16px rgba(16, 185, 129, 0.25)'
+                          : 'var(--shadow-sm)',
                       outline: 'none',
                       cursor: disabled ? 'not-allowed' : 'text',
                       transition: 'all 0.3s ease'
@@ -255,9 +255,9 @@ const OtpInputAnimation = ({
                 width: '74px',
                 height: '74px',
                 borderRadius: '20px',
-                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.28) 0%, rgba(5, 150, 105, 0.4) 100%)',
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.25) 100%)',
                 border: '2.5px solid #10b981',
-                boxShadow: '0 0 32px rgba(16, 185, 129, 0.5), inset 0 0 16px rgba(16, 185, 129, 0.35)',
+                boxShadow: '0 0 32px rgba(16, 185, 129, 0.35)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -268,7 +268,7 @@ const OtpInputAnimation = ({
               <svg width="38" height="38" viewBox="0 0 24 24" fill="none">
                 <path
                   d="M5 13l4 4L19 7"
-                  stroke="#34d399"
+                  stroke="#059669"
                   strokeWidth="3.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -284,10 +284,10 @@ const OtpInputAnimation = ({
 
           {/* Verified Label */}
           <div style={{ textAlign: 'center', animation: 'fadeInUp 0.5s ease-out' }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#ffffff', margin: '0 0 0.3rem', letterSpacing: '-0.01em' }}>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text-primary)', margin: '0 0 0.3rem', letterSpacing: '-0.01em' }}>
               Verified successfully
             </h3>
-            <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: 0 }}>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>
               Your OTP code has been verified.
             </p>
           </div>

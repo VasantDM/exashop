@@ -81,24 +81,25 @@ const Register = () => {
             alignItems: 'center',
             justifyContent: 'center',
             margin: '0 auto 1.25rem',
-            boxShadow: 'var(--shadow-glow)'
+            boxShadow: 'var(--shadow-glow)',
+            color: '#ffffff'
           }}>
-            <User size={24} color="#ffffff" />
+            <User size={24} />
           </div>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '0.4rem', letterSpacing: '-0.02em' }}>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '0.4rem', letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
             Create Account
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-            Join AuraStore for seamless shopping, fast checkout & order tracking
+            Join ExaShop for seamless shopping, fast checkout & order tracking
           </p>
         </div>
 
         {/* Error Alert */}
         {errorMessage && (
           <div style={{
-            backgroundColor: 'rgba(244, 63, 94, 0.12)',
-            border: '1px solid rgba(244, 63, 94, 0.35)',
-            color: '#fb7185',
+            backgroundColor: 'rgba(239, 68, 68, 0.12)',
+            border: '1px solid rgba(239, 68, 68, 0.35)',
+            color: '#dc2626',
             padding: '0.75rem 1rem',
             borderRadius: 'var(--radius-md)',
             fontSize: '0.85rem',
@@ -117,7 +118,7 @@ const Register = () => {
           <div style={{
             backgroundColor: 'rgba(16, 185, 129, 0.12)',
             border: '1px solid rgba(16, 185, 129, 0.35)',
-            color: '#34d399',
+            color: '#059669',
             padding: '0.75rem 1rem',
             borderRadius: 'var(--radius-md)',
             fontSize: '0.85rem',
@@ -135,7 +136,7 @@ const Register = () => {
           {/* First & Last Name row */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem' }}>
+              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem', color: 'var(--text-primary)' }}>
                 First Name
               </label>
               <input
@@ -148,16 +149,16 @@ const Register = () => {
                   width: '100%',
                   padding: '0.75rem 0.9rem',
                   borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--bg-surface)',
+                  backgroundColor: '#ffffff',
                   border: '1px solid var(--border-color)',
-                  color: '#ffffff',
+                  color: 'var(--text-primary)',
                   fontSize: '0.9rem',
                   outline: 'none'
                 }}
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem' }}>
+              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem', color: 'var(--text-primary)' }}>
                 Last Name
               </label>
               <input
@@ -170,9 +171,9 @@ const Register = () => {
                   width: '100%',
                   padding: '0.75rem 0.9rem',
                   borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--bg-surface)',
+                  backgroundColor: '#ffffff',
                   border: '1px solid var(--border-color)',
-                  color: '#ffffff',
+                  color: 'var(--text-primary)',
                   fontSize: '0.9rem',
                   outline: 'none'
                 }}
@@ -182,7 +183,7 @@ const Register = () => {
 
           {/* Username */}
           <div>
-            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem' }}>
+            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem', color: 'var(--text-primary)' }}>
               Username <span style={{ color: 'var(--accent-rose)' }}>*</span>
             </label>
             <div style={{ position: 'relative' }}>
@@ -197,9 +198,9 @@ const Register = () => {
                   width: '100%',
                   padding: '0.75rem 1rem 0.75rem 2.6rem',
                   borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--bg-surface)',
+                  backgroundColor: '#ffffff',
                   border: '1px solid var(--border-color)',
-                  color: '#ffffff',
+                  color: 'var(--text-primary)',
                   fontSize: '0.9rem',
                   outline: 'none'
                 }}
@@ -210,7 +211,7 @@ const Register = () => {
 
           {/* Email */}
           <div>
-            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem' }}>
+            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem', color: 'var(--text-primary)' }}>
               Email Address <span style={{ color: 'var(--accent-rose)' }}>*</span>
             </label>
             <div style={{ position: 'relative' }}>
@@ -225,9 +226,9 @@ const Register = () => {
                   width: '100%',
                   padding: '0.75rem 1rem 0.75rem 2.6rem',
                   borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--bg-surface)',
+                  backgroundColor: '#ffffff',
                   border: '1px solid var(--border-color)',
-                  color: '#ffffff',
+                  color: 'var(--text-primary)',
                   fontSize: '0.9rem',
                   outline: 'none'
                 }}
@@ -238,7 +239,7 @@ const Register = () => {
 
           {/* Phone */}
           <div>
-            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem' }}>
+            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem', color: 'var(--text-primary)' }}>
               Phone Number
             </label>
             <div style={{ position: 'relative' }}>
@@ -252,9 +253,9 @@ const Register = () => {
                   width: '100%',
                   padding: '0.75rem 1rem 0.75rem 2.6rem',
                   borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--bg-surface)',
+                  backgroundColor: '#ffffff',
                   border: '1px solid var(--border-color)',
-                  color: '#ffffff',
+                  color: 'var(--text-primary)',
                   fontSize: '0.9rem',
                   outline: 'none'
                 }}
@@ -266,7 +267,7 @@ const Register = () => {
           {/* Password & Confirm Password */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem' }}>
+              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem', color: 'var(--text-primary)' }}>
                 Password <span style={{ color: 'var(--accent-rose)' }}>*</span>
               </label>
               <div style={{ position: 'relative' }}>
@@ -281,9 +282,9 @@ const Register = () => {
                     width: '100%',
                     padding: '0.75rem 0.9rem 0.75rem 2.2rem',
                     borderRadius: 'var(--radius-md)',
-                    backgroundColor: 'var(--bg-surface)',
+                    backgroundColor: '#ffffff',
                     border: '1px solid var(--border-color)',
-                    color: '#ffffff',
+                    color: 'var(--text-primary)',
                     fontSize: '0.9rem',
                     outline: 'none'
                   }}
@@ -293,7 +294,7 @@ const Register = () => {
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem' }}>
+              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem', color: 'var(--text-primary)' }}>
                 Confirm Password <span style={{ color: 'var(--accent-rose)' }}>*</span>
               </label>
               <div style={{ position: 'relative' }}>
@@ -308,9 +309,9 @@ const Register = () => {
                     width: '100%',
                     padding: '0.75rem 0.9rem 0.75rem 2.2rem',
                     borderRadius: 'var(--radius-md)',
-                    backgroundColor: 'var(--bg-surface)',
+                    backgroundColor: '#ffffff',
                     border: '1px solid var(--border-color)',
-                    color: '#ffffff',
+                    color: 'var(--text-primary)',
                     fontSize: '0.9rem',
                     outline: 'none'
                   }}
@@ -333,7 +334,7 @@ const Register = () => {
 
         <div style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
           Already have an account?{' '}
-          <Link to="/login" style={{ color: 'var(--accent-primary)', fontWeight: '600' }}>
+          <Link to="/login" style={{ color: 'var(--accent-orange)', fontWeight: '700' }}>
             Sign in
           </Link>
         </div>

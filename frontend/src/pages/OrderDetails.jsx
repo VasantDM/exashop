@@ -168,7 +168,7 @@ const OrderDetails = () => {
             <ArrowLeft size={15} /> Orders
           </Link>
           <span style={{ color: 'var(--text-muted)' }}>/</span>
-          <span style={{ color: '#ffffff', fontWeight: '700' }}>{order.order_number}</span>
+          <span style={{ color: 'var(--text-primary)', fontWeight: '700' }}>{order.order_number}</span>
         </div>
 
         <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -197,7 +197,7 @@ const OrderDetails = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.5rem' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
-              <h1 style={{ fontSize: '1.75rem', fontWeight: '800', margin: 0 }}>
+              <h1 style={{ fontSize: '1.75rem', fontWeight: '800', margin: 0, color: 'var(--text-primary)' }}>
                 Order #{order.order_number}
               </h1>
               <span className={`badge ${isCancelled ? 'badge-danger' : order.status === 'delivered' ? 'badge-success' : 'badge-info'}`} style={{ fontSize: '0.8rem', padding: '0.2rem 0.65rem' }}>
@@ -210,14 +210,14 @@ const OrderDetails = () => {
               {order.tracking_number && (
                 <>
                   <span>•</span>
-                  <span>Tracking: <strong style={{ color: '#fff' }}>{order.tracking_number}</strong></span>
+                  <span>Tracking: <strong style={{ color: 'var(--text-primary)' }}>{order.tracking_number}</strong></span>
                 </>
               )}
             </div>
           </div>
 
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#ffffff' }} className="gradient-text">
+            <div style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--text-primary)' }} className="gradient-text">
               ₹{order.grand_total}
             </div>
             <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
@@ -244,15 +244,15 @@ const OrderDetails = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      backgroundColor: isPassed ? 'var(--accent-primary)' : 'var(--bg-surface)',
-                      border: isPassed ? '2px solid var(--accent-primary)' : '2px solid var(--border-color)',
+                      backgroundColor: isPassed ? 'var(--accent-orange)' : '#ffffff',
+                      border: isPassed ? '2px solid var(--accent-orange)' : '2px solid var(--border-color)',
                       color: isPassed ? '#ffffff' : 'var(--text-muted)',
-                      boxShadow: isCurrent ? 'var(--shadow-glow)' : 'none',
+                      boxShadow: isCurrent ? '0 2px 10px rgba(234, 88, 12, 0.35)' : 'none',
                       transition: 'all var(--transition-fast)'
                     }}>
                       {isPassed ? <CheckCircle2 size={18} /> : <span>{idx + 1}</span>}
                     </div>
-                    <div style={{ fontSize: '0.85rem', fontWeight: isPassed ? '700' : '500', color: isPassed ? '#ffffff' : 'var(--text-muted)' }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: isPassed ? '700' : '500', color: isPassed ? 'var(--accent-orange)' : 'var(--text-muted)' }}>
                       {step.label}
                     </div>
                     <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
@@ -288,7 +288,7 @@ const OrderDetails = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           {/* Itemized Products Card */}
           <div className="glass-card" style={{ padding: '1.75rem' }}>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: '800', marginBottom: '1.25rem' }}>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: '800', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
               Itemized Line Items ({order.total_items})
             </h3>
 
@@ -307,7 +307,7 @@ const OrderDetails = () => {
                   <img
                     src={item.product_image}
                     alt={item.product_name}
-                    style={{ width: '64px', height: '64px', objectFit: 'cover', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-surface)' }}
+                    style={{ width: '64px', height: '64px', objectFit: 'cover', borderRadius: 'var(--radius-md)', backgroundColor: '#fafaf9', border: '1px solid var(--border-color)' }}
                   />
 
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -315,17 +315,17 @@ const OrderDetails = () => {
                       SKU: {item.product_sku}
                     </div>
                     {item.product_slug ? (
-                      <Link to={`/products/${item.product_slug}`} style={{ fontWeight: '700', fontSize: '0.95rem', color: '#ffffff' }}>
+                      <Link to={`/products/${item.product_slug}`} style={{ fontWeight: '700', fontSize: '0.95rem', color: 'var(--text-primary)' }}>
                         {item.product_name}
                       </Link>
                     ) : (
-                      <span style={{ fontWeight: '700', fontSize: '0.95rem', color: '#ffffff' }}>
+                      <span style={{ fontWeight: '700', fontSize: '0.95rem', color: 'var(--text-primary)' }}>
                         {item.product_name}
                       </span>
                     )}
 
                     {(item.color_name || item.size) && (
-                      <div style={{ fontSize: '0.78rem', color: 'var(--accent-primary)', marginTop: '0.15rem', fontWeight: '500' }}>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--accent-orange)', marginTop: '0.15rem', fontWeight: '600' }}>
                         {[item.color_name && `Color: ${item.color_name}`, item.size && `Size: ${item.size}`].filter(Boolean).join(' • ')}
                       </div>
                     )}
@@ -335,7 +335,7 @@ const OrderDetails = () => {
                     </div>
                   </div>
 
-                  <div style={{ fontSize: '1.05rem', fontWeight: '800', color: '#ffffff' }}>
+                  <div style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-primary)' }}>
                     ₹{parseFloat(item.total_price).toFixed(2)}
                   </div>
                 </div>
@@ -345,7 +345,7 @@ const OrderDetails = () => {
 
           {/* Timeline Events Card */}
           <div className="glass-card" style={{ padding: '1.75rem' }}>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: '800', marginBottom: '1.25rem' }}>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: '800', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
               Order Lifecycle Activity Log
             </h3>
 
@@ -356,8 +356,8 @@ const OrderDetails = () => {
                     width: '28px',
                     height: '28px',
                     borderRadius: '50%',
-                    backgroundColor: 'rgba(99, 102, 241, 0.15)',
-                    color: 'var(--accent-primary)',
+                    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                    color: 'var(--accent-orange)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -367,7 +367,7 @@ const OrderDetails = () => {
                     <Clock size={15} />
                   </div>
                   <div>
-                    <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#ffffff' }}>
+                    <div style={{ fontWeight: '700', fontSize: '0.9rem', color: 'var(--text-primary)' }}>
                       {event.message}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
@@ -384,14 +384,14 @@ const OrderDetails = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
           {/* Invoice Summary */}
           <div className="glass-card" style={{ padding: '1.75rem' }}>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: '800', marginBottom: '1.25rem' }}>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: '800', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
               Financial Summary
             </h3>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.88rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
                 <span>Subtotal</span>
-                <span style={{ color: '#fff', fontWeight: '600' }}>₹{order.subtotal}</span>
+                <span style={{ color: 'var(--text-primary)', fontWeight: '600' }}>₹{order.subtotal}</span>
               </div>
 
               {parseFloat(order.discount_amount) > 0 && (
@@ -403,14 +403,14 @@ const OrderDetails = () => {
 
               <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
                 <span>Shipping Fee</span>
-                <span style={{ color: parseFloat(order.shipping_fee) === 0 ? 'var(--accent-emerald)' : '#fff', fontWeight: '600' }}>
+                <span style={{ color: parseFloat(order.shipping_fee) === 0 ? 'var(--accent-emerald)' : 'var(--text-primary)', fontWeight: '600' }}>
                   {parseFloat(order.shipping_fee) === 0 ? 'FREE' : `₹${order.shipping_fee}`}
                 </span>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderTop: '1px solid var(--border-color)', paddingTop: '0.85rem', marginTop: '0.35rem' }}>
-                <span style={{ fontSize: '1.05rem', fontWeight: '800' }}>Grand Total</span>
-                <span style={{ fontSize: '1.45rem', fontWeight: '800', color: '#ffffff' }} className="gradient-text">
+                <span style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-primary)' }}>Grand Total</span>
+                <span style={{ fontSize: '1.45rem', fontWeight: '800', color: 'var(--accent-orange)' }} className="gradient-text">
                   ₹{order.grand_total}
                 </span>
               </div>
@@ -420,8 +420,8 @@ const OrderDetails = () => {
           {/* Payment & Gateway Transaction Card */}
           <div className="glass-card" style={{ padding: '1.75rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '800', fontSize: '1.05rem' }}>
-                <CreditCard size={18} color="var(--accent-primary)" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '800', fontSize: '1.05rem', color: 'var(--text-primary)' }}>
+                <CreditCard size={18} color="var(--accent-orange)" />
                 <span>Payment & Invoicing</span>
               </div>
               <span className={`badge ${order.payment_status === 'paid' ? 'badge-success' : order.payment_status === 'failed' ? 'badge-danger' : 'badge-info'}`} style={{ fontSize: '0.75rem' }}>
@@ -432,13 +432,13 @@ const OrderDetails = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', fontSize: '0.85rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
                 <span>Payment Method:</span>
-                <strong style={{ color: '#ffffff' }}>{order.payment_method_display}</strong>
+                <strong style={{ color: 'var(--text-primary)' }}>{order.payment_method_display}</strong>
               </div>
 
               {payments.length > 0 && payments[0].gateway_payment_id && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
                   <span>Gateway Ref:</span>
-                  <code style={{ fontSize: '0.78rem', color: 'var(--accent-cyan)' }}>{payments[0].gateway_payment_id}</code>
+                  <code style={{ fontSize: '0.78rem', color: 'var(--accent-orange)' }}>{payments[0].gateway_payment_id}</code>
                 </div>
               )}
 
@@ -467,14 +467,14 @@ const OrderDetails = () => {
 
           {/* Shipping Address Snapshot Card */}
           <div className="glass-card" style={{ padding: '1.75rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '800', fontSize: '1.05rem', marginBottom: '1rem' }}>
-              <MapPin size={18} color="var(--accent-primary)" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '800', fontSize: '1.05rem', marginBottom: '1rem', color: 'var(--text-primary)' }}>
+              <MapPin size={18} color="var(--accent-orange)" />
               <span>Delivery Destination</span>
             </div>
 
             {order.shipping_address ? (
               <div style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-                <div style={{ fontWeight: '700', color: '#ffffff' }}>
+                <div style={{ fontWeight: '700', color: 'var(--text-primary)' }}>
                   {order.shipping_address.full_name}
                 </div>
                 <div>{order.shipping_address.street_address}{order.shipping_address.apartment_suite ? `, ${order.shipping_address.apartment_suite}` : ''}</div>
