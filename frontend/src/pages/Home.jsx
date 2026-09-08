@@ -23,6 +23,7 @@ import {
 import { getFeaturedProducts, getProducts, getCategories } from '../services/catalogService';
 import { useCart } from '../context/CartContext';
 import VariantModal from '../components/VariantModal';
+import HeroCarousel from '../components/HeroCarousel';
 
 const Home = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -174,144 +175,14 @@ const Home = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '3.5rem' }}>
       
-      {/* 1. Ultra-Premium Hero Section in Radiant Warm Amber-Orange Sunrise Glow */}
-      <section style={{
-        position: 'relative',
-        borderRadius: 'var(--radius-lg)',
-        padding: 'clamp(2.5rem, 5vw, 4.25rem) clamp(1.5rem, 4vw, 3.5rem)',
-        background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 40%, #ffedd5 100%)',
-        border: '1px solid #fcd34d',
-        boxShadow: '0 20px 45px -15px rgba(245, 158, 11, 0.22)',
-        overflow: 'hidden'
-      }}>
-        {/* Ambient background glow accents */}
-        <div style={{
-          position: 'absolute',
-          top: '-20%',
-          right: '-10%',
-          width: '450px',
-          height: '450px',
-          background: 'radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, transparent 70%)',
-          filter: 'blur(50px)',
-          pointerEvents: 'none'
-        }} />
-        <div style={{
-          position: 'absolute',
-          bottom: '-20%',
-          left: '-10%',
-          width: '350px',
-          height: '350px',
-          background: 'radial-gradient(circle, rgba(234, 88, 12, 0.2) 0%, transparent 70%)',
-          filter: 'blur(50px)',
-          pointerEvents: 'none'
-        }} />
-
-        <div style={{ position: 'relative', zIndex: 2, maxWidth: '820px' }}>
-          {/* Badge */}
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.45rem 1.1rem',
-            borderRadius: 'var(--radius-full)',
-            background: 'rgba(245, 158, 11, 0.15)',
-            border: '1px solid rgba(245, 158, 11, 0.35)',
-            color: 'var(--accent-orange)',
-            fontSize: '0.85rem',
-            fontWeight: '700',
-            letterSpacing: '0.04em',
-            textTransform: 'uppercase',
-            marginBottom: '1.25rem'
-          }}>
-            <Sparkles size={16} color="var(--accent-orange)" /> 2026 Curated Modern Collection
-          </div>
-
-          {/* Heading */}
-          <h1 style={{
-            fontSize: 'clamp(2.4rem, 5.5vw, 3.8rem)',
-            fontWeight: '800',
-            lineHeight: 1.15,
-            letterSpacing: '-0.03em',
-            marginBottom: '1.25rem',
-            color: 'var(--text-primary)'
-          }}>
-            Shop What You Love With <span className="gradient-text">ExaShop</span>
-          </h1>
-
-          {/* Subtitle */}
-          <p style={{
-            fontSize: 'clamp(1.05rem, 2vw, 1.2rem)',
-            color: 'var(--text-secondary)',
-            lineHeight: 1.65,
-            marginBottom: '2rem',
-            maxWidth: '680px'
-          }}>
-            Experience curated electronics, stylish apparel, and lifestyle essentials with fast doorstep delivery, easy returns, and secure payments.
-          </p>
-
-          {/* Action Buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '2.25rem' }}>
-            <Link 
-              to="/products" 
-              className="btn btn-primary" 
-              style={{ 
-                padding: '0.85rem 1.85rem', 
-                fontSize: '1rem', 
-                fontWeight: '800'
-              }}
-            >
-              Shop New Arrivals <ArrowRight size={18} />
-            </Link>
-
-            <Link 
-              to="/categories" 
-              className="btn btn-outline" 
-              style={{ 
-                padding: '0.85rem 1.6rem', 
-                fontSize: '1rem', 
-                fontWeight: '700'
-              }}
-            >
-              <Layers size={18} /> Explore Categories
-            </Link>
-          </div>
-
-          {/* Quick Metrics Strip */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'clamp(1.5rem, 3vw, 2.5rem)',
-            flexWrap: 'wrap',
-            paddingTop: '1.25rem',
-            borderTop: '1px solid rgba(245, 158, 11, 0.25)'
-          }}>
-            <div>
-              <div style={{ fontSize: '1.35rem', fontWeight: '800', color: 'var(--text-primary)' }}>50,000+</div>
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Happy Customers</div>
-            </div>
-            <div style={{ width: '1px', height: '28px', backgroundColor: 'rgba(245, 158, 11, 0.3)' }} />
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '1.35rem', fontWeight: '800', color: 'var(--text-primary)' }}>
-                <Star size={18} fill="var(--accent-primary)" color="var(--accent-primary)" /> 4.9 / 5.0
-              </div>
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Customer Reviews</div>
-            </div>
-            <div style={{ width: '1px', height: '28px', backgroundColor: 'rgba(245, 158, 11, 0.3)' }} />
-            <div>
-              <div style={{ fontSize: '1.35rem', fontWeight: '800', color: '#059669' }}>100% Secure</div>
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: '500' }}>UPI, Cards & Netbanking</div>
-            </div>
-          </div>
-        </div>
+      {/* 1. Ultra-Premium Hero Carousel Banner in Radiant Warm Amber-Orange Sunrise Glow */}
+      <section>
+        <HeroCarousel />
       </section>
 
       {/* 2. Trust & Value Proposition Cards Bar */}
       <section>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-          gap: '1.25rem'
-        }}>
+        <div className="home-trust-grid">
           {trustBadges.map((badge, idx) => {
             const Icon = badge.icon;
             return (
@@ -367,11 +238,7 @@ const Home = () => {
             </Link>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-            gap: '1.25rem'
-          }}>
+          <div className="home-categories-grid">
             {categories.slice(0, 5).map((cat) => (
               <Link
                 key={cat.id}
@@ -464,11 +331,11 @@ const Home = () => {
                 cursor: 'pointer'
               }}
             >
-              ⭐ Featured Only
+              ⭐ Featured Picks
             </button>
-            {categories.slice(0, 3).map((cat) => (
+            {categories.slice(0, 4).map((cat) => (
               <button
-                key={cat.slug}
+                key={cat.id}
                 onClick={() => setSelectedCategoryTab(cat.slug)}
                 style={{
                   padding: '0.4rem 0.95rem',
@@ -490,7 +357,7 @@ const Home = () => {
 
         {/* Product Cards Grid */}
         {isLoading ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1.5rem' }}>
+          <div className="home-products-grid">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
               <div key={n} className="glass-card" style={{ height: '360px', opacity: 0.5, animation: 'pulse 1.5s infinite ease-in-out' }} />
             ))}
@@ -503,11 +370,7 @@ const Home = () => {
             <Link to="/products" className="btn btn-primary">Browse All Products</Link>
           </div>
         ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-            gap: '1.5rem'
-          }}>
+          <div className="home-products-grid">
             {displayedProducts.slice(0, 8).map((prod) => {
               const isWishlisted = isInWishlist(prod.id);
               const isAdding = addingProductId === prod.id;
@@ -533,16 +396,22 @@ const Home = () => {
                         alt={prod.name}
                         style={{
                           width: '100%',
-                          height: '200px',
+                          height: '210px',
                           objectFit: 'cover',
                           borderRadius: 'var(--radius-md)',
-                          backgroundColor: 'var(--bg-surface)',
                           transition: 'transform 0.4s ease'
                         }}
-                        onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; }}
+                        onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.06)'; }}
                         onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
                       />
                     </Link>
+
+                    {/* Stock status badge */}
+                    {prod.stock <= 0 && (
+                      <span className="badge badge-danger" style={{ position: 'absolute', top: '10px', left: '10px', fontSize: '0.72rem' }}>
+                        Sold Out
+                      </span>
+                    )}
 
                     {/* Wishlist Button */}
                     <button
@@ -552,94 +421,108 @@ const Home = () => {
                         position: 'absolute',
                         top: '10px',
                         right: '10px',
-                        width: '34px',
-                        height: '34px',
+                        width: '32px',
+                        height: '32px',
                         borderRadius: '50%',
                         backgroundColor: '#ffffff',
                         border: '1px solid var(--border-color)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: isWishlisted ? '#ea580c' : 'var(--text-secondary)',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                        color: isWishlisted ? 'var(--accent-rose)' : 'var(--text-secondary)',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
                         cursor: 'pointer',
                         transition: 'transform 0.2s ease'
                       }}
-                      title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                      title={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
                     >
-                      <Heart size={16} fill={isWishlisted ? '#ea580c' : 'none'} />
+                      <Heart size={15} fill={isWishlisted ? 'var(--accent-rose)' : 'none'} />
                     </button>
-
-                    {/* Category Pill */}
-                    {prod.category_name && (
-                      <span style={{
-                        position: 'absolute',
-                        bottom: '10px',
-                        left: '10px',
-                        padding: '0.2rem 0.55rem',
-                        fontSize: '0.7rem',
-                        fontWeight: '700',
-                        borderRadius: 'var(--radius-sm)',
-                        backgroundColor: 'rgba(255, 255, 255, 0.92)',
-                        color: 'var(--text-primary)',
-                        boxShadow: '0 1px 4px rgba(0,0,0,0.1)'
-                      }}>
-                        {prod.category_name}
-                      </span>
-                    )}
                   </div>
 
-                  {/* Product Details */}
+                  {/* Body Content */}
                   <div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--accent-orange)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        {prod.category?.name || 'General'}
+                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.78rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                        <Star size={13} fill="var(--accent-primary)" color="var(--accent-primary)" />
+                        <span>{prod.average_rating || '5.0'}</span>
+                      </div>
+                    </div>
+
                     <Link to={`/products/${prod.slug}`} style={{ textDecoration: 'none' }}>
                       <h3 style={{
-                        fontSize: '0.98rem',
+                        fontSize: '1rem',
                         fontWeight: '700',
                         color: 'var(--text-primary)',
-                        marginBottom: '0.35rem',
+                        marginBottom: '0.4rem',
                         lineHeight: '1.35',
                         display: '-webkit-box',
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden'
+                        overflow: 'hidden',
+                        height: '2.7rem'
                       }}>
                         {prod.name}
                       </h3>
                     </Link>
 
-                    {/* Price & Rating */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.45rem' }}>
-                        <span style={{ fontSize: '1.15rem', fontWeight: '800', color: 'var(--text-primary)' }}>
-                          ₹{parseFloat(prod.price || 0).toLocaleString('en-IN')}
-                        </span>
-                        {prod.mrp && parseFloat(prod.mrp) > parseFloat(prod.price) && (
-                          <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', textDecoration: 'line-through' }}>
-                            ₹{parseFloat(prod.mrp).toLocaleString('en-IN')}
+                    {/* Apparel Variants Preview Pills */}
+                    {prod.has_variants && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.65rem' }}>
+                        {prod.available_colors && prod.available_colors.slice(0, 3).map((c) => (
+                          <span
+                            key={c.name}
+                            style={{
+                              width: '12px',
+                              height: '12px',
+                              borderRadius: '50%',
+                              backgroundColor: c.code || '#ea580c',
+                              border: '1.5px solid #ffffff',
+                              boxShadow: '0 0 0 1px #d6d3d1'
+                            }}
+                            title={c.name}
+                          />
+                        ))}
+                        {prod.available_sizes && (
+                          <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginLeft: '0.2rem', fontWeight: '600' }}>
+                            {prod.available_sizes.slice(0, 3).join(', ')}{prod.available_sizes.length > 3 ? '...' : ''}
                           </span>
                         )}
                       </div>
+                    )}
+                  </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', color: 'var(--accent-primary)', fontSize: '0.8rem', fontWeight: '700' }}>
-                        <Star size={14} fill="currentColor" />
-                        <span>{prod.rating || '4.8'}</span>
+                  {/* Card Bottom / Price & CTA */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    borderTop: '1px solid var(--border-color)',
+                    paddingTop: '0.75rem',
+                    marginTop: '0.5rem'
+                  }}>
+                    <div>
+                      <div style={{ fontSize: '1.15rem', fontWeight: '800', color: 'var(--text-primary)' }}>
+                        ₹{parseFloat(prod.price || 0).toLocaleString('en-IN')}
                       </div>
+                      {prod.compare_at_price && (
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textDecoration: 'line-through' }}>
+                          ₹{parseFloat(prod.compare_at_price).toLocaleString('en-IN')}
+                        </div>
+                      )}
                     </div>
 
-                    {/* Action Button */}
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', gap: '0.4rem' }}>
                       <button
                         type="button"
                         onClick={(e) => handleAddToCart(prod, e)}
                         disabled={isAdding || prod.stock === 0}
                         className="btn btn-primary"
-                        style={{
-                          flex: 1,
-                          padding: '0.55rem 0.9rem',
-                          fontSize: '0.82rem',
-                          fontWeight: '700',
-                          opacity: prod.stock === 0 ? 0.6 : 1
-                        }}
+                        style={{ padding: '0.55rem 0.85rem', fontSize: '0.82rem', fontWeight: '700' }}
+                        title="Add to cart"
                       >
                         {isAdding ? (
                           'Adding...'
@@ -647,7 +530,7 @@ const Home = () => {
                           'Out of Stock'
                         ) : (
                           <>
-                            <ShoppingCart size={14} /> Add to Cart
+                            <ShoppingCart size={14} /> Add
                           </>
                         )}
                       </button>
@@ -677,44 +560,25 @@ const Home = () => {
       </section>
 
       {/* 5. Special Promotional Flash Banner in Warm Amber Gradient */}
-      <section style={{
-        borderRadius: 'var(--radius-lg)',
-        padding: '2.5rem 2rem',
-        background: 'linear-gradient(135deg, #fffbeb 0%, #fed7aa 50%, #fcd34d 100%)',
-        border: '1px solid #f59e0b',
-        boxShadow: '0 15px 35px -10px rgba(245, 158, 11, 0.25)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '2rem'
-      }}>
-        <div style={{ maxWidth: '580px' }}>
+      <section className="home-promo-banner">
+        <div style={{ maxWidth: '580px', width: '100%' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-orange)', fontSize: '0.85rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.4rem' }}>
             <BadgePercent size={18} /> Limited Time Special Offer
           </div>
-          <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.3rem)', fontWeight: '800', lineHeight: 1.2, color: 'var(--text-primary)', marginBottom: '0.65rem' }}>
+          <h2 style={{ fontSize: 'clamp(1.5rem, 4vw, 2.3rem)', fontWeight: '800', lineHeight: 1.2, color: 'var(--text-primary)', marginBottom: '0.65rem' }}>
             Get 30% Off on Selected Collections
           </h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.6 }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: 1.6 }}>
             Use the official promo code during checkout to unlock instant discounts across all flagship electronics, lifestyle gear, and daily essentials.
           </p>
         </div>
 
-        <div style={{
-          backgroundColor: '#ffffff',
-          padding: '1.5rem',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--border-color)',
-          textAlign: 'center',
-          minWidth: '250px',
-          boxShadow: 'var(--shadow-md)'
-        }}>
+        <div className="promo-code-card">
           <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.35rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '600' }}>
             Coupon Code
           </div>
           <div style={{
-            fontSize: '1.5rem',
+            fontSize: '1.4rem',
             fontWeight: '900',
             color: 'var(--accent-orange)',
             letterSpacing: '0.1em',
@@ -754,7 +618,7 @@ const Home = () => {
           </h2>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+        <div className="home-testimonials-grid">
           {testimonials.map((t, idx) => (
             <div
               key={idx}
@@ -795,7 +659,7 @@ const Home = () => {
       {/* 7. VIP Club / Newsletter Signup */}
       <section style={{
         borderRadius: 'var(--radius-lg)',
-        padding: '2.5rem 1.75rem',
+        padding: '2.5rem 1.5rem',
         backgroundColor: '#fafaf9',
         border: '1px solid var(--border-color)',
         textAlign: 'center',
@@ -850,7 +714,7 @@ const Home = () => {
               placeholder="Enter your email address..."
               style={{
                 flex: 1,
-                minWidth: '220px',
+                minWidth: '200px',
                 padding: '0.65rem 1rem',
                 borderRadius: 'var(--radius-md)',
                 backgroundColor: '#ffffff',
@@ -876,6 +740,151 @@ const Home = () => {
         onClose={() => setVariantModalProduct(null)}
         product={variantModalProduct}
       />
+
+      <style>{`
+        .home-hero-section {
+          position: relative;
+          border-radius: var(--radius-lg);
+          padding: 3.5rem 2.5rem;
+          background: linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #fef3c7 100%);
+          border: 1px solid rgba(245, 158, 11, 0.3);
+          box-shadow: 0 20px 45px -15px rgba(245, 158, 11, 0.18);
+          overflow: hidden;
+        }
+
+        .home-hero-actions {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          margin-bottom: 2.5rem;
+          flex-wrap: wrap;
+        }
+
+        .home-metrics-strip {
+          display: inline-flex;
+          align-items: center;
+          gap: 1.75rem;
+          padding: 0.85rem 1.5rem;
+          background: rgba(255, 255, 255, 0.85);
+          backdrop-filter: blur(12px);
+          border: 1px solid rgba(245, 158, 11, 0.25);
+          border-radius: var(--radius-md);
+          box-shadow: var(--shadow-sm);
+          flex-wrap: wrap;
+        }
+
+        .metric-divider {
+          width: 1px;
+          height: 28px;
+          background-color: var(--border-color);
+        }
+
+        .home-trust-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+          gap: 1.25rem;
+        }
+
+        .home-categories-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+          gap: 1.25rem;
+        }
+
+        .home-products-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+          gap: 1.5rem;
+        }
+
+        .home-promo-banner {
+          border-radius: var(--radius-lg);
+          padding: 2.5rem 2rem;
+          background: linear-gradient(135deg, #fffbeb 0%, #fed7aa 50%, #fcd34d 100%);
+          border: 1px solid #f59e0b;
+          box-shadow: 0 15px 35px -10px rgba(245, 158, 11, 0.25);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 2rem;
+        }
+
+        .promo-code-card {
+          background-color: #ffffff;
+          padding: 1.5rem;
+          border-radius: var(--radius-md);
+          border: 1px solid var(--border-color);
+          text-align: center;
+          min-width: 220px;
+          box-shadow: var(--shadow-md);
+        }
+
+        .home-testimonials-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+          gap: 1.25rem;
+        }
+
+        @media (max-width: 768px) {
+          .home-hero-section {
+            padding: 2rem 1.25rem;
+          }
+
+          .home-hero-actions {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+          }
+
+          .home-hero-actions .btn {
+            width: 100%;
+          }
+
+          .home-metrics-strip {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            width: 100%;
+            padding: 1rem;
+            box-sizing: border-box;
+          }
+
+          .metric-divider {
+            display: none;
+          }
+
+          .home-promo-banner {
+            padding: 1.75rem 1.25rem;
+            flex-direction: column;
+            align-items: stretch;
+          }
+
+          .promo-code-card {
+            width: 100%;
+            min-width: 0;
+          }
+
+          .home-products-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+          }
+
+          .home-trust-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .home-categories-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.85rem;
+          }
+
+          .home-testimonials-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
     </div>
   );
 };

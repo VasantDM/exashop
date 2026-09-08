@@ -228,19 +228,19 @@ const OrderDetails = () => {
 
         {/* Visual Progress Stepper (if not cancelled) */}
         {!isCancelled ? (
-          <div style={{ marginTop: '2.5rem', borderTop: '1px solid var(--border-color)', paddingTop: '2rem' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', position: 'relative' }}>
+          <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
+            <div className="order-stepper-grid">
               {statusSteps.map((step, idx) => {
                 const isPassed = currentStep >= idx;
                 const isCurrent = currentStep === idx;
 
                 return (
-                  <div key={step.key} style={{ textAlign: 'center', position: 'relative' }}>
+                  <div key={step.key} className="order-step-item">
                     <div style={{
                       width: '36px',
                       height: '36px',
                       borderRadius: '50%',
-                      margin: '0 auto 0.75rem',
+                      margin: '0 auto 0.5rem',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -248,15 +248,18 @@ const OrderDetails = () => {
                       border: isPassed ? '2px solid var(--accent-orange)' : '2px solid var(--border-color)',
                       color: isPassed ? '#ffffff' : 'var(--text-muted)',
                       boxShadow: isCurrent ? '0 2px 10px rgba(234, 88, 12, 0.35)' : 'none',
-                      transition: 'all var(--transition-fast)'
+                      transition: 'all var(--transition-fast)',
+                      flexShrink: 0
                     }}>
                       {isPassed ? <CheckCircle2 size={18} /> : <span>{idx + 1}</span>}
                     </div>
-                    <div style={{ fontSize: '0.85rem', fontWeight: isPassed ? '700' : '500', color: isPassed ? 'var(--accent-orange)' : 'var(--text-muted)' }}>
-                      {step.label}
-                    </div>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
-                      {step.desc}
+                    <div>
+                      <div style={{ fontSize: '0.82rem', fontWeight: isPassed ? '700' : '500', color: isPassed ? 'var(--accent-orange)' : 'var(--text-muted)' }}>
+                        {step.label}
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '0.1rem' }}>
+                        {step.desc}
+                      </div>
                     </div>
                   </div>
                 );
@@ -283,11 +286,11 @@ const OrderDetails = () => {
       </div>
 
       {/* Main Breakdown Layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem', alignItems: 'start' }}>
+      <div className="order-details-main-grid">
         {/* Left Column: Items List & Timeline */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           {/* Itemized Products Card */}
-          <div className="glass-card" style={{ padding: '1.75rem' }}>
+          <div className="glass-card" style={{ padding: '1.5rem' }}>
             <h3 style={{ fontSize: '1.15rem', fontWeight: '800', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
               Itemized Line Items ({order.total_items})
             </h3>
@@ -296,13 +299,7 @@ const OrderDetails = () => {
               {order.items.map((item) => (
                 <div
                   key={item.id}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1.25rem',
-                    borderBottom: '1px solid var(--border-color)',
-                    paddingBottom: '1rem'
-                  }}
+                  className="order-line-item-row"
                 >
                   <img
                     src={item.product_image}
@@ -548,6 +545,68 @@ const OrderDetails = () => {
         amount={order?.grand_total}
         onSuccess={handlePaymentSuccess}
       />
+
+      <style>{`
+        .order-details-main-grid {
+          display: grid;
+          grid-template-columns: 2fr 1fr;
+          gap: 2rem;
+          align-items: start;
+        }
+
+        .order-stepper-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1rem;
+          position: relative;
+        }
+
+        .order-step-item {
+          text-align: center;
+          position: relative;
+        }
+
+        .order-line-item-row {
+          display: flex;
+          align-items: center;
+          gap: 1.25rem;
+          border-bottom: 1px solid var(--border-color);
+          padding-bottom: 1rem;
+        }
+
+        @media (max-width: 860px) {
+          .order-details-main-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+          }
+        }
+
+        @media (max-width: 600px) {
+          .order-stepper-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+          }
+
+          .order-step-item {
+            display: flex;
+            align-items: center;
+            text-align: left;
+            gap: 0.75rem;
+            background: #fafaf9;
+            padding: 0.65rem 0.85rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+          }
+
+          .order-step-item > div:first-child {
+            margin: 0 !important;
+          }
+
+          .order-line-item-row {
+            gap: 0.85rem;
+          }
+        }
+      `}</style>
     </div>
   );
 };

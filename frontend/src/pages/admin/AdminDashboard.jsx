@@ -171,7 +171,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Grid: Sales Trend & Low Stock Radar */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
         {/* Left: 7-Day Revenue Trend */}
         <div className="glass-card" style={{ padding: '1.75rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>

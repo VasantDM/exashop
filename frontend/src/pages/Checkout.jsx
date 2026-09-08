@@ -351,13 +351,13 @@ const Checkout = () => {
       </div>
 
       {/* Main Grid: Checkout Steps + Order Summary */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '2.5rem', alignItems: 'start' }}>
+      <div className="checkout-main-grid">
         {/* Left Form: Steps */}
-        <form onSubmit={handlePlaceOrder} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <form onSubmit={handlePlaceOrder} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', minWidth: 0 }}>
           {/* Step 1: Shipping Destination */}
-          <div className="glass-card" style={{ padding: '1.75rem' }}>
+          <div className="glass-card" style={{ padding: '1.5rem 1.25rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem' }}>
-              <div style={{ background: 'var(--accent-gradient)', color: '#fff', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: '800', boxShadow: '0 2px 6px rgba(245, 158, 11, 0.35)' }}>
+              <div style={{ background: 'var(--accent-gradient)', color: '#fff', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: '800', boxShadow: '0 2px 6px rgba(245, 158, 11, 0.35)', flexShrink: 0 }}>
                 1
               </div>
               <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0, color: 'var(--text-primary)' }}>
@@ -375,7 +375,7 @@ const Checkout = () => {
                       key={addr.id}
                       onClick={() => setSelectedAddressId(addr.id)}
                       style={{
-                        padding: '1rem 1.25rem',
+                        padding: '1rem',
                         borderRadius: 'var(--radius-md)',
                         backgroundColor: isSelected ? 'rgba(245, 158, 11, 0.12)' : '#ffffff',
                         border: isSelected ? '2px solid var(--accent-orange)' : '1px solid var(--border-color)',
@@ -383,23 +383,24 @@ const Checkout = () => {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        transition: 'all var(--transition-fast)'
+                        transition: 'all var(--transition-fast)',
+                        boxSizing: 'border-box'
                       }}
                     >
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '700', fontSize: '0.95rem', color: 'var(--text-primary)' }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '700', fontSize: '0.95rem', color: 'var(--text-primary)', flexWrap: 'wrap' }}>
                           <MapPin size={16} color={isSelected ? 'var(--accent-orange)' : 'var(--text-muted)'} />
                           <span>{addr.full_name}</span>
                           {addr.is_default && <span className="badge badge-info" style={{ fontSize: '0.65rem' }}>Default</span>}
                         </div>
-                        <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem', paddingLeft: '1.5rem' }}>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem', paddingLeft: '1.5rem', wordBreak: 'break-word' }}>
                           {addr.street_address}{addr.apartment_suite ? `, ${addr.apartment_suite}` : ''}, {addr.city}, {addr.state} {addr.postal_code}
                         </div>
                         <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.15rem', paddingLeft: '1.5rem' }}>
                           Phone: {addr.phone_number}
                         </div>
                       </div>
-                      {isSelected && <Check size={20} color="var(--accent-orange)" />}
+                      {isSelected && <Check size={20} color="var(--accent-orange)" style={{ flexShrink: 0, marginLeft: '0.5rem' }} />}
                     </div>
                   );
                 })}
@@ -424,7 +425,7 @@ const Checkout = () => {
                   }
                 }}
                 className="btn btn-outline"
-                style={{ fontSize: '0.82rem', padding: '0.5rem 0.9rem' }}
+                style={{ fontSize: '0.82rem', padding: '0.5rem 0.9rem', width: '100%', justifyContent: 'center' }}
               >
                 {useNewAddress ? 'Select from Saved Addresses' : '+ Enter a Different Shipping Address'}
               </button>
@@ -434,7 +435,7 @@ const Checkout = () => {
             {useNewAddress && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
                 {/* 1. Recipient Details */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="checkout-form-2col">
                   <div>
                     <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '0.35rem', color: 'var(--text-primary)' }}>Full Name *</label>
                     <input
@@ -443,7 +444,7 @@ const Checkout = () => {
                       value={newAddress.full_name}
                       onChange={(e) => setNewAddress({ ...newAddress, full_name: e.target.value })}
                       placeholder="e.g. Alex Taylor"
-                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem' }}
+                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem', boxSizing: 'border-box' }}
                     />
                   </div>
                   <div>
@@ -454,14 +455,14 @@ const Checkout = () => {
                       value={newAddress.phone_number}
                       onChange={(e) => setNewAddress({ ...newAddress, phone_number: e.target.value })}
                       placeholder="+91 98765 43210 or +1 (555) 000-0000"
-                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem' }}
+                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem', boxSizing: 'border-box' }}
                     />
                   </div>
                 </div>
 
                 {/* 2. Pincode / Postal Code First (Auto-detects City & State) */}
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', flexWrap: 'wrap', gap: '0.3rem' }}>
                     <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)' }}>
                       Pincode / Postal Code *
                     </label>
@@ -493,13 +494,14 @@ const Checkout = () => {
                       border: pincodeStatus.success ? '1px solid var(--accent-emerald)' : '1px solid var(--border-color)',
                       color: 'var(--text-primary)',
                       outline: 'none',
-                      fontSize: '0.85rem'
+                      fontSize: '0.85rem',
+                      boxSizing: 'border-box'
                     }}
                   />
                 </div>
 
                 {/* 3. City & State */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="checkout-form-2col">
                   <div>
                     <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '0.35rem', color: 'var(--text-primary)' }}>
                       City / District * <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>(Auto-filled)</span>
@@ -510,7 +512,7 @@ const Checkout = () => {
                       value={newAddress.city}
                       onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
                       placeholder="City or District"
-                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem' }}
+                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem', boxSizing: 'border-box' }}
                     />
                   </div>
                   <div>
@@ -523,7 +525,7 @@ const Checkout = () => {
                       value={newAddress.state}
                       onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
                       placeholder="State"
-                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem' }}
+                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem', boxSizing: 'border-box' }}
                     />
                   </div>
                 </div>
@@ -539,22 +541,22 @@ const Checkout = () => {
                     value={newAddress.street_address}
                     onChange={(e) => setNewAddress({ ...newAddress, street_address: e.target.value })}
                     placeholder="e.g. Flat 402, Sunshine Heights, MG Road"
-                    style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem' }}
+                    style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem', boxSizing: 'border-box' }}
                   />
                 </div>
 
                 {/* 5. Apartment & Country */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="checkout-form-2col">
                   <div>
                     <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '0.35rem', color: 'var(--text-primary)' }}>
-                      Apartment / Landmark / Suite <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem' }}>(Optional)</span>
+                      Apartment / Landmark <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem' }}>(Optional)</span>
                     </label>
                     <input
                       type="text"
                       value={newAddress.apartment_suite}
                       onChange={(e) => setNewAddress({ ...newAddress, apartment_suite: e.target.value })}
-                      placeholder="e.g. Near Metro Station / Floor 4"
-                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem' }}
+                      placeholder="e.g. Near Metro Station"
+                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem', boxSizing: 'border-box' }}
                     />
                   </div>
 
@@ -566,7 +568,7 @@ const Checkout = () => {
                       value={newAddress.country}
                       onChange={(e) => setNewAddress({ ...newAddress, country: e.target.value })}
                       placeholder="India / United States"
-                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem' }}
+                      style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem', boxSizing: 'border-box' }}
                     />
                   </div>
                 </div>
@@ -799,6 +801,37 @@ const Checkout = () => {
         amount={grandTotal}
         onSuccess={handlePaymentSuccess}
       />
+
+      <style>{`
+        .checkout-main-grid {
+          display: grid;
+          grid-template-columns: 1fr 380px;
+          gap: 2rem;
+          align-items: start;
+          width: 100%;
+          box-sizing: border-box;
+        }
+
+        .checkout-form-2col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1rem;
+        }
+
+        @media (max-width: 860px) {
+          .checkout-main-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+          }
+        }
+
+        @media (max-width: 580px) {
+          .checkout-form-2col {
+            grid-template-columns: 1fr;
+            gap: 0.85rem;
+          }
+        }
+      `}</style>
     </div>
   );
 };

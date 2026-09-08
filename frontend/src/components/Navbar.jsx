@@ -82,10 +82,10 @@ const Navbar = () => {
             </span>
           </div>
 
-          {/* Wishlist Icon with Dynamic Badge */}
+          {/* Wishlist Icon with Dynamic Badge (Desktop header) */}
           <Link
             to="/wishlist"
-            className="action-icon-btn"
+            className="action-icon-btn desktop-action-btn"
             aria-label="View Wishlist"
             title="Saved Wishlist Items"
           >
@@ -97,10 +97,10 @@ const Navbar = () => {
             )}
           </Link>
 
-          {/* Cart Icon with Dynamic Badge */}
+          {/* Cart Icon with Dynamic Badge (Desktop header) */}
           <Link
             to="/cart"
-            className="action-icon-btn"
+            className="action-icon-btn desktop-action-btn"
             aria-label="View Cart"
             title="View Shopping Cart"
           >
@@ -160,7 +160,8 @@ const Navbar = () => {
               <button
                 onClick={logout}
                 className="logout-btn"
-                title="Logout"
+                title="Logout from account"
+                aria-label="Logout"
               >
                 <LogOut size={16} />
               </button>
@@ -205,6 +206,7 @@ const Navbar = () => {
           align-items: center;
           gap: 0.65rem;
           text-decoration: none;
+          flex-shrink: 0;
         }
 
         .brand-icon {
@@ -273,6 +275,7 @@ const Navbar = () => {
           display: flex;
           align-items: center;
           gap: 0.75rem;
+          flex-shrink: 0;
         }
 
         .desktop-status-pill {
@@ -299,6 +302,7 @@ const Navbar = () => {
           box-shadow: var(--shadow-sm);
           transition: all var(--transition-fast);
           text-decoration: none;
+          flex-shrink: 0;
         }
 
         .action-icon-btn:hover {
@@ -335,6 +339,7 @@ const Navbar = () => {
           display: flex;
           align-items: center;
           gap: 0.5rem;
+          flex-shrink: 0;
         }
 
         .user-profile-btn {
@@ -351,6 +356,7 @@ const Navbar = () => {
           font-size: 0.8rem;
           font-weight: 600;
           transition: all var(--transition-fast);
+          flex-shrink: 0;
         }
 
         .user-profile-btn:hover {
@@ -358,16 +364,17 @@ const Navbar = () => {
         }
 
         .user-avatar {
-          width: 22px;
-          height: 22px;
+          width: 24px;
+          height: 24px;
           border-radius: 50%;
           background: var(--accent-gradient);
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 0.65rem;
+          font-size: 0.68rem;
           font-weight: 700;
           color: #fff;
+          flex-shrink: 0;
         }
 
         .admin-link-badge {
@@ -383,6 +390,7 @@ const Navbar = () => {
           font-weight: 700;
           text-decoration: none;
           transition: all var(--transition-fast);
+          flex-shrink: 0;
         }
 
         .admin-link-badge:hover {
@@ -395,23 +403,26 @@ const Navbar = () => {
           background: #ffffff;
           border: 1px solid var(--border-color);
           color: var(--text-muted);
-          display: flex;
+          display: inline-flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
           transition: all var(--transition-fast);
+          flex-shrink: 0;
         }
 
         .logout-btn:hover {
           color: var(--accent-rose);
-          border-color: rgba(239, 68, 68, 0.3);
-          background-color: rgba(239, 68, 68, 0.05);
+          border-color: rgba(239, 68, 68, 0.4);
+          background-color: rgba(239, 68, 68, 0.08);
+          transform: translateY(-1px);
         }
 
         .guest-auth-actions {
           display: flex;
           align-items: center;
           gap: 0.45rem;
+          flex-shrink: 0;
         }
 
         .login-btn {
@@ -427,21 +438,36 @@ const Navbar = () => {
         /* Mobile View Rules */
         @media (max-width: 768px) {
           .navbar-container {
-            padding: 0.65rem 1rem;
+            padding: 0.65rem 0.85rem;
+            gap: 0.5rem;
           }
 
           .desktop-nav-links,
           .desktop-status-pill,
-          .desktop-only-btn {
+          .desktop-only-btn,
+          .desktop-action-btn {
             display: none !important;
           }
 
+          .brand-icon {
+            width: 34px;
+            height: 34px;
+          }
+
           .brand-name {
-            font-size: 1.15rem;
+            font-size: 1.12rem;
           }
 
           .brand-tagline {
             display: none;
+          }
+
+          .navbar-actions {
+            gap: 0.4rem;
+          }
+
+          .user-logged-in-wrap {
+            gap: 0.35rem;
           }
 
           .user-role-badge,
@@ -450,13 +476,25 @@ const Navbar = () => {
           }
 
           .user-profile-btn {
-            padding: 0.35rem 0.45rem;
+            padding: 0.35rem;
+            border-radius: 50%;
+          }
+
+          .admin-link-badge {
+            padding: 0.35rem 0.55rem;
+            font-size: 0.74rem;
+          }
+
+          .logout-btn {
+            padding: 0.4rem 0.55rem;
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
           }
 
           .login-btn,
           .register-btn {
-            padding: 0.35rem 0.65rem;
-            font-size: 0.78rem;
+            padding: 0.35rem 0.6rem;
+            font-size: 0.76rem;
           }
         }
       `}</style>

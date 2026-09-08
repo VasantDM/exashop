@@ -121,7 +121,7 @@ const AdminSettings = () => {
         </Link>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '2rem' }}>
         
         {/* Main Store Settings Form */}
         <div className="glass-card" style={{ padding: '2rem' }}>

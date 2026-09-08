@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import MainLayout from './layouts/MainLayout';
+import ScrollToTop from './components/ScrollToTop';
 
 // Public & Customer Pages
 import Home from './pages/Home';
@@ -33,6 +34,7 @@ import AdminSettings from './pages/admin/AdminSettings';
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <AuthProvider>
         <CartProvider>
           <Routes>

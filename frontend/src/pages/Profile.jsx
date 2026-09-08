@@ -393,7 +393,7 @@ const Profile = () => {
 
       {/* TAB 1: Personal Details */}
       {activeTab === 'overview' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
+        <div className="profile-overview-grid">
           {/* Edit Profile Form */}
           <div className="glass-card" style={{ padding: '2rem' }}>
             <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
@@ -419,7 +419,7 @@ const Profile = () => {
             )}
 
             <form onSubmit={handleProfileSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="profile-form-2col">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem', color: 'var(--text-primary)' }}>
                     First Name
@@ -687,7 +687,7 @@ const Profile = () => {
                 </div>
 
                 {/* 3. City & State */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="profile-form-2col">
                   <div>
                     <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem', color: 'var(--text-primary)' }}>
                       City / District <span style={{ color: 'var(--accent-rose)' }}>*</span>
@@ -759,7 +759,7 @@ const Profile = () => {
                 </div>
 
                 {/* 5. Apartment & Country */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="profile-form-2col">
                   <div>
                     <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.4rem', color: 'var(--text-primary)' }}>
                       Apt / Suite / Landmark <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem' }}>(Optional)</span>
@@ -995,6 +995,32 @@ const Profile = () => {
           </div>
         </div>
       )}
+
+      <style>{`
+        .profile-overview-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+          gap: 2rem;
+        }
+
+        .profile-form-2col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1rem;
+        }
+
+        @media (max-width: 680px) {
+          .profile-overview-grid {
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+          }
+
+          .profile-form-2col {
+            grid-template-columns: 1fr;
+            gap: 0.85rem;
+          }
+        }
+      `}</style>
     </div>
   );
 };

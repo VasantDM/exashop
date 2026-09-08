@@ -156,7 +156,7 @@ const AdminCategories = () => {
         ) : categories.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '3rem 0', color: 'var(--text-secondary)' }}>No categories configured yet.</div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '1.25rem' }}>
             {categories.map((cat) => (
               <div
                 key={cat.id}

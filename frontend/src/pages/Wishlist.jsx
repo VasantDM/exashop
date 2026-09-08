@@ -100,7 +100,7 @@ const Wishlist = () => {
       </div>
 
       {/* Grid of Wishlist items */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
+      <div className="wishlist-grid">
         {wishlist.map((item) => {
           const product = item.product || item;
 
@@ -158,43 +158,45 @@ const Wishlist = () => {
                     background: 'rgba(255, 255, 255, 0.9)',
                     backdropFilter: 'blur(6px)',
                     border: '1px solid var(--border-color)',
-                    width: '34px',
-                    height: '34px',
+                    width: '32px',
+                    height: '32px',
                     borderRadius: '50%',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#ea580c',
-                    cursor: 'pointer',
-                    boxShadow: 'var(--shadow-sm)'
+                    color: 'var(--accent-rose)',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                    cursor: 'pointer'
                   }}
-                  title="Remove from Wishlist"
+                  title="Remove from wishlist"
                 >
-                  <Heart size={16} fill="#ea580c" />
+                  <Heart size={16} fill="var(--accent-rose)" />
                 </button>
               </Link>
 
               {/* Product Info */}
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                  <span>{product.brand_name || 'Brand'}</span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', color: 'var(--accent-orange)' }}>
-                    <Star size={12} fill="currentColor" /> {product.average_rating || '5.0'}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--accent-orange)', textTransform: 'uppercase' }}>
+                    {product.category?.name || 'Item'}
                   </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.78rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                    <Star size={13} fill="var(--accent-primary)" color="var(--accent-primary)" />
+                    <span>{product.average_rating || '5.0'}</span>
+                  </div>
                 </div>
 
-                <Link to={`/products/${product.slug}`}>
+                <Link to={`/products/${product.slug}`} style={{ textDecoration: 'none' }}>
                   <h3 style={{
                     fontSize: '1rem',
                     fontWeight: '700',
                     color: 'var(--text-primary)',
-                    marginBottom: '0.75rem',
+                    marginBottom: '0.5rem',
                     lineHeight: '1.35',
                     display: '-webkit-box',
                     WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                    height: '2.7rem'
+                    overflow: 'hidden'
                   }}>
                     {product.name}
                   </h3>
@@ -244,6 +246,21 @@ const Wishlist = () => {
           );
         })}
       </div>
+
+      <style>{`
+        .wishlist-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+          gap: 1.5rem;
+        }
+
+        @media (max-width: 640px) {
+          .wishlist-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+          }
+        }
+      `}</style>
     </div>
   );
 };

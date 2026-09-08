@@ -146,9 +146,11 @@ const OtpInputAnimation = ({
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              gap: animStage === 'idle' ? '0.55rem' : '0px',
+              gap: animStage === 'idle' ? 'clamp(4px, 1.5vw, 8px)' : '0px',
               position: 'relative',
               width: '100%',
+              maxWidth: '100%',
+              boxSizing: 'border-box',
               transition: 'all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)'
             }}
           >
@@ -182,14 +184,14 @@ const OtpInputAnimation = ({
                     onPaste={handlePaste}
                     onFocus={() => setFocusedIndex(index)}
                     style={{
-                      width: length === 6 ? '48px' : '58px',
-                      height: '58px',
+                      width: length === 6 ? 'clamp(36px, 11vw, 48px)' : 'clamp(42px, 13vw, 56px)',
+                      height: 'clamp(46px, 13vw, 58px)',
                       textAlign: 'center',
-                      fontSize: '1.5rem',
+                      fontSize: 'clamp(1.15rem, 4vw, 1.5rem)',
                       fontWeight: '800',
                       color: isVerified ? '#059669' : 'var(--text-primary)',
                       backgroundColor: isVerified ? 'rgba(16, 185, 129, 0.12)' : '#ffffff',
-                      borderRadius: '14px',
+                      borderRadius: 'clamp(8px, 2.5vw, 14px)',
                       border: isFocused 
                         ? '2px solid var(--accent-orange)' 
                         : isVerified
@@ -204,7 +206,8 @@ const OtpInputAnimation = ({
                           : 'var(--shadow-sm)',
                       outline: 'none',
                       cursor: disabled ? 'not-allowed' : 'text',
-                      transition: 'all 0.3s ease'
+                      transition: 'all 0.3s ease',
+                      boxSizing: 'border-box'
                     }}
                   />
                 </div>

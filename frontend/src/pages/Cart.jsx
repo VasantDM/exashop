@@ -142,35 +142,28 @@ const Cart = () => {
   }
 
   return (
-    <div>
+    <div className="cart-page-wrapper">
       {/* Header */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '1rem',
-        marginBottom: '2rem'
-      }}>
+      <div className="cart-header-row">
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <h1 style={{ fontSize: '2.1rem', fontWeight: '800', letterSpacing: '-0.02em', margin: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <h1 className="cart-main-title">
               Shopping <span className="gradient-text">Cart</span>
             </h1>
             <span className="badge badge-info" style={{ fontSize: '0.8rem' }}>
               {totalItems} {totalItems === 1 ? 'Item' : 'Items'}
             </span>
           </div>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.3rem' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginTop: '0.3rem' }}>
             Review your selected line items, verify inventory, and proceed to checkout.
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <div>
           <button
             onClick={clearCart}
             className="btn btn-outline"
-            style={{ fontSize: '0.82rem', padding: '0.5rem 0.9rem', color: 'var(--accent-rose)', borderColor: 'rgba(244, 63, 94, 0.3)' }}
+            style={{ fontSize: '0.82rem', padding: '0.45rem 0.85rem', color: 'var(--accent-rose)', borderColor: 'rgba(239, 68, 68, 0.3)' }}
           >
             <RotateCcw size={14} /> Clear Cart
           </button>
@@ -178,42 +171,29 @@ const Cart = () => {
       </div>
 
       {/* Main Grid: Cart Line Items + Order Summary */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2.5rem', alignItems: 'start' }}>
+      <div className="cart-main-grid">
         {/* Left: Line Items List */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        <div className="cart-items-column">
           {items.map((item) => {
             const isMaxStock = item.quantity >= item.stock_available;
 
             return (
               <div
                 key={item.id}
-                className="glass-card"
-                style={{
-                  padding: '1.25rem',
-                  display: 'flex',
-                  gap: '1.25rem',
-                  alignItems: 'center',
-                  flexWrap: 'wrap'
-                }}
+                className="glass-card cart-item-card"
               >
                 {/* Product Thumbnail */}
-                <Link to={`/products/${item.product.slug}`} style={{ flexShrink: 0 }}>
+                <Link to={`/products/${item.product.slug}`} className="cart-item-thumb-link">
                   <img
                     src={item.product.primary_image}
                     alt={item.product.name}
-                    style={{
-                      width: '90px',
-                      height: '90px',
-                      objectFit: 'cover',
-                      borderRadius: 'var(--radius-md)',
-                      backgroundColor: 'var(--bg-surface)'
-                    }}
+                    className="cart-item-thumb-img"
                   />
                 </Link>
 
                 {/* Details */}
-                <div style={{ flex: 1, minWidth: '180px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                <div className="cart-item-details">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem', flexWrap: 'wrap' }}>
                     <span className="badge badge-info" style={{ fontSize: '0.68rem', padding: '0.1rem 0.45rem' }}>
                       {item.product.brand_name || 'Brand'}
                     </span>
@@ -223,22 +203,22 @@ const Cart = () => {
                   </div>
 
                   <Link to={`/products/${item.product.slug}`}>
-                    <h3 style={{ fontSize: '1.05rem', fontWeight: '700', marginBottom: '0.3rem', lineHeight: '1.3' }}>
+                    <h3 className="cart-item-name">
                       {item.product.name}
                     </h3>
                   </Link>
 
                   {/* Selected Color & Size Attributes */}
                   {(item.color_name || item.size) && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0.2rem 0 0.45rem', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', margin: '0.2rem 0 0.45rem', flexWrap: 'wrap' }}>
                       {item.color_name && (
                         <span style={{
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: '0.35rem',
-                          fontSize: '0.76rem',
+                          fontSize: '0.74rem',
                           backgroundColor: 'var(--bg-surface)',
-                          padding: '0.15rem 0.5rem',
+                          padding: '0.12rem 0.45rem',
                           borderRadius: 'var(--radius-sm)',
                           border: '1px solid var(--border-color)'
                         }}>
@@ -254,21 +234,21 @@ const Cart = () => {
                       )}
                       {item.size && (
                         <span style={{
-                          fontSize: '0.76rem',
+                          fontSize: '0.74rem',
                           backgroundColor: 'var(--bg-surface)',
-                          padding: '0.15rem 0.5rem',
+                          padding: '0.12rem 0.45rem',
                           borderRadius: 'var(--radius-sm)',
                           border: '1px solid var(--border-color)',
                           color: 'var(--text-secondary)'
                         }}>
-                          Size: <strong style={{ color: '#ffffff' }}>{item.size}</strong>
+                          Size: <strong style={{ color: 'var(--text-primary)' }}>{item.size}</strong>
                         </span>
                       )}
                     </div>
                   )}
 
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.6rem' }}>
-                    <span style={{ fontSize: '1.1rem', fontWeight: '800', color: '#ffffff' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-primary)' }}>
                       ₹{item.unit_price}
                     </span>
                     {item.has_discount && (
@@ -280,7 +260,7 @@ const Cart = () => {
 
                   {/* Stock Limit Notice */}
                   {isMaxStock && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--accent-amber)', fontSize: '0.75rem', marginTop: '0.4rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--accent-amber)', fontSize: '0.72rem', marginTop: '0.3rem' }}>
                       <AlertTriangle size={13} />
                       <span>Max available stock reached ({item.stock_available} units)</span>
                     </div>
@@ -288,47 +268,39 @@ const Cart = () => {
                 </div>
 
                 {/* Quantity Controls & Line Total */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                <div className="cart-item-actions-row">
                   {/* Quantity Stepper */}
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    backgroundColor: 'var(--bg-surface)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: 'var(--radius-md)',
-                    overflow: 'hidden'
-                  }}>
+                  <div className="cart-stepper-wrap">
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      style={{ padding: '0.4rem 0.75rem', color: '#ffffff', background: 'none' }}
+                      className="cart-stepper-btn"
                       title="Decrease quantity"
                     >
-                      <Minus size={14} />
+                      <Minus size={13} />
                     </button>
-                    <span style={{ padding: '0.4rem 0.6rem', fontWeight: '700', fontSize: '0.85rem', minWidth: '28px', textAlign: 'center' }}>
+                    <span className="cart-stepper-val">
                       {item.quantity}
                     </span>
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity + 1)}
                       disabled={isMaxStock}
+                      className="cart-stepper-btn"
                       style={{
-                        padding: '0.4rem 0.75rem',
-                        color: isMaxStock ? 'var(--text-muted)' : '#ffffff',
-                        background: 'none',
+                        color: isMaxStock ? 'var(--text-muted)' : 'var(--text-primary)',
                         cursor: isMaxStock ? 'not-allowed' : 'pointer'
                       }}
                       title="Increase quantity"
                     >
-                      <Plus size={14} />
+                      <Plus size={13} />
                     </button>
                   </div>
 
                   {/* Item Total */}
-                  <div style={{ textAlign: 'right', minWidth: '80px' }}>
-                    <div style={{ fontSize: '1.15rem', fontWeight: '800', color: 'var(--text-primary)' }}>
+                  <div className="cart-item-total-col">
+                    <div style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--text-primary)' }}>
                       ₹{parseFloat(item.total_price).toFixed(2)}
                     </div>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
                       Line Total
                     </div>
                   </div>
@@ -336,20 +308,10 @@ const Cart = () => {
                   {/* Delete Button */}
                   <button
                     onClick={() => setItemToRemove(item)}
-                    style={{
-                      background: 'none',
-                      color: 'var(--text-muted)',
-                      padding: '0.4rem',
-                      borderRadius: 'var(--radius-sm)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      transition: 'color var(--transition-fast)'
-                    }}
-                    onMouseOver={(e) => { e.currentTarget.style.color = 'var(--accent-rose)'; }}
-                    onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; }}
+                    className="cart-item-remove-btn"
                     title="Remove item"
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={17} />
                   </button>
                 </div>
               </div>
@@ -357,16 +319,16 @@ const Cart = () => {
           })}
 
           <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '0.5rem' }}>
-            <Link to="/products" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-primary)', fontSize: '0.88rem', fontWeight: '600' }}>
+            <Link to="/products" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-orange)', fontSize: '0.88rem', fontWeight: '700' }}>
               <ArrowLeft size={16} /> Continue Shopping
             </Link>
           </div>
         </div>
 
         {/* Right: Order Summary */}
-        <div style={{ position: 'sticky', top: '90px' }}>
-          <div className="glass-card" style={{ padding: '2rem' }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1.25rem', letterSpacing: '-0.01em' }}>
+        <div className="cart-summary-wrapper">
+          <div className="glass-card" style={{ padding: '1.75rem 1.5rem' }}>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1.25rem', letterSpacing: '-0.01em', color: 'var(--text-primary)' }}>
               Order Summary
             </h3>
 
@@ -416,16 +378,16 @@ const Cart = () => {
                 justifyContent: 'space-between',
                 alignItems: 'baseline'
               }}>
-                <span style={{ fontSize: '1.1rem', fontWeight: '800' }}>Grand Total</span>
-                <span style={{ fontSize: '1.6rem', fontWeight: '800', color: '#ffffff' }} className="gradient-text">
+                <span style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--text-primary)' }}>Grand Total</span>
+                <span style={{ fontSize: '1.6rem', fontWeight: '800', color: 'var(--accent-orange)' }} className="gradient-text">
                   ₹{grandTotal}
                 </span>
               </div>
             </div>
 
             {/* Coupon Code Input */}
-            <form onSubmit={handleApplyCoupon} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
-              <div style={{ position: 'relative', flex: 1 }}>
+            <form onSubmit={handleApplyCoupon} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+              <div style={{ position: 'relative', flex: 1, minWidth: '160px' }}>
                 <input
                   type="text"
                   value={couponCode}
@@ -435,11 +397,12 @@ const Cart = () => {
                     width: '100%',
                     padding: '0.65rem 0.75rem 0.65rem 2.2rem',
                     borderRadius: 'var(--radius-md)',
-                    backgroundColor: 'var(--bg-surface)',
+                    backgroundColor: '#ffffff',
                     border: '1px solid var(--border-color)',
-                    color: '#ffffff',
+                    color: 'var(--text-primary)',
                     fontSize: '0.85rem',
-                    outline: 'none'
+                    outline: 'none',
+                    boxSizing: 'border-box'
                   }}
                 />
                 <Tag size={15} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
@@ -459,19 +422,202 @@ const Cart = () => {
             <button
               onClick={() => navigate('/checkout')}
               className="btn btn-primary"
-              style={{ width: '100%', padding: '0.9rem', fontSize: '1rem', marginBottom: '1.25rem' }}
+              style={{ width: '100%', padding: '0.9rem', fontSize: '1rem', marginBottom: '1.25rem', fontWeight: '700' }}
             >
               Proceed to Checkout <ArrowRight size={18} />
             </button>
 
             {/* Trust Guarantee */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--text-muted)', fontSize: '0.78rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--text-muted)', fontSize: '0.78rem', textAlign: 'center' }}>
               <ShieldCheck size={16} color="var(--accent-emerald)" />
               <span>256-Bit Bank Grade SSL Encrypted Checkout</span>
             </div>
           </div>
         </div>
       </div>
+
+      <style>{`
+        .cart-page-wrapper {
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
+        }
+
+        .cart-header-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 1rem;
+          margin-bottom: 2rem;
+        }
+
+        .cart-main-title {
+          font-size: 2.1rem;
+          font-weight: 800;
+          letter-spacing: -0.02em;
+          margin: 0;
+          color: var(--text-primary);
+        }
+
+        .cart-main-grid {
+          display: grid;
+          grid-template-columns: 1fr 380px;
+          gap: 2rem;
+          align-items: start;
+          width: 100%;
+          box-sizing: border-box;
+        }
+
+        .cart-items-column {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          min-width: 0;
+        }
+
+        .cart-item-card {
+          padding: 1.25rem;
+          display: flex;
+          gap: 1.25rem;
+          align-items: center;
+          position: relative;
+          box-sizing: border-box;
+          width: 100%;
+        }
+
+        .cart-item-thumb-link {
+          flex-shrink: 0;
+        }
+
+        .cart-item-thumb-img {
+          width: 90px;
+          height: 90px;
+          object-fit: cover;
+          border-radius: var(--radius-md);
+          background-color: var(--bg-surface);
+          border: 1px solid var(--border-color);
+        }
+
+        .cart-item-details {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .cart-item-name {
+          font-size: 1.05rem;
+          font-weight: 700;
+          margin-bottom: 0.25rem;
+          line-height: 1.3;
+          color: var(--text-primary);
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .cart-item-actions-row {
+          display: flex;
+          align-items: center;
+          gap: 1.25rem;
+          flex-shrink: 0;
+        }
+
+        .cart-stepper-wrap {
+          display: flex;
+          align-items: center;
+          background-color: #fafaf9;
+          border: 1px solid var(--border-color);
+          border-radius: var(--radius-md);
+          overflow: hidden;
+        }
+
+        .cart-stepper-btn {
+          padding: 0.4rem 0.7rem;
+          color: var(--text-primary);
+          background: none;
+          border: none;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .cart-stepper-val {
+          padding: 0.4rem 0.5rem;
+          font-weight: 700;
+          font-size: 0.85rem;
+          min-width: 26px;
+          text-align: center;
+          color: var(--text-primary);
+        }
+
+        .cart-item-total-col {
+          text-align: right;
+          min-width: 75px;
+        }
+
+        .cart-item-remove-btn {
+          background: none;
+          color: var(--text-muted);
+          padding: 0.4rem;
+          border-radius: var(--radius-sm);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: color var(--transition-fast);
+        }
+
+        .cart-item-remove-btn:hover {
+          color: var(--accent-rose);
+        }
+
+        .cart-summary-wrapper {
+          position: sticky;
+          top: 90px;
+          min-width: 0;
+        }
+
+        /* Mobile App View Rules */
+        @media (max-width: 860px) {
+          .cart-main-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+          }
+
+          .cart-summary-wrapper {
+            position: static;
+          }
+
+          .cart-main-title {
+            font-size: 1.6rem;
+          }
+
+          .cart-item-card {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 0.85rem;
+            padding: 1rem;
+          }
+
+          .cart-item-thumb-img {
+            width: 80px;
+            height: 80px;
+          }
+
+          .cart-item-actions-row {
+            grid-column: span 2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid var(--border-color);
+            padding-top: 0.75rem;
+            margin-top: 0.35rem;
+            gap: 0.75rem;
+          }
+        }
+      `}</style>
 
       {/* Remove from Cart / Move to Wishlist Confirmation Modal */}
       {itemToRemove && (

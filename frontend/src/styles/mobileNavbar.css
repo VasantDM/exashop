@@ -1,0 +1,245 @@
+/* =========================================================
+   Mobile Meniscus Animated Navbar
+   Faithfully crafted to match "mobile navbar.mp4"
+   ========================================================= */
+
+:root {
+  --nav-bubble-size: 52px;
+  --nav-bar-height: 64px;
+  --nav-active-color: #ea580c;
+  --nav-accent-glow: rgba(245, 158, 11, 0.45);
+  --nav-bg: rgba(255, 255, 255, 0.95);
+  --nav-border: #e7e5e4;
+  --nav-text-muted: #64748b;
+}
+
+/* Base Wrapper - Only visible on Mobile (< 768px) */
+.meniscus-navbar-root {
+  display: none;
+  position: fixed;
+  bottom: max(12px, env(safe-area-inset-bottom, 12px));
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 100vw;
+  padding: 0 12px;
+  box-sizing: border-box;
+  z-index: 9999;
+  pointer-events: none; /* children enable pointer events */
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .meniscus-navbar-root {
+    display: flex;
+  }
+}
+
+/* Floating Navigation Bar Container */
+.meniscus-nav-container {
+  pointer-events: auto;
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  height: var(--nav-bar-height);
+  background: var(--nav-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--nav-border);
+  border-radius: 30px;
+  box-shadow: 
+    0 12px 35px -4px rgba(0, 0, 0, 0.08),
+    0 4px 12px rgba(245, 158, 11, 0.08),
+    inset 0 1px 1px rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 6px;
+  user-select: none;
+  transition: all 0.3s ease;
+}
+
+/* Ambient Glow Spotlight beneath active tab matching mp4 */
+.meniscus-ambient-glow {
+  position: absolute;
+  bottom: -18px;
+  width: 90px;
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(245, 158, 11, 0.55) 0%, rgba(234, 88, 12, 0.25) 50%, transparent 80%);
+  filter: blur(10px);
+  pointer-events: none;
+  transition: left 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: translateX(-50%);
+  opacity: 0.85;
+}
+
+/* Moving Floating Circle Indicator matching mp4 */
+.meniscus-floating-bubble {
+  position: absolute;
+  top: -16px;
+  width: var(--nav-bubble-size);
+  height: var(--nav-bubble-size);
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 45%, #ea580c 100%);
+  box-shadow: 
+    0 8px 22px rgba(234, 88, 12, 0.45),
+    0 2px 8px rgba(245, 158, 11, 0.35),
+    inset 0 2px 2px rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  pointer-events: none;
+  z-index: 10;
+  transition: left 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.25s ease;
+  transform: translateX(-50%);
+  animation: bubbleBreathe 3s infinite ease-in-out;
+}
+
+@keyframes bubbleBreathe {
+  0%, 100% {
+    box-shadow: 
+      0 8px 22px rgba(234, 88, 12, 0.45),
+      0 2px 8px rgba(245, 158, 11, 0.35),
+      inset 0 2px 2px rgba(255, 255, 255, 0.6);
+  }
+  50% {
+    box-shadow: 
+      0 12px 28px rgba(234, 88, 12, 0.6),
+      0 4px 12px rgba(245, 158, 11, 0.5),
+      inset 0 2px 2px rgba(255, 255, 255, 0.8);
+  }
+}
+
+/* Ripple wave around the active bubble */
+.meniscus-bubble-ripple {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(245, 158, 11, 0.4);
+  animation: bubblePulse 2s infinite ease-out;
+}
+
+@keyframes bubblePulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+}
+
+/* The Individual Nav Tab Item */
+.meniscus-nav-tab {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: var(--nav-text-muted);
+  position: relative;
+  z-index: 5;
+  cursor: pointer;
+  outline: none;
+  background: none;
+  border: none;
+  padding: 0;
+  transition: color 0.25s ease;
+}
+
+/* Icon Wrap */
+.meniscus-icon-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+}
+
+/* Inactive Icon */
+.meniscus-nav-tab:not(.active) .meniscus-icon-box {
+  opacity: 0.75;
+}
+
+.meniscus-nav-tab:not(.active):hover .meniscus-icon-box {
+  opacity: 1;
+  color: var(--text-primary);
+  transform: translateY(-2px);
+}
+
+/* Active State: Hide standard icon inside the tab because it's rendered inside the elevated bubble */
+.meniscus-nav-tab.active .meniscus-icon-box {
+  opacity: 0;
+  transform: translateY(-16px) scale(0.5);
+  pointer-events: none;
+}
+
+/* Active Item Label that fades & slides in under the elevated bubble */
+.meniscus-tab-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  margin-top: 1px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  color: var(--nav-text-muted);
+  opacity: 0.8;
+}
+
+.meniscus-nav-tab.active .meniscus-tab-label {
+  color: var(--nav-active-color);
+  font-weight: 800;
+  opacity: 1;
+  transform: translateY(4px);
+}
+
+/* Badge for Cart & Wishlist */
+.meniscus-badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  color: #ffffff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  animation: badgePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 12;
+}
+
+@keyframes badgePop {
+  0% { transform: scale(0.4); }
+  100% { transform: scale(1); }
+}
+
+/* Floating Active Icon inside the elevated bubble */
+.meniscus-active-icon-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  animation: activeIconPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes activeIconPop {
+  0% {
+    transform: scale(0.6) rotate(-15deg);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}

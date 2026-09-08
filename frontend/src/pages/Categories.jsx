@@ -53,7 +53,7 @@ const Categories = () => {
       </div>
 
       {isLoading ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
+        <div className="categories-grid">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="glass-card" style={{ height: '240px', opacity: 0.5, animation: 'pulse 1.5s infinite ease-in-out' }}></div>
           ))}
@@ -67,7 +67,7 @@ const Categories = () => {
           </p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2rem' }}>
+        <div className="categories-grid">
           {categories.map((cat) => {
             const IconComponent = iconMap[cat.icon] || Layers;
 
@@ -191,6 +191,21 @@ const Categories = () => {
           })}
         </div>
       )}
+
+      <style>{`
+        .categories-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+          gap: 1.5rem;
+        }
+
+        @media (max-width: 640px) {
+          .categories-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+          }
+        }
+      `}</style>
     </div>
   );
 };
