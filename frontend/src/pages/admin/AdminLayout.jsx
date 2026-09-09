@@ -24,7 +24,7 @@ const AdminLayout = () => {
     location.pathname.startsWith('/admin/settings') || 
     location.pathname.startsWith('/admin/customers');
 
-  const [isSettingsOpen, setIsSettingsOpen] = useState(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const mainNavItems = [
     { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -40,7 +40,7 @@ const AdminLayout = () => {
   ];
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc', color: 'var(--text-primary)' }}>
+    <div style={{ display: 'flex', height: '100vh', maxHeight: '100vh', overflow: 'hidden', backgroundColor: '#f8fafc', color: 'var(--text-primary)' }}>
       <aside style={{
         width: '260px',
         backgroundColor: '#ffffff',
@@ -48,9 +48,8 @@ const AdminLayout = () => {
         display: 'flex',
         flexDirection: 'column',
         flexShrink: 0,
-        position: 'sticky',
-        top: 0,
-        height: '100vh',
+        height: '100%',
+        overflow: 'hidden',
         zIndex: 100,
         boxShadow: '1px 0 4px rgba(0, 0, 0, 0.03)'
       }}>
@@ -253,7 +252,7 @@ const AdminLayout = () => {
         </div>
       </aside>
 
-      <main style={{ flex: 1, minWidth: 0, padding: '2rem 2.5rem', overflowY: 'auto' }}>
+      <main style={{ flex: 1, minWidth: 0, height: '100%', padding: '2rem 2.5rem', overflowY: 'auto' }}>
         <Outlet />
       </main>
     </div>

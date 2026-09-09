@@ -176,8 +176,28 @@ class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_object(self):
         lookup_val = self.kwargs.get(self.lookup_field)
-        if lookup_val and lookup_val.isdigit():
-            self.lookup_field = 'pk'
+        if not lookup_val:
+            return super().get_object()
+
+        if lookup_val.isdigit():
+            obj = self.get_queryset().filter(pk=int(lookup_val)).first()
+            if obj:
+                return obj
+
+        # 1. Exact slug match
+        obj = self.get_queryset().filter(slug__iexact=lookup_val).first()
+        if obj:
+            return obj
+
+        # 2. Case-insensitive slug contains or name match (e.g. 'shirt' matching 't-shirt')
+        obj = self.get_queryset().filter(
+            Q(slug__icontains=lookup_val) |
+            Q(name__iexact=lookup_val) |
+            Q(name__icontains=lookup_val)
+        ).first()
+        if obj:
+            return obj
+
         return super().get_object()
 
 

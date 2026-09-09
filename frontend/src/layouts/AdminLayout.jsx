@@ -28,7 +28,7 @@ const AdminLayout = () => {
     location.pathname.startsWith('/admin/settings') || 
     location.pathname.startsWith('/admin/customers');
 
-  const [isSettingsOpen, setIsSettingsOpen] = useState(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const mainNavItems = [
     { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -52,7 +52,7 @@ const AdminLayout = () => {
   ];
 
   return (
-    <div className="admin-root-layout" style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc', color: 'var(--text-primary)', flexDirection: 'column' }}>
+    <div className="admin-root-layout">
       
       {/* Mobile Top App Bar for Admin */}
       <header className="admin-mobile-header">
@@ -117,7 +117,7 @@ const AdminLayout = () => {
       </header>
 
       {/* Main Row Container */}
-      <div style={{ display: 'flex', flex: 1, position: 'relative' }}>
+      <div className="admin-body-container">
         
         {/* Mobile Backdrop Overlay */}
         {mobileMenuOpen && (
@@ -369,6 +369,25 @@ const AdminLayout = () => {
       </nav>
 
       <style>{`
+        .admin-root-layout {
+          display: flex;
+          flex-direction: column;
+          height: 100vh;
+          max-height: 100vh;
+          overflow: hidden;
+          background-color: #f8fafc;
+          color: var(--text-primary);
+        }
+
+        .admin-body-container {
+          display: flex;
+          flex: 1;
+          height: 100%;
+          min-height: 0;
+          overflow: hidden;
+          position: relative;
+        }
+
         .admin-sidebar {
           width: 260px;
           background-color: #ffffff;
@@ -376,9 +395,8 @@ const AdminLayout = () => {
           display: flex;
           flex-direction: column;
           flex-shrink: 0;
-          position: sticky;
-          top: 0;
-          height: 100vh;
+          height: 100%;
+          overflow: hidden;
           z-index: 100;
           box-shadow: 1px 0 4px rgba(0, 0, 0, 0.03);
           transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -445,11 +463,25 @@ const AdminLayout = () => {
         .admin-main-content {
           flex: 1;
           min-width: 0;
-          padding: 2rem 2.5rem;
+          height: 100%;
           overflow-y: auto;
+          padding: 2rem 2.5rem;
+          -webkit-overflow-scrolling: touch;
         }
 
         @media (max-width: 768px) {
+          .admin-root-layout {
+            height: auto;
+            min-height: 100vh;
+            overflow: visible;
+          }
+
+          .admin-body-container {
+            height: auto;
+            overflow: visible;
+            display: block;
+          }
+
           .admin-mobile-header {
             display: flex;
           }
@@ -482,7 +514,9 @@ const AdminLayout = () => {
           }
 
           .admin-main-content {
-            padding: 1.25rem 1rem 5rem 1rem;
+            height: auto;
+            overflow: visible;
+            padding: 1.25rem 1rem 5.5rem 1rem;
           }
         }
       `}</style>

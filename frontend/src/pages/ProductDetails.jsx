@@ -101,56 +101,7 @@ const ProductDetails = () => {
 
   const isBuyable = product?.has_variants ? (currentVariant && currentVariant.stock > 0) : product?.in_stock;
 
-  const handleAddToCart = async () => {
-    if (!product) return;
-    if (product.has_variants && (!currentVariant || currentVariant.stock <= 0)) {
-      return;
-    }
-    if (!product.has_variants && product.stock <= 0) return;
-
-    setIsAdding(true);
-    try {
-      await addToCart(product.id, quantity, { variantId: currentVariant?.id });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsAdding(false);
-    }
-  };
-
-  const handleBuyNow = async () => {
-    if (!product || !isBuyable) return;
-    try {
-      await addToCart(product.id, quantity, { variantId: currentVariant?.id });
-      navigate('/cart');
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div style={{ textAlign: 'center', padding: '6rem 0' }}>
-        <div style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>Loading product details...</div>
-      </div>
-    );
-  }
-
-  if (error || !product) {
-    return (
-      <div className="glass-card" style={{ maxWidth: '560px', margin: '4rem auto', padding: '3rem 2rem', textAlign: 'center' }}>
-        <h2 style={{ fontSize: '1.6rem', fontWeight: '800', marginBottom: '0.75rem', color: 'var(--text-primary)' }}>Product Not Found</h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.75rem' }}>
-          {error || 'The requested product could not be located in our catalog.'}
-        </p>
-        <Link to="/products" className="btn btn-primary">
-          <ArrowLeft size={16} /> Back to Catalog
-        </Link>
-      </div>
-    );
-  }
-
-  // Dynamically compute images filtered by the active selected color
+  // Dynamically compute images filtered by the active selected color (always runs at top level)
   const galleryImages = useMemo(() => {
     if (!product) return [];
     const allImages = (product.images && product.images.length > 0)
@@ -195,7 +146,56 @@ const ProductDetails = () => {
     }
   };
 
-  const inWish = isInWishlist(product.id);
+  const handleAddToCart = async () => {
+    if (!product) return;
+    if (product.has_variants && (!currentVariant || currentVariant.stock <= 0)) {
+      return;
+    }
+    if (!product.has_variants && product.stock <= 0) return;
+
+    setIsAdding(true);
+    try {
+      await addToCart(product.id, quantity, { variantId: currentVariant?.id });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
+  const handleBuyNow = async () => {
+    if (!product || !isBuyable) return;
+    try {
+      await addToCart(product.id, quantity, { variantId: currentVariant?.id });
+      navigate('/cart');
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const inWish = product ? isInWishlist(product.id) : false;
+
+  if (isLoading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '6rem 0' }}>
+        <div style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>Loading product details...</div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="glass-card" style={{ maxWidth: '560px', margin: '4rem auto', padding: '3rem 2rem', textAlign: 'center' }}>
+        <h2 style={{ fontSize: '1.6rem', fontWeight: '800', marginBottom: '0.75rem', color: 'var(--text-primary)' }}>Product Not Found</h2>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.75rem' }}>
+          {error || 'The requested product could not be located in our catalog.'}
+        </p>
+        <Link to="/products" className="btn btn-primary">
+          <ArrowLeft size={16} /> Back to Catalog
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="product-details-page">
