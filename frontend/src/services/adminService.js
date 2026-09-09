@@ -36,6 +36,21 @@ export const deleteAdminProductVariant = async (variantId) => {
   return response.data;
 };
 
+export const addAdminProductImage = async (productId, imageData) => {
+  const response = await apiClient.post(`/admin/products/${productId}/images/`, imageData);
+  return response.data;
+};
+
+export const deleteAdminProductImage = async (imageId) => {
+  const response = await apiClient.delete(`/admin/products/images/${imageId}/`);
+  return response.data;
+};
+
+export const setAdminProductImagePrimary = async (imageId) => {
+  const response = await apiClient.patch(`/admin/products/images/${imageId}/primary/`);
+  return response.data;
+};
+
 // 2. Categories Management
 export const getAdminCategories = async () => {
   const response = await apiClient.get('/admin/categories/');
@@ -120,6 +135,9 @@ export default {
   deleteAdminProduct,
   addAdminProductVariant,
   deleteAdminProductVariant,
+  addAdminProductImage,
+  deleteAdminProductImage,
+  setAdminProductImagePrimary,
   getAdminCategories,
   createAdminCategory,
   updateAdminCategory,

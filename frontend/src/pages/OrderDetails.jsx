@@ -19,7 +19,7 @@ import {
   Zap,
   Lock
 } from 'lucide-react';
-import { getOrderDetails, cancelOrder } from '../services/orderService';
+import { getOrderDetails, cancelOrder, getCachedOrderDetails } from '../services/orderService';
 import { getOrderPayments, createPaymentIntent } from '../services/paymentService';
 import { openRazorpayCheckout } from '../utils/razorpay';
 import PaymentModal from '../components/PaymentModal';
@@ -45,9 +45,10 @@ const OrderDetails = () => {
   const { id: orderNumber } = useParams();
   const navigate = useNavigate();
 
-  const [order, setOrder] = useState(null);
+  const cachedOrder = getCachedOrderDetails(orderNumber);
+  const [order, setOrder] = useState(cachedOrder || null);
   const [payments, setPayments] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!cachedOrder);
   const [error, setError] = useState('');
   const [isCancelling, setIsCancelling] = useState(false);
   const [cancelModal, setCancelModal] = useState(false);
@@ -58,7 +59,9 @@ const OrderDetails = () => {
   const [isInitiatingPayment, setIsInitiatingPayment] = useState(false);
 
   const fetchOrderAndPayments = async () => {
-    setIsLoading(true);
+    if (!order) {
+      setIsLoading(true);
+    }
     setError('');
     try {
       const data = await getOrderDetails(orderNumber);
@@ -72,7 +75,9 @@ const OrderDetails = () => {
       }
     } catch (err) {
       console.error('Failed to load order details:', err);
-      setError('Order not found or access unauthorized.');
+      if (!order) {
+        setError('Order not found or access unauthorized.');
+      }
     } finally {
       setIsLoading(false);
     }

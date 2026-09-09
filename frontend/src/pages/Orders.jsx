@@ -12,7 +12,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { getOrders } from '../services/orderService';
+import { getOrders, getCachedOrders } from '../services/orderService';
 
 const statusConfig = {
   pending: { label: 'Pending Confirmation', color: 'var(--accent-amber)', bg: 'rgba(245, 158, 11, 0.15)', icon: Clock },
@@ -24,27 +24,40 @@ const statusConfig = {
 
 const Orders = () => {
   const { isAuthenticated } = useAuth();
-  const [orders, setOrders] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState('all');
-  const [isLoading, setIsLoading] = useState(true);
+  const cached = getCachedOrders(selectedStatus !== 'all' ? { status: selectedStatus } : {});
+  const initialOrders = Array.isArray(cached) ? cached : [];
+
+  const [orders, setOrders] = useState(initialOrders);
+  const [isLoading, setIsLoading] = useState(initialOrders.length === 0);
 
   useEffect(() => {
     if (!isAuthenticated) return;
+    let isMounted = true;
 
     const fetchOrders = async () => {
-      setIsLoading(true);
+      if (orders.length === 0) {
+        setIsLoading(true);
+      }
       try {
         const params = selectedStatus !== 'all' ? { status: selectedStatus } : {};
         const data = await getOrders(params);
+        if (!isMounted) return;
         setOrders(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Failed to load orders:', err);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchOrders();
+
+    return () => {
+      isMounted = false;
+    };
   }, [isAuthenticated, selectedStatus]);
 
   if (!isAuthenticated) {

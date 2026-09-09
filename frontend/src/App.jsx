@@ -31,7 +31,14 @@ import AdminCustomers from './pages/admin/AdminCustomers';
 import AdminInventory from './pages/admin/AdminInventory';
 import AdminSettings from './pages/admin/AdminSettings';
 
+import { prefetchCatalogMetadata } from './services/catalogService';
+
 function App() {
+  React.useEffect(() => {
+    // Pre-warm memory cache for instant page switches
+    prefetchCatalogMetadata();
+  }, []);
+
   return (
     <Router>
       <ScrollToTop />

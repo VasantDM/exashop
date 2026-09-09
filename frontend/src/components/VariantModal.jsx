@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { X, Check, ShoppingCart, Minus, Plus, ExternalLink, Sparkles } from 'lucide-react';
 import { useCart } from '../context/CartContext';
@@ -19,6 +19,17 @@ const VariantModal = ({ isOpen, onClose, product }) => {
       setQuantity(1);
     }
   }, [product]);
+
+  const currentColorImage = useMemo(() => {
+    if (!product) return '';
+    if (selectedColor) {
+      const matchVariant = product.variants?.find(v => v.color_name === selectedColor && v.image_url);
+      if (matchVariant?.image_url) return matchVariant.image_url;
+      const matchImage = product.images?.find(img => img.color_name && img.color_name.trim().toLowerCase() === selectedColor.trim().toLowerCase());
+      if (matchImage?.display_image) return matchImage.display_image;
+    }
+    return product.primary_image || 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=300&auto=format&fit=crop&q=80';
+  }, [product, selectedColor]);
 
   if (!isOpen || !product) return null;
 
@@ -123,7 +134,7 @@ const VariantModal = ({ isOpen, onClose, product }) => {
         {/* Product Header Row */}
         <div style={{ display: 'flex', gap: '1.25rem', marginBottom: '1.25rem', alignItems: 'center' }}>
           <img
-            src={product.primary_image || 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=300&auto=format&fit=crop&q=80'}
+            src={currentColorImage}
             alt={product.name}
             style={{
               width: '80px',

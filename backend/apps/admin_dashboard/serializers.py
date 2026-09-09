@@ -58,7 +58,7 @@ class AdminProductVariantSerializer(serializers.ModelSerializer):
 
 
 class AdminProductImageSerializer(serializers.ModelSerializer):
-    """Admin Serializer for Product Images."""
+    """Admin Serializer for Product Images with color variant association."""
     display_image = serializers.ReadOnlyField()
 
     class Meta:
@@ -68,6 +68,7 @@ class AdminProductImageSerializer(serializers.ModelSerializer):
             'product',
             'image',
             'image_url',
+            'color_name',
             'display_image',
             'alt_text',
             'is_primary',
@@ -77,7 +78,7 @@ class AdminProductImageSerializer(serializers.ModelSerializer):
 
 
 class AdminProductSerializer(serializers.ModelSerializer):
-    """Comprehensive Admin Product Serializer with variants, images, category and brand info."""
+    """Comprehensive Admin Product Serializer with multi-images, color-wise galleries, variants, category and brand info."""
     category_name = serializers.CharField(source='category.name', read_only=True)
     brand_name = serializers.CharField(source='brand.name', read_only=True)
     variants = AdminProductVariantSerializer(many=True, read_only=True)
@@ -88,8 +89,13 @@ class AdminProductSerializer(serializers.ModelSerializer):
     variants_count = serializers.SerializerMethodField()
     total_stock = serializers.SerializerMethodField()
 
-    # Inputs for quick creation with initial image and variants
+    # Inputs for quick creation / update with multiple color-specific images and variants
     initial_image_url = serializers.URLField(write_only=True, required=False, allow_blank=True)
+    initial_images = serializers.ListField(
+        child=serializers.DictField(),
+        write_only=True,
+        required=False
+    )
     initial_variants = serializers.ListField(
         child=serializers.DictField(),
         write_only=True,
@@ -124,6 +130,7 @@ class AdminProductSerializer(serializers.ModelSerializer):
             'variants',
             'images',
             'initial_image_url',
+            'initial_images',
             'initial_variants',
             'created_at',
             'updated_at',
@@ -139,12 +146,25 @@ class AdminProductSerializer(serializers.ModelSerializer):
         return obj.stock
 
     def create(self, validated_data):
+        initial_images = validated_data.pop('initial_images', None)
         initial_image_url = validated_data.pop('initial_image_url', None)
         initial_variants = validated_data.pop('initial_variants', None)
 
         product = Product.objects.create(**validated_data)
 
-        if initial_image_url:
+        # Handle multiple images with optional color association
+        if initial_images and isinstance(initial_images, list):
+            for idx, img_data in enumerate(initial_images):
+                url = img_data.get('image_url') or img_data.get('url') or img_data.get('display_image')
+                if url:
+                    ProductImage.objects.create(
+                        product=product,
+                        image_url=url,
+                        color_name=img_data.get('color_name', '').strip(),
+                        alt_text=img_data.get('alt_text', f"{product.name} Image {idx + 1}"),
+                        is_primary=bool(img_data.get('is_primary', idx == 0))
+                    )
+        elif initial_image_url:
             ProductImage.objects.create(
                 product=product,
                 image_url=initial_image_url,
@@ -152,22 +172,89 @@ class AdminProductSerializer(serializers.ModelSerializer):
                 is_primary=True
             )
 
+        # Handle variants
         if initial_variants and isinstance(initial_variants, list):
             for var_data in initial_variants:
                 sku = var_data.get('sku') or f"{product.sku}-{var_data.get('size', 'X')}-{var_data.get('color_name', 'C')[:3].upper()}"
+                
+                v_color = var_data.get('color_name', '').strip()
+                v_img = var_data.get('image_url')
+                if not v_img and v_color:
+                    matched_img = product.images.filter(color_name__iexact=v_color).first()
+                    if matched_img:
+                        v_img = matched_img.display_image
+
                 ProductVariant.objects.create(
                     product=product,
                     sku=sku,
-                    color_name=var_data.get('color_name', ''),
+                    color_name=v_color,
                     color_code=var_data.get('color_code', '#111827'),
                     size=var_data.get('size', ''),
                     stock=int(var_data.get('stock', 0)),
                     price_override=var_data.get('price_override'),
-                    image_url=var_data.get('image_url') or initial_image_url,
+                    image_url=v_img or initial_image_url or product.primary_image,
                     is_active=True
                 )
 
         return product
+
+    def update(self, instance, validated_data):
+        initial_images = validated_data.pop('initial_images', None)
+        initial_image_url = validated_data.pop('initial_image_url', None)
+        initial_variants = validated_data.pop('initial_variants', None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Update images if passed
+        if initial_images is not None and isinstance(initial_images, list):
+            instance.images.all().delete()
+            for idx, img_data in enumerate(initial_images):
+                url = img_data.get('image_url') or img_data.get('url') or img_data.get('display_image')
+                if url:
+                    ProductImage.objects.create(
+                        product=instance,
+                        image_url=url,
+                        color_name=img_data.get('color_name', '').strip(),
+                        alt_text=img_data.get('alt_text', f"{instance.name} Image {idx + 1}"),
+                        is_primary=bool(img_data.get('is_primary', idx == 0))
+                    )
+        elif initial_image_url:
+            if not instance.images.filter(image_url=initial_image_url).exists():
+                ProductImage.objects.create(
+                    product=instance,
+                    image_url=initial_image_url,
+                    alt_text=f"{instance.name} Photo",
+                    is_primary=True
+                )
+
+        # Update variants if passed
+        if initial_variants is not None and isinstance(initial_variants, list):
+            instance.variants.all().delete()
+            for var_data in initial_variants:
+                sku = var_data.get('sku') or f"{instance.sku}-{var_data.get('size', 'X')}-{var_data.get('color_name', 'C')[:3].upper()}"
+                
+                v_color = var_data.get('color_name', '').strip()
+                v_img = var_data.get('image_url')
+                if not v_img and v_color:
+                    matched_img = instance.images.filter(color_name__iexact=v_color).first()
+                    if matched_img:
+                        v_img = matched_img.display_image
+
+                ProductVariant.objects.create(
+                    product=instance,
+                    sku=sku,
+                    color_name=v_color,
+                    color_code=var_data.get('color_code', '#111827'),
+                    size=var_data.get('size', ''),
+                    stock=int(var_data.get('stock', 0)),
+                    price_override=var_data.get('price_override'),
+                    image_url=v_img or instance.primary_image,
+                    is_active=True
+                )
+
+        return instance
 
 
 class AdminOrderItemSerializer(serializers.ModelSerializer):

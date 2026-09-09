@@ -20,17 +20,32 @@ import {
   Check, 
   Send 
 } from 'lucide-react';
-import { getFeaturedProducts, getProducts, getCategories } from '../services/catalogService';
+import { 
+  getFeaturedProducts, 
+  getProducts, 
+  getCategories,
+  getCachedFeaturedProducts,
+  getCachedProducts,
+  getCachedCategories
+} from '../services/catalogService';
 import { useCart } from '../context/CartContext';
 import VariantModal from '../components/VariantModal';
 import HeroCarousel from '../components/HeroCarousel';
 
 const Home = () => {
-  const [featuredProducts, setFeaturedProducts] = useState([]);
-  const [allProducts, setAllProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const cachedFeatured = getCachedFeaturedProducts();
+  const cachedProds = getCachedProducts({ page_size: 12 });
+  const cachedCats = getCachedCategories();
+
+  const initialFeatured = Array.isArray(cachedFeatured) ? cachedFeatured : (cachedFeatured?.results || []);
+  const initialProducts = cachedProds?.results || (Array.isArray(cachedProds) ? cachedProds : []);
+  const initialCategories = Array.isArray(cachedCats) ? cachedCats : (cachedCats?.results || []);
+
+  const [featuredProducts, setFeaturedProducts] = useState(initialFeatured);
+  const [allProducts, setAllProducts] = useState(initialProducts);
+  const [categories, setCategories] = useState(initialCategories);
   const [selectedCategoryTab, setSelectedCategoryTab] = useState('all');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(initialProducts.length === 0 && initialFeatured.length === 0);
   const [addingProductId, setAddingProductId] = useState(null);
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
@@ -40,14 +55,21 @@ const Home = () => {
   const { addToCart, toggleWishlist, isInWishlist } = useCart();
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchHomeData = async () => {
-      setIsLoading(true);
+      // Only show full skeleton loader if we have zero cached items
+      if (allProducts.length === 0 && featuredProducts.length === 0) {
+        setIsLoading(true);
+      }
       try {
         const [featuredData, prodsData, catsData] = await Promise.allSettled([
           getFeaturedProducts(),
           getProducts({ page_size: 12 }),
           getCategories(),
         ]);
+
+        if (!isMounted) return;
 
         if (featuredData.status === 'fulfilled') {
           setFeaturedProducts(Array.isArray(featuredData.value) ? featuredData.value : (featuredData.value?.results || []));
@@ -61,11 +83,17 @@ const Home = () => {
       } catch (err) {
         console.error('Failed to load home page catalog:', err);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchHomeData();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleAddToCart = async (product, e) => {
@@ -378,37 +406,21 @@ const Home = () => {
               return (
                 <div
                   key={prod.id}
-                  className="glass-card"
-                  style={{
-                    padding: '1.15rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    position: 'relative',
-                    borderRadius: 'var(--radius-lg)'
-                  }}
+                  className="glass-card home-product-card"
                 >
                   {/* Top Image & Floating Badges */}
-                  <div style={{ position: 'relative', marginBottom: '0.85rem', overflow: 'hidden', borderRadius: 'var(--radius-md)' }}>
+                  <div className="home-product-img-wrap">
                     <Link to={`/products/${prod.slug}`} style={{ display: 'block' }}>
                       <img
                         src={prod.primary_image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=80'}
                         alt={prod.name}
-                        style={{
-                          width: '100%',
-                          height: '210px',
-                          objectFit: 'cover',
-                          borderRadius: 'var(--radius-md)',
-                          transition: 'transform 0.4s ease'
-                        }}
-                        onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.06)'; }}
-                        onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+                        className="home-product-img"
                       />
                     </Link>
 
                     {/* Stock status badge */}
                     {prod.stock <= 0 && (
-                      <span className="badge badge-danger" style={{ position: 'absolute', top: '10px', left: '10px', fontSize: '0.72rem' }}>
+                      <span className="badge badge-danger home-product-stock-badge">
                         Sold Out
                       </span>
                     )}
@@ -417,78 +429,51 @@ const Home = () => {
                     <button
                       type="button"
                       onClick={(e) => handleWishlistToggle(prod, e)}
-                      style={{
-                        position: 'absolute',
-                        top: '10px',
-                        right: '10px',
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '50%',
-                        backgroundColor: '#ffffff',
-                        border: '1px solid var(--border-color)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: isWishlisted ? 'var(--accent-rose)' : 'var(--text-secondary)',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
-                        cursor: 'pointer',
-                        transition: 'transform 0.2s ease'
-                      }}
+                      className="home-product-wishlist-btn"
                       title={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
                     >
-                      <Heart size={15} fill={isWishlisted ? 'var(--accent-rose)' : 'none'} />
+                      <Heart size={14} fill={isWishlisted ? 'var(--accent-rose)' : 'none'} />
                     </button>
                   </div>
 
                   {/* Body Content */}
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
-                      <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--accent-orange)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    <div className="home-product-meta">
+                      <span className="home-product-cat">
                         {prod.category?.name || 'General'}
                       </span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.78rem', fontWeight: '700', color: 'var(--text-primary)' }}>
-                        <Star size={13} fill="var(--accent-primary)" color="var(--accent-primary)" />
+                      <div className="home-product-rating">
+                        <Star size={12} fill="var(--accent-primary)" color="var(--accent-primary)" />
                         <span>{prod.average_rating || '5.0'}</span>
                       </div>
                     </div>
 
                     <Link to={`/products/${prod.slug}`} style={{ textDecoration: 'none' }}>
-                      <h3 style={{
-                        fontSize: '1rem',
-                        fontWeight: '700',
-                        color: 'var(--text-primary)',
-                        marginBottom: '0.4rem',
-                        lineHeight: '1.35',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                        height: '2.7rem'
-                      }}>
+                      <h3 className="home-product-title">
                         {prod.name}
                       </h3>
                     </Link>
 
                     {/* Apparel Variants Preview Pills */}
                     {prod.has_variants && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.65rem' }}>
+                      <div className="home-product-variants">
                         {prod.available_colors && prod.available_colors.slice(0, 3).map((c) => (
                           <span
                             key={c.name}
                             style={{
-                              width: '12px',
-                              height: '12px',
+                              width: '10px',
+                              height: '10px',
                               borderRadius: '50%',
                               backgroundColor: c.code || '#ea580c',
-                              border: '1.5px solid #ffffff',
+                              border: '1px solid #ffffff',
                               boxShadow: '0 0 0 1px #d6d3d1'
                             }}
                             title={c.name}
                           />
                         ))}
                         {prod.available_sizes && (
-                          <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginLeft: '0.2rem', fontWeight: '600' }}>
-                            {prod.available_sizes.slice(0, 3).join(', ')}{prod.available_sizes.length > 3 ? '...' : ''}
+                          <span style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginLeft: '0.15rem', fontWeight: '600' }}>
+                            {prod.available_sizes.slice(0, 2).join(', ')}{prod.available_sizes.length > 2 ? '...' : ''}
                           </span>
                         )}
                       </div>
@@ -496,52 +481,43 @@ const Home = () => {
                   </div>
 
                   {/* Card Bottom / Price & CTA */}
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    borderTop: '1px solid var(--border-color)',
-                    paddingTop: '0.75rem',
-                    marginTop: '0.5rem'
-                  }}>
+                  <div className="home-product-footer">
                     <div>
-                      <div style={{ fontSize: '1.15rem', fontWeight: '800', color: 'var(--text-primary)' }}>
+                      <div className="home-product-price">
                         ₹{parseFloat(prod.price || 0).toLocaleString('en-IN')}
                       </div>
                       {prod.compare_at_price && (
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textDecoration: 'line-through' }}>
+                        <div className="home-product-compare-price">
                           ₹{parseFloat(prod.compare_at_price).toLocaleString('en-IN')}
                         </div>
                       )}
                     </div>
 
-                    <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <div style={{ display: 'flex', gap: '0.3rem' }}>
                       <button
                         type="button"
                         onClick={(e) => handleAddToCart(prod, e)}
                         disabled={isAdding || prod.stock === 0}
-                        className="btn btn-primary"
-                        style={{ padding: '0.55rem 0.85rem', fontSize: '0.82rem', fontWeight: '700' }}
+                        className="btn btn-primary home-product-btn"
                         title="Add to cart"
                       >
                         {isAdding ? (
-                          'Adding...'
+                          '...'
                         ) : prod.stock === 0 ? (
-                          'Out of Stock'
+                          'Out'
                         ) : (
                           <>
-                            <ShoppingCart size={14} /> Add
+                            <ShoppingCart size={13} /> <span>Add</span>
                           </>
                         )}
                       </button>
 
                       <Link
                         to={`/products/${prod.slug}`}
-                        className="btn btn-outline"
-                        style={{ padding: '0.55rem 0.75rem', fontSize: '0.82rem' }}
+                        className="btn btn-outline home-product-details-btn"
                         title="View Product Specs"
                       >
-                        <ChevronRight size={15} />
+                        <ChevronRight size={14} />
                       </Link>
                     </div>
                   </div>
@@ -793,8 +769,148 @@ const Home = () => {
 
         .home-products-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
           gap: 1.5rem;
+        }
+
+        .home-product-card {
+          padding: 1.15rem;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          position: relative;
+          border-radius: var(--radius-lg);
+          transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .home-product-card:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 10px 25px -4px rgba(245, 158, 11, 0.16), var(--shadow-md);
+        }
+
+        .home-product-img-wrap {
+          position: relative;
+          margin-bottom: 0.85rem;
+          overflow: hidden;
+          border-radius: var(--radius-md);
+          background-color: #fafaf9;
+        }
+
+        .home-product-img {
+          width: 100%;
+          height: 200px;
+          object-fit: cover;
+          border-radius: var(--radius-md);
+          transition: transform 0.4s ease;
+        }
+
+        .home-product-img:hover {
+          transform: scale(1.06);
+        }
+
+        .home-product-wishlist-btn {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background-color: #ffffff;
+          border: 1px solid var(--border-color);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--text-secondary);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+          cursor: pointer;
+          transition: transform 0.2s ease;
+        }
+
+        .home-product-wishlist-btn:hover {
+          transform: scale(1.1);
+        }
+
+        .home-product-stock-badge {
+          position: absolute;
+          top: 10px;
+          left: 10px;
+          font-size: 0.72rem;
+        }
+
+        .home-product-meta {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 0.35rem;
+        }
+
+        .home-product-cat {
+          font-size: 0.75rem;
+          font-weight: 700;
+          color: var(--accent-orange);
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+        }
+
+        .home-product-rating {
+          display: flex;
+          align-items: center;
+          gap: 0.2rem;
+          font-size: 0.78rem;
+          font-weight: 700;
+          color: var(--text-primary);
+        }
+
+        .home-product-title {
+          font-size: 0.98rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: 0.4rem;
+          line-height: 1.35;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          height: 2.65rem;
+        }
+
+        .home-product-variants {
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+          margin-bottom: 0.65rem;
+        }
+
+        .home-product-footer {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-top: 1px solid var(--border-color);
+          padding-top: 0.75rem;
+          margin-top: 0.5rem;
+        }
+
+        .home-product-price {
+          font-size: 1.15rem;
+          font-weight: 800;
+          color: var(--text-primary);
+        }
+
+        .home-product-compare-price {
+          font-size: 0.75rem;
+          color: var(--text-muted);
+          text-decoration: line-through;
+        }
+
+        .home-product-btn {
+          padding: 0.55rem 0.85rem;
+          font-size: 0.82rem;
+          font-weight: 700;
+        }
+
+        .home-product-details-btn {
+          padding: 0.55rem 0.75rem;
+          font-size: 0.82rem;
         }
 
         .home-promo-banner {
@@ -827,34 +943,6 @@ const Home = () => {
         }
 
         @media (max-width: 768px) {
-          .home-hero-section {
-            padding: 2rem 1.25rem;
-          }
-
-          .home-hero-actions {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 0.75rem;
-            margin-bottom: 2rem;
-          }
-
-          .home-hero-actions .btn {
-            width: 100%;
-          }
-
-          .home-metrics-strip {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            width: 100%;
-            padding: 1rem;
-            box-sizing: border-box;
-          }
-
-          .metric-divider {
-            display: none;
-          }
-
           .home-promo-banner {
             padding: 1.75rem 1.25rem;
             flex-direction: column;
@@ -867,8 +955,78 @@ const Home = () => {
           }
 
           .home-products-grid {
-            grid-template-columns: 1fr;
-            gap: 1rem;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 0.75rem !important;
+          }
+
+          .home-product-card {
+            padding: 0.65rem !important;
+            border-radius: var(--radius-md) !important;
+          }
+
+          .home-product-img-wrap {
+            margin-bottom: 0.45rem !important;
+          }
+
+          .home-product-img {
+            height: 135px !important;
+            border-radius: 8px !important;
+          }
+
+          .home-product-wishlist-btn {
+            width: 28px !important;
+            height: 28px !important;
+            top: 6px !important;
+            right: 6px !important;
+          }
+
+          .home-product-stock-badge {
+            top: 6px !important;
+            left: 6px !important;
+            font-size: 0.62rem !important;
+            padding: 0.1rem 0.4rem !important;
+          }
+
+          .home-product-title {
+            font-size: 0.82rem !important;
+            height: 2.1rem !important;
+            line-height: 1.25 !important;
+            margin-bottom: 0.25rem !important;
+          }
+
+          .home-product-meta {
+            font-size: 0.7rem !important;
+            margin-bottom: 0.2rem !important;
+          }
+
+          .home-product-cat {
+            font-size: 0.68rem !important;
+          }
+
+          .home-product-variants {
+            display: none !important;
+          }
+
+          .home-product-footer {
+            padding-top: 0.4rem !important;
+            margin-top: 0.35rem !important;
+          }
+
+          .home-product-price {
+            font-size: 0.95rem !important;
+          }
+
+          .home-product-compare-price {
+            font-size: 0.7rem !important;
+          }
+
+          .home-product-btn {
+            padding: 0.38rem 0.55rem !important;
+            font-size: 0.72rem !important;
+          }
+
+          .home-product-details-btn {
+            display: none !important;
           }
 
           .home-trust-grid {

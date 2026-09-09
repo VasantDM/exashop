@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -17,7 +17,7 @@ import {
   CheckCircle2,
   Clock
 } from 'lucide-react';
-import { getProductBySlugOrId } from '../services/catalogService';
+import { getProductBySlugOrId, getCachedProductBySlugOrId } from '../services/catalogService';
 import { useCart } from '../context/CartContext';
 
 const ProductDetails = () => {
@@ -25,50 +25,69 @@ const ProductDetails = () => {
   const navigate = useNavigate();
   const { addToCart, toggleWishlist, isInWishlist, isInCart } = useCart();
 
-  const [product, setProduct] = useState(null);
-  const [selectedImage, setSelectedImage] = useState('');
-  const [selectedColor, setSelectedColor] = useState('');
-  const [selectedSize, setSelectedSize] = useState('');
+  const cachedProduct = getCachedProductBySlugOrId(slugOrId);
+  const [product, setProduct] = useState(cachedProduct || null);
+  const [selectedImage, setSelectedImage] = useState(cachedProduct?.primary_image || '');
+  const [selectedColor, setSelectedColor] = useState(cachedProduct?.available_colors?.[0]?.name || '');
+  const [selectedSize, setSelectedSize] = useState(cachedProduct?.available_sizes?.[0] || '');
   const [quantity, setQuantity] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!cachedProduct);
   const [error, setError] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
   const [activeTab, setActiveTab] = useState('description'); // 'description' | 'specs' | 'shipping'
 
   useEffect(() => {
+    let isMounted = true;
     const fetchDetail = async () => {
-      setIsLoading(true);
+      if (!product) {
+        setIsLoading(true);
+      }
       setError(null);
       try {
         const data = await getProductBySlugOrId(slugOrId);
+        if (!isMounted) return;
         setProduct(data);
         if (data.available_colors && data.available_colors.length > 0) {
-          setSelectedColor(data.available_colors[0].name);
-          if (data.available_colors[0].image_url) {
-            setSelectedImage(data.available_colors[0].image_url);
+          const initialColor = data.available_colors[0].name;
+          setSelectedColor((prev) => prev || initialColor);
+          const colorMatch = data.images?.find(
+            (img) => img.color_name && img.color_name.trim().toLowerCase() === initialColor.toLowerCase()
+          );
+          if (colorMatch) {
+            setSelectedImage((prev) => prev || colorMatch.display_image);
+          } else if (data.available_colors[0].image_url) {
+            setSelectedImage((prev) => prev || data.available_colors[0].image_url);
           } else if (data.images && data.images.length > 0) {
-            setSelectedImage(data.images[0].display_image);
+            setSelectedImage((prev) => prev || data.images[0].display_image);
           } else {
-            setSelectedImage(data.primary_image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80');
+            setSelectedImage((prev) => prev || data.primary_image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80');
           }
         } else if (data.images && data.images.length > 0) {
-          setSelectedImage(data.images[0].display_image);
+          setSelectedImage((prev) => prev || data.images[0].display_image);
         } else {
-          setSelectedImage(data.primary_image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80');
+          setSelectedImage((prev) => prev || data.primary_image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80');
         }
 
         if (data.available_sizes && data.available_sizes.length > 0) {
-          setSelectedSize(data.available_sizes[0]);
+          setSelectedSize((prev) => prev || data.available_sizes[0]);
         }
       } catch (err) {
         console.error('Failed to load product details:', err);
-        setError('Product not found or unavailable.');
+        if (isMounted && !product) {
+          setError('Product not found or unavailable.');
+        }
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchDetail();
+
+    return () => {
+      isMounted = false;
+    };
   }, [slugOrId]);
 
   // Find currently matched variant based on selected color and size
@@ -131,9 +150,50 @@ const ProductDetails = () => {
     );
   }
 
-  const galleryImages = (product.images && product.images.length > 0)
-    ? product.images.map((img) => img.display_image)
-    : [product.primary_image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80'];
+  // Dynamically compute images filtered by the active selected color
+  const galleryImages = useMemo(() => {
+    if (!product) return [];
+    const allImages = (product.images && product.images.length > 0)
+      ? product.images
+      : [{ display_image: product.primary_image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80', color_name: '' }];
+
+    if (selectedColor) {
+      // Find photos tagged specifically for this color variant
+      const matchingColorImages = allImages.filter(
+        (img) => img.color_name && img.color_name.trim().toLowerCase() === selectedColor.trim().toLowerCase()
+      );
+      if (matchingColorImages.length > 0) {
+        // Also append general images (untagged) at the end
+        const generalImages = allImages.filter((img) => !img.color_name || !img.color_name.trim());
+        return [...matchingColorImages, ...generalImages].map((img) => img.display_image);
+      }
+    }
+    return allImages.map((img) => img.display_image);
+  }, [product, selectedColor]);
+
+  // Keep selectedImage in sync when switching colors
+  useEffect(() => {
+    if (galleryImages.length > 0 && !galleryImages.includes(selectedImage)) {
+      setSelectedImage(galleryImages[0]);
+    }
+  }, [galleryImages, selectedImage]);
+
+  const handleColorSelect = (colorObj) => {
+    setSelectedColor(colorObj.name);
+    // Find matching photo for this color in product.images
+    if (product?.images && product.images.length > 0) {
+      const match = product.images.find(
+        (img) => img.color_name && img.color_name.trim().toLowerCase() === colorObj.name.trim().toLowerCase()
+      );
+      if (match) {
+        setSelectedImage(match.display_image);
+        return;
+      }
+    }
+    if (colorObj.image_url) {
+      setSelectedImage(colorObj.image_url);
+    }
+  };
 
   const inWish = isInWishlist(product.id);
 
@@ -285,10 +345,7 @@ const ProductDetails = () => {
                     <button
                       key={c.name}
                       type="button"
-                      onClick={() => {
-                        setSelectedColor(c.name);
-                        if (c.image_url) setSelectedImage(c.image_url);
-                      }}
+                      onClick={() => handleColorSelect(c)}
                       className={`color-btn ${isSelected ? 'active' : ''}`}
                       title={`Select color: ${c.name}`}
                     >

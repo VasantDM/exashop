@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Package, 
   Plus, 
@@ -8,9 +8,12 @@ import {
   Check, 
   X, 
   AlertTriangle, 
-  Image, 
+  Image as ImageIcon, 
   Sparkles, 
-  RotateCcw
+  RotateCcw,
+  Star,
+  Layers,
+  Palette
 } from 'lucide-react';
 import { 
   getAdminProducts, 
@@ -45,6 +48,7 @@ const AdminProducts = () => {
     is_available: true,
     is_featured: false,
     initial_image_url: '',
+    images: [], // [{ id, image_url, color_name, alt_text, is_primary }]
     variants: []
   };
   const [formData, setFormData] = useState(initialForm);
@@ -54,6 +58,27 @@ const AdminProducts = () => {
   const [varColorCode, setVarColorCode] = useState('#f59e0b');
   const [varSize, setVarSize] = useState('M');
   const [varStock, setVarStock] = useState('10');
+
+  // Image Builder temp state
+  const [imgUrlInput, setImgUrlInput] = useState('');
+  const [imgColorInput, setImgColorInput] = useState('');
+  const [imgIsPrimary, setImgIsPrimary] = useState(false);
+
+  // Dynamic list of unique colors extracted from variants & images
+  const availableColorOptions = useMemo(() => {
+    const colors = new Set();
+    if (formData.variants && Array.isArray(formData.variants)) {
+      formData.variants.forEach(v => {
+        if (v.color_name && v.color_name.trim()) colors.add(v.color_name.trim());
+      });
+    }
+    if (formData.images && Array.isArray(formData.images)) {
+      formData.images.forEach(img => {
+        if (img.color_name && img.color_name.trim()) colors.add(img.color_name.trim());
+      });
+    }
+    return Array.from(colors);
+  }, [formData.variants, formData.images]);
 
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type });
@@ -89,11 +114,24 @@ const AdminProducts = () => {
   const openAddModal = () => {
     setEditingProduct(null);
     setFormData(initialForm);
+    setImgUrlInput('');
+    setImgColorInput('');
+    setImgIsPrimary(false);
     setIsModalOpen(true);
   };
 
   const openEditModal = (prod) => {
     setEditingProduct(prod);
+    const existingImages = (prod.images && prod.images.length > 0)
+      ? prod.images.map((img, idx) => ({
+          id: img.id,
+          image_url: img.display_image || img.image_url,
+          color_name: img.color_name || '',
+          alt_text: img.alt_text || '',
+          is_primary: img.is_primary !== undefined ? img.is_primary : (idx === 0)
+        }))
+      : (prod.primary_image ? [{ image_url: prod.primary_image, color_name: '', is_primary: true }] : []);
+
     setFormData({
       name: prod.name,
       sku: prod.sku,
@@ -106,9 +144,79 @@ const AdminProducts = () => {
       is_available: prod.is_available,
       is_featured: prod.is_featured,
       initial_image_url: prod.primary_image || '',
+      images: existingImages,
       variants: prod.variants || []
     });
+    setImgUrlInput('');
+    setImgColorInput(existingImages[0]?.color_name || '');
+    setImgIsPrimary(false);
     setIsModalOpen(true);
+  };
+
+  const handleAddImage = () => {
+    if (!imgUrlInput || !imgUrlInput.trim()) {
+      alert('Please enter a valid image URL.');
+      return;
+    }
+
+    const trimmedUrl = imgUrlInput.trim();
+    const trimmedColor = imgColorInput.trim();
+    const isFirstImage = !formData.images || formData.images.length === 0;
+    const shouldBePrimary = isFirstImage || imgIsPrimary;
+
+    let updatedImages = (formData.images || []).map((img) => ({
+      ...img,
+      is_primary: shouldBePrimary ? false : img.is_primary
+    }));
+
+    const newImageObj = {
+      image_url: trimmedUrl,
+      color_name: trimmedColor,
+      alt_text: `${formData.name || 'Product'} ${trimmedColor ? `(${trimmedColor})` : ''} Photo`.trim(),
+      is_primary: shouldBePrimary
+    };
+
+    updatedImages.push(newImageObj);
+
+    setFormData((prev) => ({
+      ...prev,
+      images: updatedImages,
+      initial_image_url: shouldBePrimary ? trimmedUrl : (prev.initial_image_url || trimmedUrl)
+    }));
+
+    setImgUrlInput('');
+    setImgIsPrimary(false);
+    // Keep imgColorInput intact so user can conveniently add another image for the same color!
+  };
+
+  const handleRemoveImage = (index) => {
+    setFormData((prev) => {
+      const removed = prev.images[index];
+      const remaining = prev.images.filter((_, i) => i !== index);
+      // If we removed the primary image, make the first remaining image primary
+      if (removed?.is_primary && remaining.length > 0) {
+        remaining[0].is_primary = true;
+      }
+      return {
+        ...prev,
+        images: remaining,
+        initial_image_url: remaining.find(img => img.is_primary)?.image_url || remaining[0]?.image_url || ''
+      };
+    });
+  };
+
+  const handleSetPrimaryImage = (index) => {
+    setFormData((prev) => {
+      const updated = prev.images.map((img, i) => ({
+        ...img,
+        is_primary: i === index
+      }));
+      return {
+        ...prev,
+        images: updated,
+        initial_image_url: updated[index]?.image_url || prev.initial_image_url
+      };
+    });
   };
 
   const handleAddVariant = () => {
@@ -129,6 +237,11 @@ const AdminProducts = () => {
       variants: [...prev.variants, newVar]
     }));
 
+    // Auto-select this color in image uploader for immediate convenience
+    if (varColorName.trim() && !imgColorInput) {
+      setImgColorInput(varColorName.trim());
+    }
+
     setVarColorName('');
   };
 
@@ -143,6 +256,11 @@ const AdminProducts = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
+      const primaryUrl = formData.images?.find(img => img.is_primary)?.image_url 
+        || formData.images?.[0]?.image_url 
+        || formData.initial_image_url 
+        || '';
+
       const payload = {
         name: formData.name,
         sku: formData.sku,
@@ -154,8 +272,9 @@ const AdminProducts = () => {
         stock: parseInt(formData.stock) || 0,
         is_available: formData.is_available,
         is_featured: formData.is_featured,
-        initial_image_url: formData.initial_image_url,
-        initial_variants: formData.variants
+        initial_image_url: primaryUrl,
+        initial_images: formData.images || [],
+        initial_variants: formData.variants || []
       };
 
       if (editingProduct) {
@@ -163,7 +282,7 @@ const AdminProducts = () => {
         showToast(`Product '${formData.name}' updated!`);
       } else {
         await createAdminProduct(payload);
-        showToast(`Product '${formData.name}' created successfully!`);
+        showToast(`Product '${formData.name}' created successfully with ${formData.images.length} images!`);
       }
 
       setIsModalOpen(false);
@@ -292,14 +411,39 @@ const AdminProducts = () => {
                 {products.map((prod) => (
                   <tr key={prod.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                     <td style={{ padding: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <img
-                        src={prod.primary_image}
-                        alt={prod.name}
-                        style={{ width: '42px', height: '42px', objectFit: 'cover', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-surface)' }}
-                      />
+                      <div style={{ position: 'relative' }}>
+                        <img
+                          src={prod.primary_image}
+                          alt={prod.name}
+                          style={{ width: '42px', height: '42px', objectFit: 'cover', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-surface)' }}
+                        />
+                        {prod.images && prod.images.length > 1 && (
+                          <span style={{
+                            position: 'absolute',
+                            bottom: '-4px',
+                            right: '-4px',
+                            backgroundColor: 'rgba(15, 23, 42, 0.85)',
+                            color: '#ffffff',
+                            fontSize: '0.62rem',
+                            fontWeight: '700',
+                            padding: '1px 4px',
+                            borderRadius: '4px',
+                            backdropFilter: 'blur(2px)'
+                          }}>
+                            +{prod.images.length}
+                          </span>
+                        )}
+                      </div>
                       <div style={{ minWidth: 0 }}>
                         <div style={{ fontWeight: '700', color: 'var(--text-primary)' }}>{prod.name}</div>
-                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{prod.brand_name || 'Generic'}</div>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', gap: '0.4rem', alignItems: 'center', marginTop: '0.15rem' }}>
+                          <span>{prod.brand_name || 'Generic'}</span>
+                          {prod.images && prod.images.length > 0 && (
+                            <span style={{ backgroundColor: 'rgba(245, 158, 11, 0.12)', color: '#d97706', padding: '0.05rem 0.35rem', borderRadius: '3px', fontSize: '0.66rem', fontWeight: '600' }}>
+                              📷 {prod.images.length} {prod.images.length === 1 ? 'photo' : 'photos'}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </td>
                     <td style={{ padding: '0.75rem', color: 'var(--text-secondary)', fontFamily: 'monospace' }}>
@@ -374,9 +518,9 @@ const AdminProducts = () => {
           padding: '1.5rem'
         }}>
           <div className="glass-card" style={{
-            maxWidth: '680px',
+            maxWidth: '740px',
             width: '100%',
-            maxHeight: '90vh',
+            maxHeight: '92vh',
             overflowY: 'auto',
             borderRadius: 'var(--radius-lg)',
             backgroundColor: '#ffffff',
@@ -393,9 +537,14 @@ const AdminProducts = () => {
               alignItems: 'center',
               background: 'linear-gradient(135deg, #fffbeb 0%, #ffedd5 100%)'
             }}>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0, color: 'var(--text-primary)' }}>
-                {editingProduct ? 'Edit Catalog Product' : 'Add New Product'}
-              </h3>
+              <div>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0, color: 'var(--text-primary)' }}>
+                  {editingProduct ? 'Edit Catalog Product' : 'Add New Product'}
+                </h3>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                  Manage basic details, color/size variants, and multiple photos per color.
+                </p>
+              </div>
               <button
                 onClick={() => setIsModalOpen(false)}
                 style={{ background: '#ffffff', border: '1px solid var(--border-color)', borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', cursor: 'pointer' }}
@@ -493,60 +642,26 @@ const AdminProducts = () => {
                 </select>
               </div>
 
-              <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
-                  Primary Image URL (or Unsplash sample)
-                </label>
-                <input
-                  type="url"
-                  value={formData.initial_image_url}
-                  onChange={(e) => setFormData({ ...formData, initial_image_url: e.target.value })}
-                  placeholder="https://images.unsplash.com/..."
-                  style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
-                />
-              </div>
-
-              <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
-                  Short Summary
-                </label>
-                <input
-                  type="text"
-                  value={formData.short_description}
-                  onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
-                  style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
-                />
-              </div>
-
-              <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
-                  Full Description
-                </label>
-                <textarea
-                  rows="3"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
-                />
-              </div>
-
-              {/* Variant Configurator Strip */}
+              {/* 1. Variant Configurator Strip */}
               <div style={{
                 padding: '1rem',
                 borderRadius: 'var(--radius-md)',
                 backgroundColor: '#fafaf9',
                 border: '1px solid var(--border-color)'
               }}>
-                <div style={{ fontSize: '0.85rem', fontWeight: '700', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-primary)' }}>
-                  <Sparkles size={14} color="var(--accent-orange)" /> Optional Color & Size Variants
+                <div style={{ fontSize: '0.85rem', fontWeight: '700', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-primary)' }}>
+                  <Sparkles size={14} color="var(--accent-orange)" /> 1. Color & Size Variants (Optional)
                 </div>
+                <p style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', margin: '0 0 0.6rem 0' }}>
+                  Define available colors and sizes. Once added, you can upload specific multiple images for each color below!
+                </p>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr 1fr auto', gap: '0.5rem', alignItems: 'end' }}>
                   <div>
                     <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: '600' }}>Color Name</span>
                     <input
                       type="text"
-                      placeholder="e.g. Amber Gold"
+                      placeholder="e.g. Red, Blue, Black"
                       value={varColorName}
                       onChange={(e) => setVarColorName(e.target.value)}
                       style={{ width: '100%', padding: '0.4rem 0.6rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.8rem' }}
@@ -604,7 +719,7 @@ const AdminProducts = () => {
 
                 {/* Variants List */}
                 {formData.variants && formData.variants.length > 0 && (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.5rem' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.6rem' }}>
                     {formData.variants.map((v, idx) => (
                       <span
                         key={idx}
@@ -632,6 +747,262 @@ const AdminProducts = () => {
                     ))}
                   </div>
                 )}
+              </div>
+
+              {/* 2. Multi-Image & Color-Specific Gallery Manager */}
+              <div style={{
+                padding: '1rem',
+                borderRadius: 'var(--radius-md)',
+                backgroundColor: '#fffdfa',
+                border: '1px solid rgba(245, 158, 11, 0.35)',
+                boxShadow: '0 2px 8px rgba(245, 158, 11, 0.05)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                  <div style={{ fontSize: '0.85rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-primary)' }}>
+                    <ImageIcon size={15} color="var(--accent-orange)" /> 2. Multiple Images & Color Gallery
+                  </div>
+                  {formData.images && formData.images.length > 0 && (
+                    <span style={{ fontSize: '0.72rem', color: '#d97706', fontWeight: '700', backgroundColor: 'rgba(245, 158, 11, 0.15)', padding: '0.15rem 0.5rem', borderRadius: '4px' }}>
+                      {formData.images.length} {formData.images.length === 1 ? 'image' : 'images'} in gallery
+                    </span>
+                  )}
+                </div>
+                <p style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', margin: '0 0 0.75rem 0' }}>
+                  Add multiple photos for the product. Tag each photo to a specific color (e.g. 3 photos for Red, 3 photos for Blue) or choose "General / All Colors".
+                </p>
+
+                {/* Quick Color Presets */}
+                {availableColorOptions.length > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '600' }}>Quick Tag:</span>
+                    <button
+                      type="button"
+                      onClick={() => setImgColorInput('')}
+                      style={{
+                        padding: '0.15rem 0.45rem',
+                        fontSize: '0.7rem',
+                        borderRadius: '4px',
+                        border: imgColorInput === '' ? '1px solid var(--accent-orange)' : '1px solid var(--border-color)',
+                        backgroundColor: imgColorInput === '' ? 'rgba(245, 158, 11, 0.15)' : '#ffffff',
+                        color: imgColorInput === '' ? 'var(--accent-orange)' : 'var(--text-secondary)',
+                        cursor: 'pointer',
+                        fontWeight: '600'
+                      }}
+                    >
+                      ⚪ General
+                    </button>
+                    {availableColorOptions.map((cName) => {
+                      const isSelected = imgColorInput.toLowerCase() === cName.toLowerCase();
+                      const matchedVar = formData.variants?.find(v => v.color_name?.toLowerCase() === cName.toLowerCase());
+                      return (
+                        <button
+                          key={cName}
+                          type="button"
+                          onClick={() => setImgColorInput(cName)}
+                          style={{
+                            padding: '0.15rem 0.5rem',
+                            fontSize: '0.7rem',
+                            borderRadius: '4px',
+                            border: isSelected ? '1px solid var(--accent-orange)' : '1px solid var(--border-color)',
+                            backgroundColor: isSelected ? 'rgba(245, 158, 11, 0.15)' : '#ffffff',
+                            color: isSelected ? 'var(--accent-orange)' : 'var(--text-secondary)',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            fontWeight: '600'
+                          }}
+                        >
+                          {matchedVar && <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: matchedVar.color_code, display: 'inline-block' }} />}
+                          <span>{cName}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Add Image Controls */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px auto auto', gap: '0.5rem', alignItems: 'center' }}>
+                  <div>
+                    <input
+                      type="url"
+                      placeholder="Paste Image URL (e.g. https://...)"
+                      value={imgUrlInput}
+                      onChange={(e) => setImgUrlInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddImage();
+                        }
+                      }}
+                      style={{ width: '100%', padding: '0.45rem 0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.8rem' }}
+                    />
+                  </div>
+
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Color (e.g. Red, Blue)"
+                      value={imgColorInput}
+                      onChange={(e) => setImgColorInput(e.target.value)}
+                      style={{ width: '100%', padding: '0.45rem 0.65rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.8rem' }}
+                    />
+                  </div>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', cursor: 'pointer', color: 'var(--text-secondary)', userSelect: 'none', whiteSpace: 'nowrap' }}>
+                    <input
+                      type="checkbox"
+                      checked={imgIsPrimary}
+                      onChange={(e) => setImgIsPrimary(e.target.checked)}
+                    />
+                    <span>Primary</span>
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={handleAddImage}
+                    className="btn btn-primary"
+                    style={{ padding: '0.45rem 0.85rem', fontSize: '0.8rem', height: '32px', whiteSpace: 'nowrap' }}
+                  >
+                    + Add Image
+                  </button>
+                </div>
+
+                {/* Images Preview Grid */}
+                {formData.images && formData.images.length > 0 ? (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '0.65rem', marginTop: '0.85rem' }}>
+                    {formData.images.map((img, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          position: 'relative',
+                          border: img.is_primary ? '2px solid var(--accent-orange)' : '1px solid var(--border-color)',
+                          borderRadius: 'var(--radius-md)',
+                          overflow: 'hidden',
+                          backgroundColor: '#ffffff',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.04)',
+                          display: 'flex',
+                          flexDirection: 'column'
+                        }}
+                      >
+                        {/* Image Preview */}
+                        <div style={{ position: 'relative', width: '100%', height: '85px', backgroundColor: '#f5f5f4' }}>
+                          <img
+                            src={img.image_url}
+                            alt={img.alt_text || `Product image ${idx + 1}`}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={(e) => {
+                              e.target.src = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&auto=format&fit=crop&q=80';
+                            }}
+                          />
+                          {/* Trash button */}
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveImage(idx)}
+                            style={{
+                              position: 'absolute',
+                              top: '4px',
+                              right: '4px',
+                              backgroundColor: 'rgba(239, 68, 68, 0.9)',
+                              border: 'none',
+                              borderRadius: '50%',
+                              width: '20px',
+                              height: '20px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: '#ffffff',
+                              cursor: 'pointer',
+                              padding: 0
+                            }}
+                            title="Remove image"
+                          >
+                            <Trash2 size={11} />
+                          </button>
+                        </div>
+
+                        {/* Card Info & Actions */}
+                        <div style={{ padding: '0.4rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1, justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span style={{
+                              fontSize: '0.68rem',
+                              fontWeight: '700',
+                              color: img.color_name ? '#b45309' : 'var(--text-secondary)',
+                              backgroundColor: img.color_name ? 'rgba(245, 158, 11, 0.12)' : '#f5f5f4',
+                              padding: '0.1rem 0.35rem',
+                              borderRadius: '3px',
+                              maxWidth: '85px',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {img.color_name ? `🎨 ${img.color_name}` : '⚪ General'}
+                            </span>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleSetPrimaryImage(idx)}
+                            style={{
+                              width: '100%',
+                              padding: '0.2rem 0.3rem',
+                              fontSize: '0.66rem',
+                              fontWeight: '700',
+                              border: img.is_primary ? '1px solid var(--accent-orange)' : '1px solid var(--border-color)',
+                              borderRadius: '3px',
+                              backgroundColor: img.is_primary ? 'var(--accent-orange)' : '#ffffff',
+                              color: img.is_primary ? '#ffffff' : 'var(--text-secondary)',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '0.2rem'
+                            }}
+                          >
+                            <Star size={10} fill={img.is_primary ? '#ffffff' : 'none'} />
+                            <span>{img.is_primary ? 'Primary Cover' : 'Set Primary'}</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{
+                    marginTop: '0.75rem',
+                    padding: '1rem',
+                    textAlign: 'center',
+                    border: '1px dashed var(--border-color)',
+                    borderRadius: 'var(--radius-sm)',
+                    color: 'var(--text-muted)',
+                    fontSize: '0.78rem'
+                  }}>
+                    No images added yet. Enter an image URL and click <strong>"+ Add Image"</strong> above.
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
+                  Short Summary
+                </label>
+                <input
+                  type="text"
+                  value={formData.short_description}
+                  onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
+                  style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
+                  Full Description
+                </label>
+                <textarea
+                  rows="3"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
+                />
               </div>
 
               {/* Availability toggles */}

@@ -16,7 +16,14 @@ import {
   ArrowUpDown,
   X
 } from 'lucide-react';
-import { getProducts, getCategories, getBrands } from '../services/catalogService';
+import { 
+  getProducts, 
+  getCategories, 
+  getBrands,
+  getCachedProducts,
+  getCachedCategories,
+  getCachedBrands
+} from '../services/catalogService';
 import { useCart } from '../context/CartContext';
 import VariantModal from '../components/VariantModal';
 
@@ -34,13 +41,29 @@ const Products = () => {
   const [ordering, setOrdering] = useState(searchParams.get('ordering') || '-created_at');
   const [page, setPage] = useState(parseInt(searchParams.get('page') || '1', 10));
 
+  // Initialize from cache for instant 0ms rendering
+  const initialCategories = getCachedCategories() || [];
+  const initialBrands = getCachedBrands() || [];
+  const initialParams = {
+    page,
+    search: (searchParams.get('search') || '').trim() || undefined,
+    category: searchParams.get('category') || undefined,
+    brand: searchParams.get('brand') || undefined,
+    min_price: searchParams.get('min_price') || undefined,
+    max_price: searchParams.get('max_price') || undefined,
+    in_stock: searchParams.get('in_stock') === 'true' ? 'true' : undefined,
+    ordering: searchParams.get('ordering') || undefined,
+  };
+  const cachedProds = getCachedProducts(initialParams);
+  const initialProducts = cachedProds?.results || (Array.isArray(cachedProds) ? cachedProds : []);
+
   // Data States
-  const [products, setProducts] = useState([]);
-  const [categoriesList, setCategoriesList] = useState([]);
-  const [brandsList, setBrandsList] = useState([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
+  const [products, setProducts] = useState(initialProducts);
+  const [categoriesList, setCategoriesList] = useState(Array.isArray(initialCategories) ? initialCategories : (initialCategories?.results || []));
+  const [brandsList, setBrandsList] = useState(Array.isArray(initialBrands) ? initialBrands : (initialBrands?.results || []));
+  const [totalCount, setTotalCount] = useState(cachedProds?.count || initialProducts.length);
+  const [totalPages, setTotalPages] = useState(Math.ceil((cachedProds?.count || initialProducts.length || 1) / 10) || 1);
+  const [isLoading, setIsLoading] = useState(initialProducts.length === 0);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [variantModalProduct, setVariantModalProduct] = useState(null);
 
@@ -64,8 +87,8 @@ const Products = () => {
           getCategories(),
           getBrands(),
         ]);
-        setCategoriesList(Array.isArray(cats) ? cats : []);
-        setBrandsList(Array.isArray(brs) ? brs : []);
+        setCategoriesList(Array.isArray(cats) ? cats : (cats?.results || []));
+        setBrandsList(Array.isArray(brs) ? brs : (brs?.results || []));
       } catch (err) {
         console.error('Failed to load catalog metadata:', err);
       }
@@ -75,7 +98,10 @@ const Products = () => {
 
   // Fetch Products based on current filters
   const fetchProducts = useCallback(async () => {
-    setIsLoading(true);
+    // Only show full skeleton if there are no products currently displayed
+    if (products.length === 0) {
+      setIsLoading(true);
+    }
     try {
       const params = {
         page,
@@ -113,7 +139,7 @@ const Products = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, search, category, brand, minPrice, maxPrice, inStock, ordering, setSearchParams]);
+  }, [page, search, category, brand, minPrice, maxPrice, inStock, ordering, setSearchParams, products.length]);
 
   useEffect(() => {
     fetchProducts();
@@ -1049,10 +1075,20 @@ const Products = () => {
         @media (max-width: 768px) {
           .catalog-layout {
             grid-template-columns: 1fr;
+            gap: 1rem;
           }
 
           .catalog-title {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
+          }
+
+          .catalog-subtitle {
+            font-size: 0.82rem;
+          }
+
+          .search-card {
+            padding: 0.85rem 1rem;
+            margin-bottom: 1.25rem;
           }
 
           .mobile-filter-trigger {
@@ -1079,12 +1115,90 @@ const Products = () => {
           }
 
           .products-grid {
-            grid-template-columns: 1fr;
-            gap: 1rem;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 0.75rem !important;
+          }
+
+          .product-card {
+            padding: 0.65rem !important;
+            border-radius: var(--radius-md) !important;
+          }
+
+          .product-card-img-wrap {
+            margin-bottom: 0.45rem !important;
           }
 
           .product-card-img {
-            height: 180px;
+            height: 135px !important;
+            border-radius: 8px !important;
+          }
+
+          .card-wishlist-btn {
+            width: 28px !important;
+            height: 28px !important;
+            top: 6px !important;
+            right: 6px !important;
+          }
+
+          .card-discount-badge,
+          .card-featured-badge {
+            top: 6px !important;
+            left: 6px !important;
+            font-size: 0.65rem !important;
+            padding: 0.15rem 0.4rem !important;
+          }
+
+          .card-stock-badge {
+            bottom: 6px !important;
+            right: 6px !important;
+            font-size: 0.62rem !important;
+            padding: 0.1rem 0.4rem !important;
+          }
+
+          .card-top-meta {
+            font-size: 0.7rem !important;
+            margin-bottom: 0.2rem !important;
+          }
+
+          .card-product-title {
+            font-size: 0.82rem !important;
+            height: 2.1rem !important;
+            line-height: 1.25 !important;
+            margin-bottom: 0.25rem !important;
+          }
+
+          .card-product-desc {
+            display: none !important;
+          }
+
+          .card-variant-preview {
+            display: none !important;
+          }
+
+          .card-footer-row {
+            padding-top: 0.45rem !important;
+            margin-top: 0.35rem !important;
+          }
+
+          .card-price-current {
+            font-size: 0.95rem !important;
+          }
+
+          .card-price-original {
+            font-size: 0.7rem !important;
+          }
+
+          .card-action-btns {
+            gap: 0.25rem !important;
+          }
+
+          .card-cart-btn {
+            padding: 0.38rem 0.6rem !important;
+            font-size: 0.75rem !important;
+          }
+
+          .card-details-btn {
+            display: none !important;
           }
 
           .search-form {

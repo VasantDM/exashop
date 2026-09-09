@@ -107,138 +107,86 @@ const Wishlist = () => {
           return (
             <div
               key={item.id || product.id}
-              className="glass-card"
-              style={{
-                padding: '1.25rem',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                position: 'relative'
-              }}
+              className="glass-card wishlist-card"
             >
               {/* Product Image */}
-              <Link to={`/products/${product.slug}`} style={{ display: 'block', position: 'relative', marginBottom: '1rem', overflow: 'hidden', borderRadius: 'var(--radius-md)', backgroundColor: '#fafaf9' }}>
-                <img
-                  src={product.primary_image}
-                  alt={product.name}
-                  style={{
-                    width: '100%',
-                    height: '210px',
-                    objectFit: 'cover',
-                    borderRadius: 'var(--radius-md)'
-                  }}
-                />
+              <div className="wishlist-img-wrap">
+                <Link to={`/products/${product.slug}`} style={{ display: 'block' }}>
+                  <img
+                    src={product.primary_image}
+                    alt={product.name}
+                    className="wishlist-img"
+                  />
+                </Link>
 
                 {product.has_discount && (
-                  <span style={{
-                    position: 'absolute',
-                    top: '10px',
-                    left: '10px',
-                    background: 'var(--accent-orange)',
-                    color: '#fff',
-                    fontSize: '0.72rem',
-                    fontWeight: '800',
-                    padding: '0.2rem 0.55rem',
-                    borderRadius: 'var(--radius-sm)',
-                    boxShadow: '0 2px 8px rgba(234, 88, 12, 0.4)'
-                  }}>
+                  <span className="wishlist-discount-badge">
                     -{product.discount_percentage}% OFF
                   </span>
                 )}
 
                 <button
+                  type="button"
                   onClick={(e) => {
                     e.preventDefault();
                     toggleWishlist(product);
                   }}
-                  style={{
-                    position: 'absolute',
-                    top: '10px',
-                    right: '10px',
-                    background: 'rgba(255, 255, 255, 0.9)',
-                    backdropFilter: 'blur(6px)',
-                    border: '1px solid var(--border-color)',
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'var(--accent-rose)',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
-                    cursor: 'pointer'
-                  }}
+                  className="wishlist-heart-btn"
                   title="Remove from wishlist"
                 >
                   <Heart size={16} fill="var(--accent-rose)" />
                 </button>
-              </Link>
+              </div>
 
               {/* Product Info */}
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--accent-orange)', textTransform: 'uppercase' }}>
+                <div className="wishlist-meta">
+                  <span className="wishlist-cat">
                     {product.category?.name || 'Item'}
                   </span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.78rem', fontWeight: '700', color: 'var(--text-primary)' }}>
-                    <Star size={13} fill="var(--accent-primary)" color="var(--accent-primary)" />
+                  <div className="wishlist-rating">
+                    <Star size={12} fill="var(--accent-primary)" color="var(--accent-primary)" />
                     <span>{product.average_rating || '5.0'}</span>
                   </div>
                 </div>
 
                 <Link to={`/products/${product.slug}`} style={{ textDecoration: 'none' }}>
-                  <h3 style={{
-                    fontSize: '1rem',
-                    fontWeight: '700',
-                    color: 'var(--text-primary)',
-                    marginBottom: '0.5rem',
-                    lineHeight: '1.35',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden'
-                  }}>
+                  <h3 className="wishlist-title">
                     {product.name}
                   </h3>
                 </Link>
               </div>
 
               {/* Pricing & Move to Cart CTA */}
-              <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '0.85rem', marginTop: '0.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginBottom: '0.85rem' }}>
-                  <span style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--text-primary)' }}>
+              <div className="wishlist-footer">
+                <div className="wishlist-price-row">
+                  <span className="wishlist-price-current">
                     ₹{product.current_price}
                   </span>
                   {product.has_discount && (
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textDecoration: 'line-through' }}>
+                    <span className="wishlist-price-original">
                       ₹{product.price}
                     </span>
                   )}
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div className="wishlist-actions">
                   <button
+                    type="button"
                     onClick={() => handleMoveToCart(product)}
                     disabled={product.stock <= 0}
-                    className="btn btn-primary"
-                    style={{
-                      flex: 1,
-                      padding: '0.5rem 0.75rem',
-                      fontSize: '0.82rem',
-                      opacity: product.stock <= 0 ? 0.5 : 1,
-                      cursor: product.stock <= 0 ? 'not-allowed' : 'pointer'
-                    }}
+                    className="btn btn-primary wishlist-cart-btn"
                   >
-                    <ShoppingCart size={15} /> {product.stock > 0 ? 'Move to Cart' : 'Out of Stock'}
+                    <ShoppingCart size={14} /> <span>{product.stock > 0 ? 'Move to Cart' : 'Out'}</span>
                   </button>
 
                   <button
+                    type="button"
                     onClick={() => toggleWishlist(product)}
-                    className="btn btn-outline"
-                    style={{ padding: '0.5rem 0.7rem', color: 'var(--accent-rose)', borderColor: 'rgba(244, 63, 94, 0.3)' }}
+                    className="btn btn-outline wishlist-trash-btn"
                     title="Delete from Wishlist"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={15} />
                   </button>
                 </div>
               </div>
@@ -250,14 +198,229 @@ const Wishlist = () => {
       <style>{`
         .wishlist-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
           gap: 1.5rem;
+        }
+
+        .wishlist-card {
+          padding: 1.15rem;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          position: relative;
+          border-radius: var(--radius-lg);
+          transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .wishlist-card:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 10px 25px -4px rgba(245, 158, 11, 0.16), var(--shadow-md);
+        }
+
+        .wishlist-img-wrap {
+          position: relative;
+          margin-bottom: 0.85rem;
+          overflow: hidden;
+          border-radius: var(--radius-md);
+          background-color: #fafaf9;
+        }
+
+        .wishlist-img {
+          width: 100%;
+          height: 200px;
+          object-fit: cover;
+          border-radius: var(--radius-md);
+          transition: transform 0.4s ease;
+        }
+
+        .wishlist-img:hover {
+          transform: scale(1.06);
+        }
+
+        .wishlist-discount-badge {
+          position: absolute;
+          top: 10px;
+          left: 10px;
+          background: var(--accent-orange);
+          color: #fff;
+          font-size: 0.72rem;
+          font-weight: 800;
+          padding: 0.2rem 0.55rem;
+          border-radius: var(--radius-sm);
+          box-shadow: 0 2px 8px rgba(234, 88, 12, 0.4);
+        }
+
+        .wishlist-heart-btn {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          background: rgba(255, 255, 255, 0.92);
+          backdrop-filter: blur(6px);
+          border: 1px solid var(--border-color);
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--accent-rose);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+          cursor: pointer;
+        }
+
+        .wishlist-meta {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 0.35rem;
+        }
+
+        .wishlist-cat {
+          font-size: 0.75rem;
+          font-weight: 700;
+          color: var(--accent-orange);
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+        }
+
+        .wishlist-rating {
+          display: flex;
+          align-items: center;
+          gap: 0.2rem;
+          font-size: 0.78rem;
+          font-weight: 700;
+          color: var(--text-primary);
+        }
+
+        .wishlist-title {
+          font-size: 0.98rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: 0.4rem;
+          line-height: 1.35;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          height: 2.65rem;
+        }
+
+        .wishlist-footer {
+          border-top: 1px solid var(--border-color);
+          padding-top: 0.75rem;
+          margin-top: 0.5rem;
+        }
+
+        .wishlist-price-row {
+          display: flex;
+          align-items: baseline;
+          gap: 0.5rem;
+          margin-bottom: 0.65rem;
+        }
+
+        .wishlist-price-current {
+          font-size: 1.15rem;
+          font-weight: 800;
+          color: var(--text-primary);
+        }
+
+        .wishlist-price-original {
+          font-size: 0.75rem;
+          color: var(--text-muted);
+          text-decoration: line-through;
+        }
+
+        .wishlist-actions {
+          display: flex;
+          gap: 0.4rem;
+        }
+
+        .wishlist-cart-btn {
+          flex: 1;
+          padding: 0.5rem 0.75rem;
+          font-size: 0.82rem;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.35rem;
+        }
+
+        .wishlist-trash-btn {
+          padding: 0.5rem 0.65rem;
+          color: var(--accent-rose);
+          border-color: rgba(244, 63, 94, 0.3);
         }
 
         @media (max-width: 640px) {
           .wishlist-grid {
-            grid-template-columns: 1fr;
-            gap: 1rem;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 0.75rem !important;
+          }
+
+          .wishlist-card {
+            padding: 0.65rem !important;
+            border-radius: var(--radius-md) !important;
+          }
+
+          .wishlist-img-wrap {
+            margin-bottom: 0.45rem !important;
+          }
+
+          .wishlist-img {
+            height: 135px !important;
+            border-radius: 8px !important;
+          }
+
+          .wishlist-heart-btn {
+            width: 28px !important;
+            height: 28px !important;
+            top: 6px !important;
+            right: 6px !important;
+          }
+
+          .wishlist-discount-badge {
+            top: 6px !important;
+            left: 6px !important;
+            font-size: 0.65rem !important;
+            padding: 0.15rem 0.4rem !important;
+          }
+
+          .wishlist-meta {
+            font-size: 0.7rem !important;
+            margin-bottom: 0.2rem !important;
+          }
+
+          .wishlist-cat {
+            font-size: 0.68rem !important;
+          }
+
+          .wishlist-title {
+            font-size: 0.82rem !important;
+            height: 2.1rem !important;
+            line-height: 1.25 !important;
+            margin-bottom: 0.25rem !important;
+          }
+
+          .wishlist-footer {
+            padding-top: 0.4rem !important;
+            margin-top: 0.35rem !important;
+          }
+
+          .wishlist-price-row {
+            margin-bottom: 0.4rem !important;
+          }
+
+          .wishlist-price-current {
+            font-size: 0.95rem !important;
+          }
+
+          .wishlist-cart-btn {
+            padding: 0.38rem 0.5rem !important;
+            font-size: 0.72rem !important;
+          }
+
+          .wishlist-trash-btn {
+            padding: 0.38rem 0.5rem !important;
           }
         }
       `}</style>

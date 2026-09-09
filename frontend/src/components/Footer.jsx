@@ -188,8 +188,8 @@ const Footer = () => {
         {/* ================= 2. 3-COLUMN STRUCTURE (COMPACT) ================= */}
         <div className="footer-columns-grid">
           
-          {/* Column 1: SHOP */}
-          <div className="footer-column">
+          {/* Column 1: SHOP (Explore) */}
+          <div className="footer-column footer-shop-column">
             <div className="column-header">
               <span className="column-pill">Explore</span>
               <h3 className="column-title">SHOP</h3>
@@ -249,8 +249,8 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Column 3: COMPANY */}
-          <div className="footer-column">
+          {/* Column 3: COMPANY (About) */}
+          <div className="footer-column footer-company-column">
             <div className="column-header">
               <span className="column-pill">About</span>
               <h3 className="column-title">COMPANY</h3>
@@ -491,23 +491,102 @@ const Footer = () => {
           align-items: start;
         }
 
+        .footer-shop-column {
+          order: 1;
+        }
+
+        .footer-service-column {
+          order: 2;
+        }
+
+        .footer-company-column {
+          order: 3;
+        }
+
         @media (max-width: 860px) {
+          .exashop-footer {
+            padding-bottom: 6.5rem; /* Clearance for floating mobile navbar */
+          }
+
           .footer-columns-grid {
             grid-template-columns: 1fr 1fr;
-            gap: 1.25rem;
+            gap: 1rem 0.75rem;
           }
+
+          .footer-shop-column {
+            order: 1;
+            grid-column: 1;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0.85rem 0.85rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+          }
+
+          .footer-company-column {
+            order: 2;
+            grid-column: 2;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0.85rem 0.85rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+          }
+
           .footer-service-column {
-            grid-column: span 2;
+            order: 3;
+            grid-column: 1 / -1;
+            margin-top: 0.15rem;
+          }
+
+          .footer-link,
+          .footer-link-btn {
+            width: 100%;
+            padding: 0.3rem 0.4rem;
+            margin-left: 0;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
           }
         }
 
-        @media (max-width: 580px) {
+        @media (max-width: 480px) {
           .footer-columns-grid {
-            grid-template-columns: 1fr;
-            gap: 1rem;
+            gap: 0.75rem 0.5rem;
           }
-          .footer-service-column {
-            grid-column: span 1;
+
+          .footer-shop-column,
+          .footer-company-column {
+            padding: 0.75rem 0.65rem;
+          }
+
+          .column-title {
+            font-size: 0.76rem !important;
+          }
+
+          .column-pill {
+            font-size: 0.58rem !important;
+            padding: 0.1rem 0.35rem !important;
+          }
+
+          .footer-link,
+          .footer-link-btn {
+            font-size: 0.76rem !important;
+            gap: 0.35rem !important;
+            padding: 0.25rem 0.35rem !important;
+          }
+
+          .service-headline {
+            font-size: 0.86rem !important;
+          }
+
+          .service-desc {
+            font-size: 0.78rem !important;
+          }
+
+          .service-help-btn,
+          .service-orders-link {
+            font-size: 0.74rem !important;
+            padding: 0.35rem 0.6rem !important;
           }
         }
 

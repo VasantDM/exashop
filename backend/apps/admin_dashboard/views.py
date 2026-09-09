@@ -213,6 +213,58 @@ class AdminProductVariantDeleteView(APIView):
         return Response({'message': f"Variant '{name}' deleted."}, status=status.HTTP_200_OK)
 
 
+class AdminProductImageCreateView(APIView):
+    """
+    POST /api/v1/admin/products/<int:pk>/images/
+    Add a new gallery photo or color-specific image to an existing product.
+    """
+    permission_classes = [IsAdmin]
+
+    def post(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        data = request.data.copy()
+        data['product'] = product.id
+
+        serializer = AdminProductImageSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        img = serializer.save()
+
+        return Response({
+            'message': 'Image added successfully.',
+            'image': serializer.data
+        }, status=status.HTTP_201_CREATED)
+
+
+class AdminProductImageDeleteView(APIView):
+    """
+    DELETE /api/v1/admin/products/images/<int:img_pk>/
+    Delete a specific product image.
+    """
+    permission_classes = [IsAdmin]
+
+    def delete(self, request, img_pk):
+        image = get_object_or_404(ProductImage, pk=img_pk)
+        image.delete()
+        return Response({'message': 'Product image deleted.'}, status=status.HTTP_200_OK)
+
+
+class AdminProductImageSetPrimaryView(APIView):
+    """
+    PATCH /api/v1/admin/products/images/<int:img_pk>/primary/
+    Set this image as the main primary thumbnail.
+    """
+    permission_classes = [IsAdmin]
+
+    def patch(self, request, img_pk):
+        image = get_object_or_404(ProductImage, pk=img_pk)
+        image.is_primary = True
+        image.save()
+        return Response({
+            'message': 'Image set as primary thumbnail.',
+            'image': AdminProductImageSerializer(image).data
+        }, status=status.HTTP_200_OK)
+
+
 class AdminCategoryListCreateView(generics.ListCreateAPIView):
     """
     GET /api/v1/admin/categories/ -> All categories with live product count.

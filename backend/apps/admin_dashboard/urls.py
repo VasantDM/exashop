@@ -5,6 +5,9 @@ from .views import (
     AdminProductDetailView,
     AdminProductVariantCreateView,
     AdminProductVariantDeleteView,
+    AdminProductImageCreateView,
+    AdminProductImageDeleteView,
+    AdminProductImageSetPrimaryView,
     AdminCategoryListCreateView,
     AdminCategoryDetailView,
     AdminOrderListView,
@@ -21,11 +24,14 @@ urlpatterns = [
     # 1. Executive Dashboard KPI & Analytics
     path('dashboard/', AdminDashboardOverviewView.as_view(), name='admin-dashboard'),
 
-    # 2. Product & Variant Management
+    # 2. Product, Variant & Image Management
     path('products/', AdminProductListCreateView.as_view(), name='admin-product-list-create'),
     path('products/<int:pk>/', AdminProductDetailView.as_view(), name='admin-product-detail'),
     path('products/<int:pk>/variants/', AdminProductVariantCreateView.as_view(), name='admin-product-variant-create'),
     path('products/variants/<int:var_pk>/', AdminProductVariantDeleteView.as_view(), name='admin-product-variant-delete'),
+    path('products/<int:pk>/images/', AdminProductImageCreateView.as_view(), name='admin-product-image-create'),
+    path('products/images/<int:img_pk>/', AdminProductImageDeleteView.as_view(), name='admin-product-image-delete'),
+    path('products/images/<int:img_pk>/primary/', AdminProductImageSetPrimaryView.as_view(), name='admin-product-image-set-primary'),
 
     # 3. Category Management
     path('categories/', AdminCategoryListCreateView.as_view(), name='admin-category-list-create'),

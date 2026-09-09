@@ -124,12 +124,17 @@ class Product(models.Model):
         colors = []
         seen = set()
         for v in self.variants.filter(is_active=True):
-            if v.color_name and v.color_name not in seen:
-                seen.add(v.color_name)
+            if v.color_name and v.color_name.lower() not in seen:
+                seen.add(v.color_name.lower())
+                color_img = v.image_url
+                if not color_img:
+                    matched_img = self.images.filter(color_name__iexact=v.color_name).first()
+                    if matched_img:
+                        color_img = matched_img.display_image
                 colors.append({
                     'name': v.color_name,
                     'code': v.color_code or '#6366f1',
-                    'image_url': v.image_url or self.primary_image
+                    'image_url': color_img or self.primary_image
                 })
         return colors
 
@@ -146,11 +151,12 @@ class Product(models.Model):
 
 
 class ProductImage(models.Model):
-    """Product Image Gallery model."""
+    """Product Image Gallery model supporting multi-image and color-specific images."""
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='products/', blank=True, null=True)
     image_url = models.URLField(max_length=500, blank=True, null=True)
+    color_name = models.CharField(max_length=64, blank=True, default='', help_text="Associated color variant name (e.g. Red, Blue, Black). Leave blank for general.")
     alt_text = models.CharField(max_length=255, blank=True)
     is_primary = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -161,7 +167,8 @@ class ProductImage(models.Model):
         ordering = ['-is_primary', 'id']
 
     def __str__(self):
-        return f"Image for {self.product.name} ({'Primary' if self.is_primary else 'Gallery'})"
+        col = f" [{self.color_name}]" if self.color_name else ""
+        return f"Image for {self.product.name}{col} ({'Primary' if self.is_primary else 'Gallery'})"
 
     @property
     def display_image(self):

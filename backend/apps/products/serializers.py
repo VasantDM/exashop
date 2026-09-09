@@ -24,7 +24,7 @@ class BrandSerializer(serializers.ModelSerializer):
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
-    """Serializer for Product Gallery Images."""
+    """Serializer for Product Gallery Images with color variant association."""
     display_image = serializers.ReadOnlyField()
 
     class Meta:
@@ -33,6 +33,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
             'id',
             'image',
             'image_url',
+            'color_name',
             'display_image',
             'alt_text',
             'is_primary',

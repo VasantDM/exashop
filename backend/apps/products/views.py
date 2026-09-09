@@ -164,7 +164,7 @@ class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
     Retrieve, update or delete a product by slug or ID.
     Returns full product details, image gallery, category and brand metadata.
     """
-    queryset = Product.objects.all().select_related('category', 'brand').prefetch_related('images')
+    queryset = Product.objects.all().select_related('category', 'brand').prefetch_related('images', 'variants')
     serializer_class = ProductDetailSerializer
     permission_classes = [IsAdminOrReadOnly]
     lookup_field = 'slug'
@@ -192,4 +192,4 @@ class FeaturedProductsView(generics.ListAPIView):
         return Product.objects.filter(
             is_available=True,
             is_featured=True
-        ).select_related('category', 'brand').prefetch_related('images').order_by('-created_at')[:8]
+        ).select_related('category', 'brand').prefetch_related('images', 'variants').order_by('-created_at')[:8]
