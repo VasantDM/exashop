@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { getProductBySlugOrId, getCachedProductBySlugOrId } from '../services/catalogService';
 import { useCart } from '../context/CartContext';
+import ProductImageZoom from '../components/ProductImageZoom';
 
 const ProductDetails = () => {
   const { id: slugOrId } = useParams();
@@ -218,47 +219,19 @@ const ProductDetails = () => {
 
       {/* Main Product Showcase Layout */}
       <div className="product-showcase-grid">
-        {/* Left Column: Image Gallery */}
+        {/* Left Column: Interactive Product Image Zoom Viewer */}
         <div className="product-gallery-col">
-          <div className="product-main-image-card">
-            <img
-              src={selectedImage || product.primary_image}
-              alt={product.name}
-              className="product-main-img"
-            />
-
-            {/* Wishlist floating toggle button */}
-            <button
-              onClick={() => toggleWishlist(product)}
-              className="wishlist-float-btn"
-              title={inWish ? 'Remove from Wishlist' : 'Add to Wishlist'}
-              aria-label="Wishlist Toggle"
-            >
-              <Heart size={20} color={inWish ? '#ea580c' : '#ffffff'} fill={inWish ? '#ea580c' : 'none'} />
-            </button>
-          </div>
-
-          {/* Thumbnails Row */}
-          {galleryImages.length > 1 && (
-            <div className="product-thumbnails-row">
-              {galleryImages.map((imgUrl, idx) => {
-                const isSelected = selectedImage === imgUrl;
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => setSelectedImage(imgUrl)}
-                    className={`thumb-btn ${isSelected ? 'active' : ''}`}
-                  >
-                    <img
-                      src={imgUrl}
-                      alt={`Thumbnail ${idx + 1}`}
-                      className="thumb-img"
-                    />
-                  </button>
-                );
-              })}
-            </div>
-          )}
+          <ProductImageZoom
+            images={galleryImages}
+            selectedImage={selectedImage}
+            onSelectImage={(imgUrl) => setSelectedImage(imgUrl)}
+            productName={product.name}
+            inWish={inWish}
+            onToggleWishlist={() => toggleWishlist(product)}
+            hasDiscount={product.has_discount}
+            discountPercentage={product.discount_percentage}
+            zoomLevel={2.5}
+          />
         </div>
 
         {/* Right Column: Product Info & Purchase Actions */}
@@ -697,72 +670,17 @@ const ProductDetails = () => {
           gap: 2.5rem;
           margin-bottom: 2.5rem;
           align-items: start;
-        }
-
-        .product-main-image-card {
-          background: #ffffff;
-          border: 1px solid var(--border-color);
-          border-radius: var(--radius-lg);
-          padding: 1.5rem;
-          margin-bottom: 1rem;
-          text-align: center;
           position: relative;
-          box-shadow: var(--shadow-sm);
         }
 
-        .product-main-img {
-          width: 100%;
-          max-height: 420px;
-          object-fit: contain;
-          border-radius: var(--radius-md);
-          transition: transform 0.3s ease;
+        .product-gallery-col {
+          position: relative;
+          z-index: 30;
         }
 
-        .wishlist-float-btn {
-          position: absolute;
-          top: 16px;
-          right: 16px;
-          background: rgba(15, 23, 42, 0.8);
-          backdrop-filter: blur(8px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          box-shadow: var(--shadow-md);
-          transition: transform 0.2s ease;
-        }
-
-        .wishlist-float-btn:hover {
-          transform: scale(1.08);
-        }
-
-        .product-thumbnails-row {
-          display: flex;
-          gap: 0.75rem;
-          overflow-x: auto;
-          padding-bottom: 0.5rem;
-          -webkit-overflow-scrolling: touch;
-        }
-
-        .thumb-btn {
-          width: 72px;
-          height: 72px;
-          border-radius: var(--radius-md);
-          background-color: #ffffff;
-          border: 1px solid var(--border-color);
-          padding: 4px;
-          cursor: pointer;
-          flex-shrink: 0;
-          transition: all var(--transition-fast);
-        }
-
-        .thumb-btn.active {
-          border: 2px solid var(--accent-orange);
-          box-shadow: 0 0 8px rgba(234, 88, 12, 0.3);
+        .product-info-col {
+          position: relative;
+          z-index: 10;
         }
 
         .thumb-img {
