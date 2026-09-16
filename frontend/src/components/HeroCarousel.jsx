@@ -107,7 +107,7 @@ const slidesData = [
   }
 ];
 
-const AUTO_SCROLL_DELAY = 3000; // Smooth 3 seconds auto-scroll as requested
+const AUTO_SCROLL_DELAY = 2000; // 2 seconds auto-scroll as requested
 
 const HeroCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -129,7 +129,7 @@ const HeroCarousel = () => {
     setCurrentSlide(index);
   };
 
-  // Smooth 3-Second Auto-Scroll
+  // 2-Second Auto-Scroll Timer
   useEffect(() => {
     if (isPaused) return;
     const timer = setInterval(() => {
@@ -554,32 +554,33 @@ const HeroCarousel = () => {
         /* Floating Ambient Info Chips */
         .floating-chip {
           position: absolute;
-          padding: 0.5rem 1rem;
+          padding: 0.45rem 0.9rem;
           border-radius: 30px;
-          font-size: 0.8rem;
+          font-size: 0.78rem;
           font-weight: 800;
           backdrop-filter: blur(14px);
           box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
           z-index: 10;
           animation: floatSine 3.5s ease-in-out infinite alternate;
+          white-space: nowrap;
         }
 
         @keyframes floatSine {
           0% { transform: translateY(0px); }
-          100% { transform: translateY(-6px); }
+          100% { transform: translateY(-5px); }
         }
 
         .floating-chip.top-chip {
-          top: 18px;
-          left: 18px;
+          top: 16px;
+          left: 16px;
           background: rgba(255, 255, 255, 0.95);
           color: var(--text-primary, #0f172a);
           border: 1px solid rgba(245, 158, 11, 0.4);
         }
 
         .floating-chip.bottom-chip {
-          bottom: 18px;
-          right: 18px;
+          bottom: 16px;
+          right: 16px;
           background: linear-gradient(135deg, #f59e0b, #ea580c);
           color: #ffffff;
           border: 1px solid rgba(255, 255, 255, 0.4);
@@ -657,7 +658,7 @@ const HeroCarousel = () => {
         /* Responsive Breakpoints */
         @media (max-width: 992px) {
           .hero-stage {
-            padding: 2.4rem 2rem;
+            padding: 2.2rem 1.8rem;
           }
 
           .hero-layout-grid {
@@ -665,49 +666,122 @@ const HeroCarousel = () => {
           }
 
           .visual-media-stage {
-            height: 280px;
+            height: 260px;
             max-width: 360px;
           }
         }
 
         @media (max-width: 768px) {
+          .hero-banner-container {
+            border-radius: 18px;
+            margin-bottom: 0.25rem;
+          }
+
+          .hero-ambient-aura {
+            inset: -6px;
+            filter: blur(30px);
+          }
+
           .hero-stage {
-            padding: 1.8rem 1.25rem;
+            padding: 1.35rem 1.1rem;
+            border-radius: 18px;
           }
 
           .hero-layout-grid {
             grid-template-columns: 1fr;
-            gap: 1.75rem;
+            gap: 1.2rem;
           }
 
           .hero-showcase-visual {
             order: -1;
+            width: 100%;
           }
 
           .visual-media-stage {
-            height: 220px;
+            height: 190px;
             max-width: 100%;
           }
 
+          .visual-featured-image {
+            border-radius: 14px;
+          }
+
+          /* Compact & Attractive Mobile Floating Chips */
+          .floating-chip {
+            padding: 0.28rem 0.65rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+          }
+
+          .floating-chip.top-chip {
+            top: 10px;
+            left: 10px;
+          }
+
+          .floating-chip.bottom-chip {
+            bottom: 10px;
+            right: 10px;
+          }
+
+          /* Scaled & Crisp Mobile Typography */
+          .hero-tag-badge {
+            font-size: 0.7rem;
+            padding: 0.28rem 0.75rem;
+            gap: 0.35rem;
+            margin-bottom: 0.65rem;
+            border-radius: 20px;
+          }
+
+          .hero-headline {
+            font-size: clamp(1.4rem, 6vw, 1.85rem);
+            line-height: 1.2;
+            margin-bottom: 0.6rem;
+            letter-spacing: -0.02em;
+          }
+
+          .hero-desc {
+            font-size: 0.82rem;
+            line-height: 1.5;
+            margin-bottom: 1.15rem;
+            color: var(--text-secondary, #57534e);
+          }
+
+          /* Mobile Friendly Action Buttons */
           .hero-action-buttons {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 0.8rem;
-            margin-bottom: 1.5rem;
+            flex-direction: row;
+            align-items: center;
+            gap: 0.65rem;
+            margin-bottom: 1.25rem;
           }
 
-          .hero-cta-btn,
-          .hero-secondary-btn {
-            width: 100%;
+          .hero-cta-btn {
+            flex: 1;
+            padding: 0.7rem 1rem;
+            font-size: 0.84rem;
+            border-radius: 10px;
             justify-content: center;
+            gap: 0.4rem;
           }
 
+          .hero-secondary-btn {
+            flex: 1;
+            padding: 0.7rem 0.85rem;
+            font-size: 0.82rem;
+            border-radius: 10px;
+            justify-content: center;
+            gap: 0.35rem;
+          }
+
+          /* Mobile Trust Bar */
           .hero-trust-bar {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.4rem;
             width: 100%;
-            padding: 0.85rem;
+            padding: 0.6rem 0.5rem;
+            border-radius: 12px;
             box-sizing: border-box;
           }
 
@@ -715,8 +789,66 @@ const HeroCarousel = () => {
             display: none;
           }
 
+          .hero-trust-item {
+            text-align: center;
+          }
+
+          .hero-trust-item .trust-val {
+            font-size: 0.88rem;
+            justify-content: center;
+            gap: 0.2rem;
+          }
+
+          .hero-trust-item .trust-lbl {
+            font-size: 0.62rem;
+            line-height: 1.2;
+          }
+
           .hero-arrow-btn {
             display: none;
+          }
+
+          .hero-pagination-dots {
+            margin-top: 0.85rem;
+            gap: 0.45rem;
+          }
+
+          .hero-dot-pill {
+            width: 7px;
+            height: 7px;
+          }
+
+          .hero-dot-pill.active {
+            width: 20px;
+          }
+        }
+
+        @media (max-width: 420px) {
+          .hero-stage {
+            padding: 1.15rem 0.85rem;
+          }
+
+          .visual-media-stage {
+            height: 165px;
+          }
+
+          .floating-chip {
+            padding: 0.22rem 0.5rem;
+            font-size: 0.65rem;
+          }
+
+          .hero-headline {
+            font-size: 1.35rem;
+          }
+
+          .hero-action-buttons {
+            flex-direction: column;
+            gap: 0.5rem;
+          }
+
+          .hero-cta-btn,
+          .hero-secondary-btn {
+            width: 100%;
           }
         }
       `}</style>
