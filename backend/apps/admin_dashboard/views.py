@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from django.db.models import Sum, Count, Q, F
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from datetime import timedelta
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 from apps.products.models import Product, ProductVariant, ProductImage, Brand
@@ -86,10 +86,42 @@ class AdminDashboardOverviewView(APIView):
         recent_orders_qs = Order.objects.select_related('user').order_by('-created_at')[:6]
         recent_orders = AdminOrderListSerializer(recent_orders_qs, many=True).data
 
-        # 4. Sales Trend (Last 7 Days)
+        # 4. Weekly Sales Trend with Previous/Next Week Date Selection
+        raw_offset = request.query_params.get('week_offset', '0')
+        try:
+            week_offset = int(raw_offset)
+        except (ValueError, TypeError):
+            week_offset = 0
+
+        custom_start_date_str = request.query_params.get('start_date', '').strip()
+
+        today = now.date()
+        # Find Monday of the current week (weekday() 0 is Monday)
+        current_week_monday = today - timedelta(days=today.weekday())
+
+        if custom_start_date_str:
+            try:
+                parsed_date = datetime.strptime(custom_start_date_str, '%Y-%m-%d').date()
+                week_start_date = parsed_date - timedelta(days=parsed_date.weekday())
+                # Recompute week_offset relative to current week
+                week_offset = (week_start_date - current_week_monday).days // 7
+            except ValueError:
+                week_start_date = current_week_monday + timedelta(weeks=week_offset)
+        else:
+            week_start_date = current_week_monday + timedelta(weeks=week_offset)
+
+        week_end_date = week_start_date + timedelta(days=6)
+        is_current_week = (week_start_date == current_week_monday)
+        has_next_week = (week_start_date < current_week_monday)
+
         sales_trend = []
-        for i in range(6, -1, -1):
-            day_date = (now - timedelta(days=i)).date()
+        total_week_revenue = Decimal('0.00')
+        total_week_orders = 0
+        best_day = None
+        max_day_rev = Decimal('-1.00')
+
+        for i in range(7):
+            day_date = week_start_date + timedelta(days=i)
             day_revenue = Order.objects.filter(
                 payment_status='paid',
                 created_at__date=day_date
@@ -97,11 +129,39 @@ class AdminDashboardOverviewView(APIView):
 
             day_orders_count = Order.objects.filter(created_at__date=day_date).count()
 
+            total_week_revenue += day_revenue
+            total_week_orders += day_orders_count
+
+            if day_revenue > max_day_rev:
+                max_day_rev = day_revenue
+                best_day = {
+                    'day_name': day_date.strftime('%a'),
+                    'date': day_date.strftime('%b %d'),
+                    'revenue': float(day_revenue)
+                }
+
             sales_trend.append({
                 'date': day_date.strftime('%b %d'),
+                'iso_date': day_date.strftime('%Y-%m-%d'),
+                'day_name': day_date.strftime('%a'),
+                'full_day_name': day_date.strftime('%A'),
                 'revenue': float(day_revenue),
-                'orders': day_orders_count
+                'orders': day_orders_count,
+                'is_today': (day_date == today)
             })
+
+        week_info = {
+            'week_offset': week_offset,
+            'start_date': week_start_date.strftime('%Y-%m-%d'),
+            'end_date': week_end_date.strftime('%Y-%m-%d'),
+            'formatted_range': f"{week_start_date.strftime('%b %d')} – {week_end_date.strftime('%b %d, %Y')}",
+            'total_revenue': float(total_week_revenue),
+            'total_orders': total_week_orders,
+            'avg_daily_revenue': float(total_week_revenue / 7) if total_week_revenue > 0 else 0,
+            'best_day': best_day if total_week_revenue > 0 else None,
+            'is_current_week': is_current_week,
+            'has_next_week': has_next_week,
+        }
 
         # 5. Top Categories Overview
         categories_overview = []
@@ -129,6 +189,7 @@ class AdminDashboardOverviewView(APIView):
             'recent_orders': recent_orders,
             'low_stock_items': low_stock_items[:8],
             'sales_trend': sales_trend,
+            'week_info': week_info,
             'categories_overview': categories_overview,
         }, status=status.HTTP_200_OK)
 
@@ -617,3 +678,89 @@ class AdminInventoryQuickUpdateView(APIView):
             'is_variant': is_variant,
             'stock': item.stock
         }, status=status.HTTP_200_OK)
+
+
+class AdminNotificationsView(APIView):
+    """
+    GET /api/v1/admin/notifications/
+    Returns real-time aggregated notifications for customer orders, low stock inventory radar,
+    and platform updates with timestamps and unread metadata.
+    """
+    permission_classes = [IsAdmin]
+
+    def get(self, request):
+        limit = int(request.query_params.get('limit', 25))
+
+        # 1. Fetch Recent Customer Orders
+        recent_orders = Order.objects.select_related('user').prefetch_related('items').order_by('-created_at')[:limit]
+
+        notifications = []
+
+        for ord in recent_orders:
+            cust_name = "Guest Customer"
+            if ord.user:
+                cust_name = ord.user.get_full_name() or ord.user.username or ord.user.email
+            elif ord.shipping_address and isinstance(ord.shipping_address, dict) and ord.shipping_address.get('full_name'):
+                cust_name = ord.shipping_address.get('full_name')
+
+            items_count = ord.items.count()
+
+            notifications.append({
+                'id': f"order-{ord.id}",
+                'type': 'order',
+                'category': 'orders',
+                'order_id': ord.id,
+                'order_number': ord.order_number,
+                'title': f"New Order #{ord.order_number}",
+                'message': f"{cust_name} placed an order for ₹{ord.grand_total:,.2f} ({items_count} item{'s' if items_count != 1 else ''})",
+                'customer_name': cust_name,
+                'amount': float(ord.grand_total),
+                'status': ord.status,
+                'payment_status': ord.payment_status,
+                'items_count': items_count,
+                'created_at': ord.created_at.isoformat(),
+                'link': f"/admin/orders?search={ord.order_number}"
+            })
+
+        # 2. Fetch Low Stock Inventory Items (Stock <= 5)
+        low_stock_products = Product.objects.filter(stock__lte=5, is_available=True).select_related('category')[:8]
+        low_stock_variants = ProductVariant.objects.filter(stock__lte=5, is_active=True).select_related('product')[:8]
+
+        for p in low_stock_products:
+            if not p.has_variants:
+                notifications.append({
+                    'id': f"stock-prod-{p.id}",
+                    'type': 'stock_alert',
+                    'category': 'inventory',
+                    'title': f"Low Stock: {p.name}",
+                    'message': f"Only {p.stock} item{'s' if p.stock != 1 else ''} remaining in inventory (SKU: {p.sku})",
+                    'stock': p.stock,
+                    'is_out_of_stock': p.stock <= 0,
+                    'created_at': p.updated_at.isoformat() if hasattr(p, 'updated_at') and p.updated_at else timezone.now().isoformat(),
+                    'link': "/admin/inventory"
+                })
+
+        for v in low_stock_variants:
+            notifications.append({
+                'id': f"stock-var-{v.id}",
+                'type': 'stock_alert',
+                'category': 'inventory',
+                'title': f"Low Stock: {v.product.name} ({v.color_name} / {v.size})",
+                'message': f"Only {v.stock} item{'s' if v.stock != 1 else ''} remaining in inventory (SKU: {v.sku})",
+                'stock': v.stock,
+                'is_out_of_stock': v.stock <= 0,
+                'created_at': timezone.now().isoformat(),
+                'link': "/admin/inventory"
+            })
+
+        latest_order = recent_orders.first()
+        latest_order_id = latest_order.id if latest_order else None
+        latest_order_number = latest_order.order_number if latest_order else None
+
+        return Response({
+            'total_count': len(notifications),
+            'latest_order_id': latest_order_id,
+            'latest_order_number': latest_order_number,
+            'notifications': notifications,
+        }, status=status.HTTP_200_OK)
+

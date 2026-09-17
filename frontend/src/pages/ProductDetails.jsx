@@ -299,7 +299,7 @@ const ProductDetails = () => {
                     `Out of Stock for ${selectedColor} / Size ${selectedSize}`
                   )
                 ) : (
-                  product.in_stock ? `In Stock (${product.stock} units available)` : 'Currently Out of Stock'
+                  product.in_stock ? `In Stock (${product.stock} available)` : 'Currently Out of Stock'
                 )}
               </span>
             </div>
@@ -566,10 +566,6 @@ const ProductDetails = () => {
               <div className="spec-row">
                 <span className="spec-label">Brand / Manufacturer</span>
                 <span className="spec-value">{product.brand?.name || 'ExaShop Certified'}</span>
-              </div>
-              <div className="spec-row">
-                <span className="spec-label">Inventory Units</span>
-                <span className="spec-value">{product.stock} units available</span>
               </div>
               <div className="spec-row">
                 <span className="spec-label">Customer Rating</span>

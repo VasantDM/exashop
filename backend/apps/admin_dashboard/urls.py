@@ -18,11 +18,13 @@ from .views import (
     AdminUserDetailView,
     AdminInventoryListView,
     AdminInventoryQuickUpdateView,
+    AdminNotificationsView,
 )
 
 urlpatterns = [
-    # 1. Executive Dashboard KPI & Analytics
+    # 1. Executive Dashboard KPI, Analytics & Notifications
     path('dashboard/', AdminDashboardOverviewView.as_view(), name='admin-dashboard'),
+    path('notifications/', AdminNotificationsView.as_view(), name='admin-notifications'),
 
     # 2. Product, Variant & Image Management
     path('products/', AdminProductListCreateView.as_view(), name='admin-product-list-create'),

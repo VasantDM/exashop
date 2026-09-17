@@ -216,7 +216,6 @@ const AdminInventory = () => {
                         <span style={{ fontSize: '1.05rem', fontWeight: '800', color: item.is_out_of_stock ? 'var(--accent-rose)' : item.is_low_stock ? 'var(--accent-orange)' : 'var(--accent-emerald)' }}>
                           {item.stock}
                         </span>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: '0.3rem' }}>units</span>
                       </td>
 
                       <td style={{ padding: '0.85rem 0.75rem' }}>

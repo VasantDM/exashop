@@ -1,7 +1,7 @@
 import apiClient from './api';
 
-export const getAdminDashboard = async () => {
-  const response = await apiClient.get('/admin/dashboard/');
+export const getAdminDashboard = async (params = {}) => {
+  const response = await apiClient.get('/admin/dashboard/', { params });
   return response.data;
 };
 
@@ -127,6 +127,12 @@ export const quickUpdateAdminStock = async (payload) => {
   return response.data;
 };
 
+// 6. Live Real-Time Notifications
+export const getAdminNotifications = async (params = {}) => {
+  const response = await apiClient.get('/admin/notifications/', { params });
+  return response.data;
+};
+
 export default {
   getAdminDashboard,
   getAdminProducts,
@@ -153,4 +159,5 @@ export default {
   toggleAdminCustomerActive,
   getAdminInventory,
   quickUpdateAdminStock,
+  getAdminNotifications,
 };

@@ -464,7 +464,7 @@ const AdminProducts = () => {
                     </td>
                     <td style={{ padding: '0.75rem' }}>
                       <span className={`badge ${prod.total_stock === 0 ? 'badge-danger' : prod.total_stock <= 5 ? 'badge-info' : 'badge-success'}`} style={{ fontSize: '0.72rem' }}>
-                        {prod.total_stock} units
+                        {prod.total_stock}
                       </span>
                     </td>
                     <td style={{ padding: '0.75rem', color: 'var(--text-secondary)' }}>

@@ -17,6 +17,18 @@ import {
   X
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import AdminNotifications from '../components/AdminNotifications';
+
+const getPageTitle = (pathname) => {
+  if (pathname === '/admin') return 'Executive Dashboard';
+  if (pathname.startsWith('/admin/products')) return 'Products & Variants';
+  if (pathname.startsWith('/admin/categories')) return 'Categories Management';
+  if (pathname.startsWith('/admin/orders')) return 'Orders & Fulfillment';
+  if (pathname.startsWith('/admin/inventory')) return 'Inventory Radar';
+  if (pathname.startsWith('/admin/customers')) return 'Users & Accounts';
+  if (pathname.startsWith('/admin/settings')) return 'Store Configuration';
+  return 'Admin Console';
+};
 
 const AdminLayout = () => {
   const { user } = useAuth();
@@ -95,25 +107,29 @@ const AdminLayout = () => {
           </Link>
         </div>
 
-        <Link
-          to="/"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            padding: '0.4rem 0.7rem',
-            borderRadius: 'var(--radius-md)',
-            backgroundColor: 'rgba(245, 158, 11, 0.1)',
-            border: '1px solid rgba(245, 158, 11, 0.25)',
-            color: 'var(--accent-orange)',
-            fontSize: '0.78rem',
-            fontWeight: '700',
-            textDecoration: 'none'
-          }}
-        >
-          <Store size={14} />
-          <span>Store</span>
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+          <AdminNotifications />
+
+          <Link
+            to="/"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              padding: '0.4rem 0.7rem',
+              borderRadius: 'var(--radius-md)',
+              backgroundColor: 'rgba(245, 158, 11, 0.1)',
+              border: '1px solid rgba(245, 158, 11, 0.25)',
+              color: 'var(--accent-orange)',
+              fontSize: '0.78rem',
+              fontWeight: '700',
+              textDecoration: 'none'
+            }}
+          >
+            <Store size={14} />
+            <span>Store</span>
+          </Link>
+        </div>
       </header>
 
       {/* Main Row Container */}
@@ -340,10 +356,54 @@ const AdminLayout = () => {
           </div>
         </aside>
 
-        {/* Main Admin Content View Area */}
-        <main className="admin-main-content">
-          <Outlet />
-        </main>
+        {/* Main Content Area with Desktop Top Bar */}
+        <div className="admin-main-wrapper">
+          {/* Desktop Executive Top Bar */}
+          <header className="admin-desktop-top-header">
+            <div className="top-header-left">
+              <h1 className="top-header-page-title">
+                {getPageTitle(location.pathname)}
+              </h1>
+              <div className="top-header-live-badge">
+                <span className="live-pulse-dot" />
+                <span>Live Store Sync</span>
+              </div>
+            </div>
+
+            <div className="top-header-right">
+              {/* Notification Center */}
+              <AdminNotifications />
+
+              {/* View Public Storefront */}
+              <Link
+                to="/"
+                className="top-store-button"
+                title="View Public Storefront"
+              >
+                <Store size={15} />
+                <span>Store</span>
+              </Link>
+
+              {/* Admin Profile Chip */}
+              <div className="top-user-pill">
+                <div className="top-user-avatar">
+                  {user?.first_name ? user.first_name[0].toUpperCase() : 'A'}
+                </div>
+                <div className="top-user-info">
+                  <span className="top-user-name">
+                    {user?.full_name || user?.username || 'Administrator'}
+                  </span>
+                  <span className="top-user-badge">Staff</span>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          {/* Main Admin Content View Area */}
+          <main className="admin-main-content">
+            <Outlet />
+          </main>
+        </div>
       </div>
 
       {/* Admin Mobile Bottom Bar */}
@@ -460,6 +520,136 @@ const AdminLayout = () => {
           font-weight: 700;
         }
 
+        .admin-main-wrapper {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          min-width: 0;
+          overflow: hidden;
+          background-color: #f8fafc;
+        }
+
+        .admin-desktop-top-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0.85rem 2.5rem;
+          background-color: #ffffff;
+          border-bottom: 1px solid var(--border-color);
+          flex-shrink: 0;
+          z-index: 50;
+        }
+
+        .top-header-left {
+          display: flex;
+          align-items: center;
+          gap: 0.85rem;
+        }
+
+        .top-header-page-title {
+          margin: 0;
+          font-size: 1.15rem;
+          font-weight: 800;
+          color: var(--text-primary);
+          letter-spacing: -0.02em;
+        }
+
+        .top-header-live-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+          padding: 0.2rem 0.6rem;
+          border-radius: 999px;
+          background: rgba(34, 197, 94, 0.1);
+          border: 1px solid rgba(34, 197, 94, 0.25);
+          font-size: 0.72rem;
+          font-weight: 700;
+          color: #16a34a;
+        }
+
+        .live-pulse-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #22c55e;
+          box-shadow: 0 0 6px #22c55e;
+        }
+
+        .top-header-right {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+
+        .top-store-button {
+          display: flex;
+          align-items: center;
+          gap: 0.45rem;
+          padding: 0.45rem 0.85rem;
+          border-radius: var(--radius-md);
+          background-color: rgba(245, 158, 11, 0.08);
+          border: 1px solid rgba(245, 158, 11, 0.25);
+          color: var(--accent-orange);
+          font-size: 0.82rem;
+          font-weight: 700;
+          text-decoration: none;
+          transition: all var(--transition-fast);
+        }
+
+        .top-store-button:hover {
+          background-color: rgba(245, 158, 11, 0.15);
+          border-color: rgba(245, 158, 11, 0.4);
+        }
+
+        .top-user-pill {
+          display: flex;
+          align-items: center;
+          gap: 0.55rem;
+          padding: 0.3rem 0.65rem 0.3rem 0.35rem;
+          border-radius: 999px;
+          background: #f1f5f9;
+          border: 1px solid var(--border-color);
+        }
+
+        .top-user-avatar {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          background: var(--accent-gradient);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 800;
+          font-size: 0.75rem;
+          color: #ffffff;
+        }
+
+        .top-user-info {
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+        }
+
+        .top-user-name {
+          font-size: 0.8rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          max-width: 110px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .top-user-badge {
+          font-size: 0.65rem;
+          font-weight: 700;
+          background: rgba(34, 197, 94, 0.15);
+          color: #16a34a;
+          padding: 0.08rem 0.35rem;
+          border-radius: 4px;
+        }
+
         .admin-main-content {
           flex: 1;
           min-width: 0;
@@ -480,6 +670,10 @@ const AdminLayout = () => {
             height: auto;
             overflow: visible;
             display: block;
+          }
+
+          .admin-desktop-top-header {
+            display: none;
           }
 
           .admin-mobile-header {
